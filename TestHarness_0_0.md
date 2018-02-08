@@ -24,7 +24,7 @@ of merit regarding the fit of the model to the real data.
     a common format
 
     1.  DreamBeam data is currently stored in proprietary format(s)
-        described in (will write up a doc for this)
+        described in (<span style="color:red">will write up a doc for this</span>)
 
     2.  This is converted by a process defined in (to be developed) into
         the common format for comparison between instrument and model
