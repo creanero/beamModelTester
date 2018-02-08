@@ -15,7 +15,9 @@ modular comparison system to produce an output which provides a figure
 of merit regarding the fit of the model to the real data.
 
 **Design diagram**
+
 ![Design Diagram](testHarness_Fig1.PNG)
+
 **Operation**
 
 1.  Data is provided by the predefined DreamBeam system and converted to
