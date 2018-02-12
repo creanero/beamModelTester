@@ -25,8 +25,8 @@ FoV mode defines the Jones matrix elements for the whole sky at a given
 instant for a given frequency.
 
 **Outline of Modes**
-
-Figure : Outline of modes
+![Outline of modes](DB_SOURCE_Fig1.PNG)
+Figure 1: Outline of modes
 
 **Details of Outputs**
 
@@ -64,8 +64,8 @@ Figure : Outline of modes
                 -   \[2,1\]
 
                 -   \[2,2\]
-
-Figure : Schematic of Print output for single-frequency use of Pointing
+![1-frequency print output](DB_SOURCE_Fig2.PNG)
+Figure 2: Schematic of Print output for single-frequency use of Pointing
 mode
 
 **Sample Output**
@@ -97,9 +97,9 @@ mode
     as the orientation is set for the LOFAR core -- Check details of how
     that works -- OC *
 
-![](media/image1.png){width="6.09375in" height="6.125487751531058in"}
+![track of the coordinates](DB_SOURCE_Fig3.PNG)
 
-Figure : Sample of plot output of the track of the coordinates of the
+Figure 3: Sample of plot output of the track of the coordinates of the
 target object for pointing mode
 
 > The Light curve plot displays the p-channel
@@ -110,10 +110,9 @@ target object for pointing mode
 > frequency. *Note: Want to check the implications of these two channels
 > -- OC*
 
-![](media/image2.png){width="6.145833333333333in"
-height="5.112404855643045in"}
+![1-frequency plot output](DB_SOURCE_Fig4.PNG)
 
-Figure : Sample of Plot output for lightcurve for a single frequency in
+Figure 4: Sample of Plot output for lightcurve for a single frequency in
 pointing mode. Time is plotted on the x-axis, p- and q-channel values
 are plotted on the y-axis.
 
@@ -142,8 +141,8 @@ are plotted on the y-axis.
             -   \[2,1\]
 
             -   \[2,2\]
-
-Figure : Schematic of Print output for multi-frequency use of Pointing
+![N-frequency print output](DB_SOURCE_Fig5.PNG)
+Figure 5: Schematic of Print output for multi-frequency use of Pointing
 mode
 
 Sample Output
@@ -173,10 +172,9 @@ Time, Freq, J11, J12, J21, J22
     as the orientation is set for the LOFAR core -- Check details of how
     that works -- OC *
 
-![](media/image3.png){width="5.947916666666667in"
-height="6.118943569553806in"}
+![track of the coordinates](DB_SOURCE_Fig6.PNG)
 
-Figure : Sample of plot output of the track of the coordinates of the
+Figure 6: Sample of plot output of the track of the coordinates of the
 target object for pointing mode for n-frequencies
 
 > The Light curve plot displays the p-channel
@@ -187,9 +185,9 @@ target object for pointing mode for n-frequencies
 > frequency. The plot then shows the values in colour, with the time and
 > frequency as x- and y-axes respectively
 
-![](media/image4.png){width="6.21875in" height="4.982678258967629in"}
+![n-frequency Lightcurve](DB_SOURCE_Fig7.PNG)
 
-Figure : Sample of Plot output for lightcurve for multiple frequency in
+Figure 7: Sample of Plot output for lightcurve for multiple frequency in
 pointing mode (*query to raise: Should HBA and LBA output in this mode
 be identical?*) Time is plotted on the x-axis, frequency on the y-axis,
 p- and q-channel values are plotted on the z-axis (colour).
@@ -228,6 +226,8 @@ p- and q-channel values are plotted on the z-axis (colour).
 
                 -   \[2,2\]
 
+![FOV Print](DB_SOURCE_Fig8.PNG)
+
 Figure 8: Schematic of Print output for single-frequency use of Pointing
 mode
 
@@ -255,9 +255,8 @@ Jones: (0.803911684752-0.0549513922064j)
     from Altitude and Azimuth (which seem to be the parameters that are
     used., at least in the docs)*
 
-![](media/image5.png){width="6.268055555555556in"
-height="4.706146106736658in"}
+![plot output for FoV mode](DB_SOURCE_Fig9.PNG)
 
-Figure : Sample of plot output for FoV mode. In each plot, RA is used as
+Figure 9: Sample of plot output for FoV mode. In each plot, RA is used as
 the x-axis, and DEC as the y-axis. The Stokes parameters, calculated
 from the Jones Matrices, are plotted on the z-axis (colour)
