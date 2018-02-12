@@ -1,6 +1,6 @@
 **Testing harness\
-Version 0.0\
-6^th^ February 2018\
+Version 0.1\
+12^th^ February 2018\
 Oisin Creaner**
 
 This system is designed to provide a comparison between the output for
@@ -24,7 +24,7 @@ of merit regarding the fit of the model to the real data.
     a common format
 
     1.  DreamBeam data is currently stored in proprietary format(s)
-        described in (*will write up a doc for this*)
+        described in ([DreamBeam_Source_data_description](DreamBeam_Source_data_description.md))
 
     2.  This is converted by a process defined in (to be developed) into
         the common format for comparison between instrument and model
