@@ -159,7 +159,7 @@ Time, Freq, J11, J12, J21, J22\
 (0.657855732724+0.000148292112886j)\
 2018-02-06T14:00:00 100390625.0 (0.663428623131+3.74508255174e-05j)
 (0.734243690078+4.58952493196e-05j) (-0.728675253667-0.000154346887646j)
-(0.657857914921+0.000146681668139j)\
+(0.657857914921+0.000146681668139j)
 
 1.  Plot\
     The plot mode produces an image of the trajectory of the selected
@@ -177,13 +177,7 @@ Time, Freq, J11, J12, J21, J22\
 Figure 6: Sample of plot output of the track of the coordinates of the
 target object for pointing mode for n-frequencies
 
-> The Light curve plot displays the p-channel
-> $\left( p = \left| {J\left\lbrack 1,1 \right\rbrack}^{2} \right| + \left| {J\left\lbrack 1,2 \right\rbrack}^{2} \right| \right)$
-> and q-channel
-> $\left( q = \left| {J\left\lbrack 2,1 \right\rbrack}^{2} \right| + \left| {J\left\lbrack 2,2 \right\rbrack}^{2} \right| \right)$
-> values calculated for each point in time against time for each
-> frequency. The plot then shows the values in colour, with the time and
-> frequency as x- and y-axes respectively
+The Light curve plot displays the p-channel (p=|〖J[1,1]〗^2 |+|〖J[1,2]〗^2 |) and q-channel (q=|〖J[2,1]〗^2 |+|〖J[2,2]〗^2 |) values calculated for each point in time against time for each frequency.  The plot then shows the values in colour, with the time and frequency as x- and y-axes respectively
 
 ![n-frequency Lightcurve](DB_SOURCE_Fig7.png)
 
