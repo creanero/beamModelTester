@@ -25,7 +25,9 @@ FoV mode defines the Jones matrix elements for the whole sky at a given
 instant for a given frequency.
 
 **Outline of Modes**
+
 ![Outline of modes](DB_SOURCE_Fig1.PNG)
+
 Figure 1: Outline of modes
 
 **Details of Outputs**
@@ -64,27 +66,26 @@ Figure 1: Outline of modes
                 -   \[2,1\]
 
                 -   \[2,2\]
+                
 ![1-frequency print output](DB_SOURCE_Fig2.PNG)
+
 Figure 2: Schematic of Print output for single-frequency use of Pointing
 mode
 
 **Sample Output**
 
-**60000000.0 2012-04-01 01:02:03 (-0.0376926375124+0.0467493608816j)
+60000000.0 2012-04-01 01:02:03 (-0.0376926375124+0.0467493608816j)
 (-0.559791351791+0.0899978276011j) (0.738602661591-0.196422717245j)
-(0.159103880251-0.0775363649726j)**
-
-**60000000.0 2012-04-01 01:02:04 (-0.0376395582277+0.0467382172651j)
+(0.159103880251-0.0775363649726j)
+60000000.0 2012-04-01 01:02:04 (-0.0376395582277+0.0467382172651j)
 (-0.55979972323+0.0899965320884j) (0.738611482535-0.196421498181j)
-(0.159158232172-0.0775483040615j)**
-
-**60000000.0 2012-04-01 01:02:05 (-0.0375864775634+0.0467270738462j)
+(0.159158232172-0.0775483040615j)
+60000000.0 2012-04-01 01:02:05 (-0.0375864775634+0.0467270738462j)
 (-0.559808091231+0.0899952354983j) (0.738620299442-0.196420277746j)
-(0.159212585231-0.0775602427118j)**
-
-**60000000.0 2012-04-01 01:02:06 (-0.0375333955529+0.0467159306318j)
+(0.159212585231-0.0775602427118j)
+60000000.0 2012-04-01 01:02:06 (-0.0375333955529+0.0467159306318j)
 (-0.559816455789+0.0899939378314j) (0.738629112309-0.196419055939j)
-(0.159266939393-0.0775721809157j) **
+(0.159266939393-0.0775721809157j) 
 
 2.  Plot\
     The plot mode produces an image of the trajectory of the selected
@@ -97,7 +98,7 @@ mode
     as the orientation is set for the LOFAR core -- Check details of how
     that works -- OC *
 
-![track of the coordinates](DB_SOURCE_Fig3.PNG)
+![track of the coordinates](DB_SOURCE_Fig3.png)
 
 Figure 3: Sample of plot output of the track of the coordinates of the
 target object for pointing mode
@@ -110,7 +111,7 @@ target object for pointing mode
 > frequency. *Note: Want to check the implications of these two channels
 > -- OC*
 
-![1-frequency plot output](DB_SOURCE_Fig4.PNG)
+![1-frequency plot output](DB_SOURCE_Fig4.png)
 
 Figure 4: Sample of Plot output for lightcurve for a single frequency in
 pointing mode. Time is plotted on the x-axis, p- and q-channel values
@@ -141,22 +142,21 @@ are plotted on the y-axis.
             -   \[2,1\]
 
             -   \[2,2\]
+            
 ![N-frequency print output](DB_SOURCE_Fig5.PNG)
+
 Figure 5: Schematic of Print output for multi-frequency use of Pointing
 mode
 
 Sample Output
 
 Time, Freq, J11, J12, J21, J22
-
 2018-02-06T14:00:00 100000000.0 (0.66341703593+3.81594230048e-05j)
 (0.734230798413+4.67556454144e-05j) (-0.728670398582-0.000157718454146j)
 (0.657853576392+0.000149924324324j)
-
 2018-02-06T14:00:00 100195312.5 (0.663422817909+3.78016297019e-05j)
 (0.734237231341+4.63214173956e-05j) (-0.728672812056-0.000156021203443j)
 (0.657855732724+0.000148292112886j)
-
 2018-02-06T14:00:00 100390625.0 (0.663428623131+3.74508255174e-05j)
 (0.734243690078+4.58952493196e-05j) (-0.728675253667-0.000154346887646j)
 (0.657857914921+0.000146681668139j)
@@ -172,7 +172,7 @@ Time, Freq, J11, J12, J21, J22
     as the orientation is set for the LOFAR core -- Check details of how
     that works -- OC *
 
-![track of the coordinates](DB_SOURCE_Fig6.PNG)
+![track of the coordinates](DB_SOURCE_Fig6.png)
 
 Figure 6: Sample of plot output of the track of the coordinates of the
 target object for pointing mode for n-frequencies
@@ -185,7 +185,7 @@ target object for pointing mode for n-frequencies
 > frequency. The plot then shows the values in colour, with the time and
 > frequency as x- and y-axes respectively
 
-![n-frequency Lightcurve](DB_SOURCE_Fig7.PNG)
+![n-frequency Lightcurve](DB_SOURCE_Fig7.png)
 
 Figure 7: Sample of Plot output for lightcurve for multiple frequency in
 pointing mode (*query to raise: Should HBA and LBA output in this mode
@@ -236,13 +236,10 @@ come?* *Some of these seem to show different Jones values at different
 RA (?) values at DEC 90. Isn't this a constant point?*)
 
 az, el: 0.0 1.57079632679
-
 Jones: (0.808438378389-0.0536168902205j)
 (-0.174461109928-0.0550466007067j) (0.176809726227-0.0764445107476j)
 (0.810303656386-0.044823755958j)
-
 az, el: 0.0245436926062 1.57079632679
-
 Jones: (0.803911684752-0.0549513922064j)
 (-0.19424874567-0.0537143676432j) (0.196640074711-0.0775212195077j)
 (0.80572271751-0.0429343667736j)
@@ -255,7 +252,7 @@ Jones: (0.803911684752-0.0549513922064j)
     from Altitude and Azimuth (which seem to be the parameters that are
     used., at least in the docs)*
 
-![plot output for FoV mode](DB_SOURCE_Fig9.PNG)
+![plot output for FoV mode](DB_SOURCE_Fig9.png)
 
 Figure 9: Sample of plot output for FoV mode. In each plot, RA is used as
 the x-axis, and DEC as the y-axis. The Stokes parameters, calculated
