@@ -16,7 +16,7 @@ of merit regarding the fit of the model to the real data.
 
 **Design diagram**
 
-![Design Diagram](testHarness_Fig1.PNG)
+![Design Diagram](images/testHarness_Fig1.PNG)
 
 **Operation**
 
