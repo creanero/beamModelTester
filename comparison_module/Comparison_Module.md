@@ -20,9 +20,9 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Design Diagram**
 
-![Design Diagram](images/comparison_module_fig1.PNG)
+![Design Diagram](../images/comparison_module_fig1.PNG)
 
-Figure 1: Outline of the comparison Module
+**Figure 1: Outline of the comparison Module**
 
 **Operation**
 
@@ -34,7 +34,7 @@ Figure 1: Outline of the comparison Module
 3.  Merge the dataframes using an inner join to ensure only data points
     where a common value(s) for the independent variable(s) exists
     
-    3.1.  (*Option: consider including statistics of this operation in the outputs?*)
+    1.  (*Option: consider including statistics of this operation in the outputs?*)
 
 4.  The difference between the two sets of values for the dependent
     variable is calculated and stored as a vector in the merged dataframe
