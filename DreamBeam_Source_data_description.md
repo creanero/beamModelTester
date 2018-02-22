@@ -108,13 +108,12 @@ target object for pointing mode
 > and q-channel
 > $\left( q = \left| {J\left\lbrack 2,1 \right\rbrack}^{2} \right| + \left| {J\left\lbrack 2,2 \right\rbrack}^{2} \right| \right)$
 > calculated for each point in time against time for the given
-> frequency. *Note: Want to check the implications of these two channels
-> -- OC*
+> frequency. *Note: These channels refer to the power over time of the polarised channels: p- and -q are used as alternatives to x and y*
 
 ![1-frequency plot output](images/DB_SOURCE_Fig4.png)
 
 Figure 4: Sample of Plot output for lightcurve for a single frequency in
-pointing mode. Time is plotted on the x-axis, p- and q-channel values
+pointing mode. Time is plotted on the x-axis, p- and q-channel normalised detected power values
 are plotted on the y-axis.
 
 2.  n-*ν\
@@ -182,8 +181,7 @@ The Light curve plot displays the p-channel (p=|〖J[1,1]〗^2 |+|〖J[1,2]〗^2
 ![n-frequency Lightcurve](images/DB_SOURCE_Fig7.png)
 
 Figure 7: Sample of Plot output for lightcurve for multiple frequency in
-pointing mode (*query to raise: Should HBA and LBA output in this mode
-be identical?*) Time is plotted on the x-axis, frequency on the y-axis,
+pointing mode. Time is plotted on the x-axis, frequency on the y-axis,
 p- and q-channel values are plotted on the z-axis (colour).
 
 1.  FoV Mode
@@ -201,8 +199,7 @@ p- and q-channel values are plotted on the z-axis (colour).
 
             -   Azimuth (print-formatted Python float)
 
-            -   Elevation (print-formatted Python float) (*Why not
-                Altitude? - OC*)
+            -   Elevation (print-formatted Python float) (*Alternative term for Altitude*)
 
         -   Alternate Rows
 
@@ -225,9 +222,9 @@ p- and q-channel values are plotted on the z-axis (colour).
 Figure 8: Schematic of Print output for single-frequency use of Pointing
 mode
 
-Sample Output (*Query -- these values include negative elevations -- how
-come?* *Some of these seem to show different Jones values at different
-RA (?) values at DEC 90. Isn't this a constant point?*)
+Sample Output 
+*these values include negative elevations.  This is because the print model does not include a mask for the data for the horizon.  This is implemented in the plotting system.* 
+*Some of these seem to show different Jones values at different RA values at DEC 90. This is a known issue with the Hamaker model, which is limited close to the Zenith.  While approximations may be reasonable close to the Zenith in some systems, this can be a serious issue for telescopes which are not mechanically steered.*)
 
 az, el: 0.0 1.57079632679\
 Jones: (0.808438378389-0.0536168902205j)
@@ -242,9 +239,7 @@ Jones: (0.803911684752-0.0549513922064j)
 
     The Light curve plot for FoV Mode plots the I, q, u and v parameters
     as colour against RA and DEC.\
-    *To be completed -- I'm not sure on how RA and DEC are calculated
-    from Altitude and Azimuth (which seem to be the parameters that are
-    used., at least in the docs)*
+    *A potential extension is to include Alt/Azimuth based plots instead of RA/DEC*
 
 ![plot output for FoV mode](images/DB_SOURCE_Fig9.png)
 
