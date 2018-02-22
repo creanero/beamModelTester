@@ -1,6 +1,6 @@
 **ACC Source data\
 Version 0.0\
-14^th^ February 2018\
+14ᵗʰ February 2018\
 Oisin Creaner**
 
 This describes the formats for output from LOFAR station's Array
@@ -13,9 +13,9 @@ Covariances (also known as "crosslets" or "visibilities") between each
 of the Receiver Units (RCUs.) This matrix is stored as a series of
 binary floating point numbers, alternating real and imaginary components
 of the covariance. Therefore, given *n* RCUs, these matrices consist of
-2*n*^2^ floating point elements. One such matrix of Array Covariances is
+2*n*² floating point elements. One such matrix of Array Covariances is
 stored for each subband in order. \[1\] Therefore, given *N* subbands,
-the total file consists of 2*n*^2^*N* floats. The files in this case
+the total file consists of 2*Nn*² floats. The files in this case
 consist wholly of the binary floats, with no header or other metadata
 stored.
 
@@ -29,14 +29,12 @@ Y-polarisation.
 The signal from these RCUs is processed into 512 subbands, each of width
 200MHz/1024.
 
-Query -- how are these signals processed into covariances -- not sure
-what that is the covariance of, nor of how it comes to have real and
-imaginary components.
-
 The ACC file records the covariance of each RCU with each other RCU for
-each subband
+each subband into a matrix.  The diagonal of this matrix is thus the variance of the signal from each RCU
 
-Figure : Structure of an ACC file
+![Design Diagram](images/ACC_Source_Fig1.PNG)
+
+**Figure 1: Structure of an ACC file**
 
 Each file is structured thus
 
@@ -60,3 +58,4 @@ Each file is structured thus
 
 References
 ==========
+\[1\] I. I. Virtanen, Station Data Cookbook, ASTRON, 2012. 
