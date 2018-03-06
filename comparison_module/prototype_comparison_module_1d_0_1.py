@@ -14,8 +14,8 @@ from scipy.stats.stats import pearsonr
 
 if __name__ == "__main__":
     #temporarily hard-coded filenames
-    in_file_model="~/outputs/test/dreamBeam/2018-03-05/SE607_1d_160M.csv"
-    in_file_scope="~/outputs/test/dreamBeam/2018-03-05/IE613_1d_160M.csv"
+    in_file_model=raw_input("Please enter the model filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/SE607_1d_160M.csv"
+    in_file_scope=raw_input("Please enter the scope filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/IE613_1d_160M.csv"
     
     #read in the csv files from DreamBeam and format them correctly
     #want to modularise this
