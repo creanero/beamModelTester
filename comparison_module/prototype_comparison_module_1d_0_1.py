@@ -11,6 +11,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr
 
+def read_dreambeam_csv(in_file):
+    out_df=pd.read_csv(in_file,\
+                        converters={u' J11':complex,u' J12':complex,\
+                                    u' J21':complex,u' J22':complex}, \
+                        parse_dates=[u'Time'])  
+    return out_df
 
 if __name__ == "__main__":
     #temporarily hard-coded filenames
@@ -19,16 +25,10 @@ if __name__ == "__main__":
     
     #read in the csv files from DreamBeam and format them correctly
     #want to modularise this
-    model_df=pd.read_csv(in_file_model,\
-                        converters={u' J11':complex,u' J12':complex,\
-                                    u' J21':complex,u' J22':complex}, \
-                        parse_dates=[u'Time'])
+    model_df=read_dreambeam_csv(in_file_model)
     
     #using dreambeam input initially, will replace this with something suited to real telescope input if possible
-    scope_df=pd.read_csv(in_file_scope,\
-                        converters={u' J11':complex,u' J12':complex,\
-                                    u' J21':complex,u' J22':complex}, \
-                        parse_dates=[u'Time'])
+    scope_df=read_dreambeam_csv(in_file_scope)
     
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=(u'Time',u' Freq'),suffixes=('_model','_scope'))
