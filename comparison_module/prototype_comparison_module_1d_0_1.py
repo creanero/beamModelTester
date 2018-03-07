@@ -72,6 +72,9 @@ def merge_dfs(model_df,scope_df):
     time and frequency as the joining variables. In the merged dataframe are
     calculated the p- and q-channel intensities & the differences between them.
     The merged dataframe is then returned
+    
+    NOTE this module currently uses DreamBeam type output for the scope input
+    data.  If this changes, then changes may be needed to this module
     '''
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
@@ -89,6 +92,7 @@ def merge_dfs(model_df,scope_df):
     merge_df['q_ch_diff'] = merge_df['q_ch_model'] - merge_df['q_ch_scope']
     
     return(merge_df)
+
     
 def calc_corr_1d(merge_df):
     '''
@@ -126,14 +130,19 @@ if __name__ == "__main__":
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df)
     
-    #plots the p and q values
-    plot_p_q_values_1f(merge_df)
-    
-    #plots the differences in the values
-    plot_diff_values_1f(merge_df)
-    
-    #calculates the pearson correlation coefficient between scope and model
-    calc_corr_1d(merge_df)
-    
-    #calculates the root mean squared error between scope and model
-    calc_rmse_1d(merge_df)
+    #does slightly different things if there are one or multiple frequencies
+    if merge_df.Freq.nunique()==1:
+        #plots the p and q values
+        plot_p_q_values_1f(merge_df)
+        
+        #plots the differences in the values
+        plot_diff_values_1f(merge_df)
+        
+        #calculates the pearson correlation coefficient between scope and model
+        calc_corr_1d(merge_df)
+        
+        #calculates the root mean squared error between scope and model
+        calc_rmse_1d(merge_df)
+    else:
+        pass
+        
