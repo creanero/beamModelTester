@@ -113,6 +113,7 @@ def calc_rmse_1d(merge_df):
     p_rmse=np.mean(merge_df['p_ch_diff']**2)**0.5
     q_rmse=np.mean(merge_df['q_ch_diff']**2)**0.5
     print("\nThe P-channel RMSE is %f\nThe Q-channel RMSE is %f"%(p_rmse,q_rmse))
+    return(p_rmse,q_rmse)
     
     
 if __name__ == "__main__":
@@ -144,5 +145,10 @@ if __name__ == "__main__":
         #calculates the root mean squared error between scope and model
         calc_rmse_1d(merge_df)
     else:
-        pass
+        #using 1-d versions for the moment
+        #calculates the pearson correlation coefficient between scope and model
+        calc_corr_1d(merge_df)
+        
+        #calculates the root mean squared error between scope and model
+        calc_rmse_1d(merge_df)        
         
