@@ -245,7 +245,7 @@ def calc_rmse_nd(merge_df, var_str):
     plt.title("Plot of the RMSE in p- and q-channels over "+var_str)
     
     #uses colour codes for the correlations
-    plt.plot(unique_vals,p_rmses,label='p_RMSE',color='red')
+    plt.plot(unique_vals,p_rmses,label='p_RMSE',color=colours_p_q('p'))
     plt.plot(unique_vals,q_rmses,label='q_RMSE',color='green')
     
     #rotates the labels.  This is necessary for timestamps
@@ -336,6 +336,18 @@ def analysis_nd(merge_df):
     p_corrs,q_corrs=calc_corr_nd(merge_df,"Time")
     p_rmses,q_rmses=calc_rmse_nd(merge_df,"Time")    
 
+
+
+def colours_p_q(colour_id):
+    '''
+    The colours used are defined in a function that returns the colour strings
+    '''
+    if 'p'==colour_id:
+        return('red')
+    if 'p_light'==colour_id:
+        return('orangered')
+    if 'q'==colour_id:
+        return('green')
     
 if __name__ == "__main__":
     #User input the filenames - probably want to parameterise this.
