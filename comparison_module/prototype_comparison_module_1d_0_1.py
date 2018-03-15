@@ -14,7 +14,11 @@ from scipy.stats.stats import pearsonr
 
 def read_dreambeam_csv(in_file):
     '''
-    This function reads in csv files output by dreambeam into a formatted dataframe
+    This function reads in csv files output by dreambeam into a formatted 
+    dataframe
+    
+    DreamBeam format described at 
+    https://github.com/creaneroDIAS/beamModelTester/blob/multi-frequency-upgrade/DreamBeam_Source_data_description.md
     '''
     out_df=pd.read_csv(in_file,\
                         converters={'J11':complex,'J12':complex,\
@@ -26,7 +30,10 @@ def plot_p_q_values_1f(merge_df):
     '''
     This function takes a merged dataframe as an argument and plots a two part
     graph of the P- and Q-channel values for the model and the scope against 
-    time
+    time.
+    
+    This plot is only usable and valid if the data is ordered in time and has 
+    only a single frequency
     '''
     #creates a two part plot of the values of model and scope
     #part one: plots the model and scope values for p-channel against time
@@ -34,16 +41,21 @@ def plot_p_q_values_1f(merge_df):
     plt.title("Plot of the values in p- and q-channels over time")
     plt.subplot(211)
     plt.title("p-channel")
+    #plots the p-channel in one colour
     plt.plot(merge_df.Time,merge_df.p_ch_model,label='model',color='orangered')
     plt.plot(merge_df.Time,merge_df.p_ch_scope,label='scope',color='darkred')
     plt.legend(frameon=False)
+    #removes axis labels: the two plots share an x-axis
     plt.xticks([])
     
     #part two: plots the model and scope values for q-channel against time
     plt.subplot(212)
     plt.title("q-channel")
+    #plots the q-channel in another colour
     plt.plot(merge_df.Time,merge_df.q_ch_model,label='model',color='limegreen')
     plt.plot(merge_df.Time,merge_df.q_ch_scope,label='scope',color='darkgreen')
+    
+    #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
     plt.xlabel('Time')
@@ -59,10 +71,15 @@ def plot_diff_values_1f(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
     plots the differences in p-channel and q-channel values over time
+    
+    This plot is only usable and valid if the data is ordered in time and has 
+    only a single frequency
     '''
     plt.plot(merge_df.Time,merge_df.p_ch_diff,label=r'$\Delta p$',color='red')
     plt.plot(merge_df.Time,merge_df.q_ch_diff,label=r'$\Delta q$',color='green')
+    #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
+    
     #calculates and adds title with frequency in MHz
     plt.title("Plot of the differences in p- and q-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6))
     plt.legend(frameon=False)
@@ -79,6 +96,8 @@ def merge_dfs(model_df,scope_df):
     created from the scope and merges them into a single dataframe using the 
     time and frequency as the joining variables. In the merged dataframe are
     calculated the p- and q-channel intensities & the differences between them.
+    Finally, a time difference from the start time is calculated.
+    
     The merged dataframe is then returned
     
     NOTE this module currently uses DreamBeam type output for the scope input
@@ -112,9 +131,11 @@ def merge_dfs(model_df,scope_df):
 def calc_corr_1d(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
-    calculates and prints the pearson correlation coeffiecient between scope and model
+    calculates the pearson correlation coeffiecient between scope 
+    and model
     '''
-    
+    #using [0] from the pearsonr to return the correlation coefficient, but not
+    #the 2-tailed p-value stored in [1]
     p_corr=pearsonr(merge_df.p_ch_model,merge_df.p_ch_scope)[0]
     q_corr=pearsonr(merge_df.q_ch_model,merge_df.q_ch_scope)[0]
     
@@ -126,29 +147,50 @@ def calc_corr_1d(merge_df):
 def calc_corr_nd(merge_df, var_str):
     '''
     This function calculates the correlation between the scope and model values
-    for p- and q-channel as they are distributed against another variable which
-    is identified by var_str
+    for p- and q-channel as they are distributed against another column of the 
+    dataframe merge_df which is identified by var_str
+    
+    in current versions, useable values for var_str are "Time" and "Freq"
     '''
+    
+    #creates empty lists for the correlations
     p_corrs=[]
     q_corrs=[]
+    
+    #identifies allthe unique values of the variable in the column
     unique_vals=merge_df[var_str].unique()
+    
+    #iterates over all unique values
     for unique_val in unique_vals:
+        #creates a dataframe with  only the elements that match the current 
+        #unique value
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
+        #uses this unique value for and the 1-dimensional calc_corr_1d function
+        #to calculate the correlations for each channel
         p_corr,q_corr=calc_corr_1d(unique_merge_df)
+        
+        #appends these to the list
         p_corrs.append(p_corr)
         q_corrs.append(q_corr)
     
-    
+    #creates an overlaid plot of how the correlation of between model and scope
+    #varies for each of the p-and q-channels against var_str
     plt.figure()
     plt.title("Plot of the correlations in p- and q-channels over "+var_str)
+    
+    #uses colour codes for the correlations
     plt.plot(unique_vals,p_corrs,label='p_correlation',color='red')
     plt.plot(unique_vals,q_corrs,label='q_correlation',color='green')
+    
+    #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
     plt.xlabel(var_str)
     
     #prints the plot
     plt.show()
+    
+    #returns the correlation lists if needed    
     return (p_corrs,q_corrs)    
     
 
@@ -157,7 +199,8 @@ def calc_corr_nd(merge_df, var_str):
 def calc_rmse_1d(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
-    calculates and prints the root mean square difference between scope and model
+    calculates and returns the root mean square difference between scope and 
+    model
     '''
     p_rmse=np.mean(merge_df.p_ch_diff**2)**0.5
     q_rmse=np.mean(merge_df.q_ch_diff**2)**0.5
@@ -169,52 +212,95 @@ def calc_rmse_1d(merge_df):
 def calc_rmse_nd(merge_df, var_str):
     '''
     This function calculates the correlation between the scope and model values
-    for p- and q-channel as they are distributed against another variable which
-    is identified by var_str
+    for p- and q-channel  as they are distributed against another column of the 
+    dataframe merge_df which is identified by var_str
+    
+    in current versions, useable values for var_str are "Time" and "Freq"
     '''
+    
+    #creates empty lists for the Errors
     p_rmses=[]
     q_rmses=[]
+    
+    
+    #identifies allthe unique values of the variable in the column
     unique_vals=merge_df[var_str].unique()
+    
+    #iterates over all unique values
     for unique_val in unique_vals:
+        #creates a dataframe with  only the elements that match the current 
+        #unique value
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
+        #uses this unique value for and the 1-dimensional calc_corr_1d function
+        #to calculate the RMSE for each channel
         p_rmse,q_rmse=calc_rmse_1d(unique_merge_df)
+        
+        #appends these to the list
         p_rmses.append(p_rmse)
         q_rmses.append(q_rmse)
     
-    
+    #creates an overlaid plot of how the correlation of between model and scope
+    #varies for each of the p-and q-channels against var_str    
     plt.figure()
     plt.title("Plot of the RMSE in p- and q-channels over "+var_str)
+    
+    #uses colour codes for the correlations
     plt.plot(unique_vals,p_rmses,label='p_RMSE',color='red')
     plt.plot(unique_vals,q_rmses,label='q_RMSE',color='green')
+    
+    #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
     plt.xlabel(var_str)
     
     #prints the plot
     plt.show()
+    
+    #returns the correlation lists if needed    
     return (p_rmses,q_rmses)    
 
 
 
 
 def plot_diff_values_nf(merge_df):
+    '''
+    This function creates two 3d colour plots using time and frequency from a 
+    merged data frame as the independent variables and the difference between
+    source and model as the dependent (colour) variable 
+    '''
+    #create a plot with two subplots
     plt.figure()
     
+    #top subplot for P-channel
     plt.subplot(211)
+    #display main title and subplot title together
     plt.title("Plot of the differences in p- and q-channel over time and frequency\np-channel")
+    #plots p-channel difference
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_ch_diff,
                   cmap=plt.get_cmap("Reds"))
     plt.ylabel("Frequency")
+    #blanks x labels on p-channel plot as x-axis is shared
     plt.xticks([])
+    
+    #bottom subplot is q-channel
     plt.subplot(212)
     plt.title("q-channel")
+    #plots p-channel differences
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_ch_diff,
                   cmap=plt.get_cmap("Greens"))
+    #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
     plt.ylabel("Frequency")
     plt.show()
 
 def analysis_1d(merge_df):
+    '''
+    This function carries out all plotting and calculations needed for a 1-d 
+    dataset (i.e. one frequency)
+    
+    Future iterations may include optional arguments to enable selection of the
+    plots that are preferred
+    '''
     #plots the p and q values
     plot_p_q_values_1f(merge_df)
     
@@ -223,11 +309,13 @@ def analysis_1d(merge_df):
     
     #calculates the pearson correlation coefficient between scope and model
     p_corr,q_corr=calc_corr_1d(merge_df)
-    print("\nThe P-channel correlation is %f\nThe Q-channel correlation is %f"%(p_corr,q_corr))
+    print("\nThe P-channel correlation is %f\nThe Q-channel correlation is %f"
+          %(p_corr,q_corr))
     
     #calculates the root mean squared error between scope and model
     p_rmse,q_rmse=calc_rmse_1d(merge_df)
-    print("\nThe P-channel RMSE is %f\nThe Q-channel RMSE is %f"%(p_rmse,q_rmse))
+    print("\nThe P-channel RMSE is %f\nThe Q-channel RMSE is %f"
+          %(p_rmse,q_rmse))
     
     
 def analysis_nd(merge_df):
@@ -264,8 +352,10 @@ if __name__ == "__main__":
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df)
     
-    #does slightly different things if there are one or multiple frequencies
+    #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
+        #if only one frequency, does one-dimensional analysis
         analysis_1d(merge_df)
     else:
+        #otherwise does multi-dimensional analysis
         analysis_nd(merge_df)
