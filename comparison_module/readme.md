@@ -27,7 +27,7 @@ A plot of the differences between model and scope over time for each of P-Channe
 A print of the Pearson R correlation between model and scope for P- and Q-channels\
 A print of the Root Mean Square Error between model and scope for P- and Q-channels
 
-*Multi Frequency Mode*
+*Multi Frequency Mode*\
 A print of the Pearson R correlation between model and scope for P- and Q-channels\
 A print of the Root Mean Square Error between model and scope for P- and Q-channels\
 A plot of the differences between model and scope over Time and Frequency for each of P-Channel and Q-Channel\
@@ -37,4 +37,18 @@ A plot of the Pearson R correlation between model and scope for P- and Q-channel
 A print of the Root Mean Square Error between model and scope for P- and Q-channels against Time
 
 **NOTE: to add (images/links)**
+
+**Operation**
+1.  Read in the data from the model file (*assumed to be CSV format*) and store the contents in a dataframe
+   
+2.  Read in the data from the telescope file (*assumed to be CSV format*) and store the contents in a
+    dataframe
+
+3.  Merge the dataframes using an inner join on Time and Frequency to ensure only data points
+    where a common value(s) for the independent variable(s) exist
+    
+4.  Checks whether there is one unique value for Frequency
+    1. If there is: Executes the 1-Frequency analysis module
+    2. Othersiwse: Executes the multi-Frequency analysis module
+    
 
