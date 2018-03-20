@@ -72,6 +72,11 @@ def read_OSO_h5 (filename):
     return(scope_df)
 
 def plot_OSO_h5(scope_df,pol_str,plot_type=""):
+    '''
+    This function plots the contents of an OSO HDF5 file with different titles 
+    depending on the plot type argument
+    '''
+    
     plt.figure()
     plt.tripcolor(scope_df.time_diff,scope_df.freq,abs(scope_df[pol_str]),
                   cmap=plt.get_cmap(colour_models(pol_str)))
@@ -82,6 +87,8 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
         plot_title = "Plot of "+pol_str+" against time and frequency after cleaning"
     else: 
         plot_title = "Plot of "+pol_str+" against time and frequency"
+        if "" != plot_type:
+            print("WARN: plot type unknown, default used")
         
     plt.title(plot_title)
     plt.xlabel("Time (s) since start time of\n"+time.ctime(min_time))
@@ -137,14 +144,18 @@ if __name__ == "__main__":
     #since the epoch of Jan 01 00:00:00 1970
     min_time=min(scope_df.time)    
     
+    #plots the xx, xy and yy values 
     plot_OSO_h5(scope_df,'xx','dirty')
     plot_OSO_h5(scope_df,'xy','dirty')
     plot_OSO_h5(scope_df,'yy','dirty')
     
+    #identifies and excluedes significant outliers in the dataframe and plots 
+    #the remaining values for each of the channels
     clean_df_xx=scope_df[scope_df.xx<np.mean(scope_df.xx)*2]
     plot_OSO_h5(clean_df_xx,'xx','clean')
     
-    clean_df_xy=scope_df[abs(scope_df).xy<np.mean(abs(scope_df.xy))*2]
+    #xy is complex, so a plot of absolute values is needed
+    clean_df_xy=scope_df[abs(scope_df.xy)<np.mean(abs(scope_df.xy))*2]
     plot_OSO_h5(clean_df_xy,'xy','clean')
     
     clean_df_yy=scope_df[scope_df.yy<np.mean(scope_df.yy)*2]
