@@ -43,9 +43,9 @@ def plot_p_q_values_1f(merge_df):
     plt.title("p-channel")
     #plots the p-channel in one colour
     plt.plot(merge_df.Time,merge_df.p_ch_model,label='model',
-             color=colours_p_q('p_light'))
+             color=colour_models('p_light'))
     plt.plot(merge_df.Time,merge_df.p_ch_scope,label='scope',
-             color=colours_p_q('p_dark'))
+             color=colour_models('p_dark'))
     plt.legend(frameon=False)
     #removes axis labels: the two plots share an x-axis
     plt.xticks([])
@@ -55,9 +55,9 @@ def plot_p_q_values_1f(merge_df):
     plt.title("q-channel")
     #plots the q-channel in another colour
     plt.plot(merge_df.Time,merge_df.q_ch_model,label='model',
-             color=colours_p_q('q_light'))
+             color=colour_models('q_light'))
     plt.plot(merge_df.Time,merge_df.q_ch_scope,label='scope',
-             color=colours_p_q('q_dark'))
+             color=colour_models('q_dark'))
     
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
@@ -80,9 +80,9 @@ def plot_diff_values_1f(merge_df):
     only a single frequency
     '''
     plt.plot(merge_df.Time,merge_df.p_ch_diff,label=r'$\Delta p$',
-             color=colours_p_q('p'))
+             color=colour_models('p'))
     plt.plot(merge_df.Time,merge_df.q_ch_diff,label=r'$\Delta q$',
-             color=colours_p_q('q'))
+             color=colour_models('q'))
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
     
@@ -185,8 +185,8 @@ def calc_corr_nd(merge_df, var_str):
     plt.title("Plot of the correlations in p- and q-channels over "+var_str)
     
     #uses colour codes for the correlations
-    plt.plot(unique_vals,p_corrs,label='p_correlation',color=colours_p_q('p'))
-    plt.plot(unique_vals,q_corrs,label='q_correlation',color=colours_p_q('q'))
+    plt.plot(unique_vals,p_corrs,label='p_correlation',color=colour_models('p'))
+    plt.plot(unique_vals,q_corrs,label='q_correlation',color=colour_models('q'))
     
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
@@ -251,8 +251,8 @@ def calc_rmse_nd(merge_df, var_str):
     plt.title("Plot of the RMSE in p- and q-channels over "+var_str)
     
     #uses colour codes for the correlations
-    plt.plot(unique_vals,p_rmses,label='p_RMSE',color=colours_p_q('p'))
-    plt.plot(unique_vals,q_rmses,label='q_RMSE',color=colours_p_q('q'))
+    plt.plot(unique_vals,p_rmses,label='p_RMSE',color=colour_models('p'))
+    plt.plot(unique_vals,q_rmses,label='q_RMSE',color=colour_models('q'))
     
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
@@ -283,7 +283,7 @@ def plot_diff_values_nf(merge_df):
     plt.title("Plot of the differences in p- and q-channel over time and frequency\np-channel")
     #plots p-channel difference
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_ch_diff,
-                  cmap=plt.get_cmap(colours_p_q('ps')))
+                  cmap=plt.get_cmap(colour_models('ps')))
     plt.ylabel("Frequency")
     #blanks x labels on p-channel plot as x-axis is shared
     plt.xticks([])
@@ -293,7 +293,7 @@ def plot_diff_values_nf(merge_df):
     plt.title("q-channel")
     #plots p-channel differences
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_ch_diff,
-                  cmap=plt.get_cmap(colours_p_q('qs')))
+                  cmap=plt.get_cmap(colour_models('qs')))
     #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
     plt.ylabel("Frequency")
@@ -372,6 +372,43 @@ def colours_p_q(colour_id):
     else:
         print("Warning: Colour incorrectly specified.  Defaulting to Black")
         return ('black')
+  
+def colour_models(colour_id):
+    '''
+    The colours used are defined in a function that returns the colour strings
+    '''
+    #sets oranges for various applications for the P channel
+    if 'p'==colour_id:
+        return('orange')
+    if 'p_light'==colour_id:
+        return('sandybrown')
+    if 'p_dark'==colour_id:
+        return('darkorange')
+    if 'ps'==colour_id:
+        return('Oranges')
+        
+    #sets greens for various applications of the Q channel    
+    if 'q'==colour_id:
+        return('green')
+    if 'q_light'==colour_id:
+        return('limegreen')
+    if 'q_dark'==colour_id:
+        return('darkgreen')
+    if 'qs'==colour_id:
+        return('Greens')
+    
+    #sets Red, Purple and Blue as colour maps for XX, XY and YY values
+    if 'xx'==colour_id:
+        return('Reds')    
+    if 'xy'==colour_id:
+        return('Purples')
+    if 'yy'==colour_id:
+        return('Blues')
+    
+    #returns black as a default
+    else:
+        print("Warning: Colour incorrectly specified.  Defaulting to Black")
+        return ('black')    
     
 if __name__ == "__main__":
     #User input the filenames - probably want to parameterise this.

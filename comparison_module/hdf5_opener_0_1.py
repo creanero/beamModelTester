@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+from prototype_comparison_module_1d_0_1 import colour_models
 
 def read_OSO_h5 (filename):
     '''
@@ -95,42 +96,7 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
     plt.ylabel("Frequency (Hz)")
     plt.show()    
     
-def colour_models(colour_id):
-    '''
-    The colours used are defined in a function that returns the colour strings
-    '''
-    #sets oranges for various applications for the P channel
-    if 'p'==colour_id:
-        return('orange')
-    if 'p_light'==colour_id:
-        return('sandybrown')
-    if 'p_dark'==colour_id:
-        return('darkorange')
-    if 'ps'==colour_id:
-        return('Oranges')
-        
-    #sets greens for various applications of the Q channel    
-    if 'q'==colour_id:
-        return('green')
-    if 'q_light'==colour_id:
-        return('limegreen')
-    if 'q_dark'==colour_id:
-        return('darkgreen')
-    if 'qs'==colour_id:
-        return('Greens')
-    
-    #sets Red, Purple and Blue as colour maps for XX, XY and YY values
-    if 'xx'==colour_id:
-        return('Reds')    
-    if 'xy'==colour_id:
-        return('Purples')
-    if 'yy'==colour_id:
-        return('Blues')
-    
-    #returns black as a default
-    else:
-        print("Warning: Colour incorrectly specified.  Defaulting to Black")
-        return ('black')
+
 
     
 if __name__ == "__main__":
