@@ -342,37 +342,7 @@ def analysis_nd(merge_df):
     p_corrs,q_corrs=calc_corr_nd(merge_df,"Time")
     p_rmses,q_rmses=calc_rmse_nd(merge_df,"Time")    
 
-
-
-def colours_p_q(colour_id):
-    '''
-    The colours used are defined in a function that returns the colour strings
-    '''
-    #sets reds for various applications for the P channel
-    if 'p'==colour_id:
-        return('red')
-    if 'p_light'==colour_id:
-        return('orangered')
-    if 'p_dark'==colour_id:
-        return('darkred')
-    if 'ps'==colour_id:
-        return('Reds')
-        
-    #sets greens for various applications of the Q channel    
-    if 'q'==colour_id:
-        return('green')
-    if 'q_light'==colour_id:
-        return('limegreen')
-    if 'q_dark'==colour_id:
-        return('darkgreen')
-    if 'qs'==colour_id:
-        return('Greens')
-    
-    #returns black as a default
-    else:
-        print("Warning: Colour incorrectly specified.  Defaulting to Black")
-        return ('black')
-  
+ 
 def colour_models(colour_id):
     '''
     The colours used are defined in a function that returns the colour strings
