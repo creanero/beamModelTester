@@ -15,7 +15,7 @@ from prototype_comparison_module_1d_0_1 import read_dreambeam_csv
 from hdf5_opener_0_1 import read_OSO_h5
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def read_var_file(file_name):
     suffix=file_name.rsplit('.',1)[1]
@@ -96,9 +96,17 @@ def calc_xy(merge_df):
     merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
     
+    #normalises by dividing by the maximum
     merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
     merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
     merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)
+    
+    #calculates the differences
+    merge_df['xx_diff']=merge_df.xx_model-merge_df.xx_scope
+    merge_df['xy_diff']=merge_df.xy_model-merge_df.xy_scope
+    merge_df['yy_diff']=merge_df.yy_model-merge_df.yy_scope
+    
+    #note the d_Time is already calculated
     return (merge_df)
 
 if __name__ == "__main__":
