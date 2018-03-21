@@ -381,6 +381,17 @@ def colour_models(colour_id):
         return ('black')    
 
 def beam_arg_parser():
+    '''
+    This function parses the arguments from the command line and returns the 
+    file names for the model data and the scope data
+    
+    Several options are provided: Positional arguments, followed by optional
+    arguments followed by interactive entry of the argument values.
+    
+    future expansions to arguments will allow the user to specify modes of 
+    operation and the type of output generated
+    '''
+    
     parser = argparse.ArgumentParser()
     
     #creates a group for the model filename
@@ -432,7 +443,6 @@ if __name__ == "__main__":
     in_file_model,in_file_scope=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
-    #want to modularise this
     model_df=read_dreambeam_csv(in_file_model)
     
     #using dreambeam input initially, will replace this with something suited to real telescope input if possible
