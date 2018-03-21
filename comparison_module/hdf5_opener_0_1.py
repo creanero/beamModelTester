@@ -31,7 +31,7 @@ def read_OSO_h5 (filename):
     #Creates lists to hold the contents of the various HDF5 datasets within the
     #file.  These are then merged to form the data frame.
     time_list=[]
-    time_diff=[]
+    d_time=[]
     freq_list=[]
     xx_list=[]
     xy_list=[]
@@ -42,7 +42,11 @@ def read_OSO_h5 (filename):
 
     #identifies the start time.  Times in HDF5 are stored as floats since the
     #epoch of Jan 01 00:00:00 1970
-    min_time=min(list(f["timeaccstart"]))
+    min_time=pd.to_datetime(min(list(f["timeaccstart"])),unit='s')
+    
+    #this shouldn't be needed in the final product, included durind calibration
+    #mismatch issues
+    min_freq=min(list(f['frequency']))
     
     #Iterates over the time values in the HDF5 file
     for time_val in list(f["timeaccstart"]):
@@ -50,10 +54,25 @@ def read_OSO_h5 (filename):
         freq_index=0
         #Iterates over the frequency values in the HDF5 file
         for freq_val in list(f['frequency']):
+            time_stamp_val=pd.to_datetime(time_val,unit='s')
             #appends the values from the iterators for Time and Frequency
-            time_list.append(time_val)
-            time_diff.append(time_val-min_time) #useful for calculations
-            freq_list.append(freq_val)
+            time_list.append(time_stamp_val)
+            d_time.append((time_stamp_val-min_time)/np.timedelta64(1,'s')) #useful for calculations
+
+
+
+            #TTTTTTT         FFFFFFF iii       
+            #  TTT    oooo   FF          xx  xx
+            #  TTT   oo  oo  FFFF    iii   xx  
+            #  TTT   oo  oo  FF      iii   xx  
+            #  TTT    oooo   FF      iii xx  xx            
+            
+            
+            freq_list.append(min_freq+(freq_index*(1e8/512.0)))
+            
+            
+            ##This is the correct code to process from the file
+            #freq_list.append(freq_val)
             
             #uses the indices to find the correct values for XX, XY and YY
             xx_list.append(f['XX'][time_index][freq_index])
@@ -65,7 +84,7 @@ def read_OSO_h5 (filename):
         time_index=time_index+1
     
     #creates the data frame by pasting the lists together    
-    scope_df=pd.DataFrame(data={'Time':time_list, 'time_diff':time_diff, 
+    scope_df=pd.DataFrame(data={'Time':time_list, 'd_time':d_time, 
                                 'Freq':freq_list,
                                 'xx':xx_list,'xy':xy_list,'yy':yy_list})
     
@@ -79,7 +98,7 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
     '''
     
     plt.figure()
-    plt.tripcolor(scope_df.time_diff,scope_df.Freq,abs(scope_df[pol_str]),
+    plt.tripcolor(scope_df.d_time,scope_df.Freq,abs(scope_df[pol_str]),
                   cmap=plt.get_cmap(colour_models(pol_str)))
     
     if "dirty" == plot_type:
@@ -92,7 +111,7 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
             print("WARN: plot type unknown, default used")
         
     plt.title(plot_title)
-    plt.xlabel("Time (s) since start time of\n"+time.ctime(min_time))
+    plt.xlabel("Time (s) since start time of\n"+str(min_time))
     plt.ylabel("Frequency (Hz)")
     plt.show()    
     
