@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr
-
+import argparse
 
 def read_dreambeam_csv(in_file):
     '''
@@ -381,6 +381,10 @@ def colour_models(colour_id):
         return ('black')    
     
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    #put the arguments in here
+    args=parser.parse_args()
+    
     #User input the filenames - probably want to parameterise this.
     in_file_model=raw_input("Please enter the model filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/SE607_1d_160M.csv"
     in_file_scope=raw_input("Please enter the scope filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/IE613_1d_160M.csv"

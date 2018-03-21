@@ -65,8 +65,8 @@ def read_OSO_h5 (filename):
         time_index=time_index+1
     
     #creates the data frame by pasting the lists together    
-    scope_df=pd.DataFrame(data={'time':time_list, 'time_diff':time_diff, 
-                                'freq':freq_list,
+    scope_df=pd.DataFrame(data={'Time':time_list, 'time_diff':time_diff, 
+                                'Freq':freq_list,
                                 'xx':xx_list,'xy':xy_list,'yy':yy_list})
     
     #returns the data frame
@@ -79,7 +79,7 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
     '''
     
     plt.figure()
-    plt.tripcolor(scope_df.time_diff,scope_df.freq,abs(scope_df[pol_str]),
+    plt.tripcolor(scope_df.time_diff,scope_df.Freq,abs(scope_df[pol_str]),
                   cmap=plt.get_cmap(colour_models(pol_str)))
     
     if "dirty" == plot_type:
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     
     #identifies the start time.  Times in HDF5 are stored as floats of seconds 
     #since the epoch of Jan 01 00:00:00 1970
-    min_time=min(scope_df.time)    
+    min_time=min(scope_df.Time)    
     
     #plots the xx, xy and yy values 
     plot_OSO_h5(scope_df,'xx','dirty')
