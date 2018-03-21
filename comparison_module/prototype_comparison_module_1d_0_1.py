@@ -26,46 +26,42 @@ def read_dreambeam_csv(in_file):
                         parse_dates=['Time'], skipinitialspace=True)  
     return out_df
 
-def plot_p_q_values_1f(merge_df):
+def get_df_keys(merge_df,key_str):
+    m_keys=[]
+    for m_key in merge_df.keys():
+        if key_str in m_key:
+            m_keys.append(m_key.split(key_str)[0])
+    return(m_keys)
+
+def plot_values_1f(merge_df):
     '''
-    This function takes a merged dataframe as an argument and plots a two part
-    graph of the P- and Q-channel values for the model and the scope against 
-    time.
+    This function takes a merged dataframe as an argument and plots a graph of
+    each of the various values for the model and the scope against time.
     
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    #creates a two part plot of the values of model and scope
-    #part one: plots the model and scope values for p-channel against time
-    plt.figure()
-    plt.title("Plot of the values in p- and q-channels over time")
-    plt.subplot(211)
-    plt.title("p-channel")
-    #plots the p-channel in one colour
-    plt.plot(merge_df.Time,merge_df.p_ch_model,label='model',
-             color=colour_models('p_light'))
-    plt.plot(merge_df.Time,merge_df.p_ch_scope,label='scope',
-             color=colour_models('p_dark'))
-    plt.legend(frameon=False)
-    #removes axis labels: the two plots share an x-axis
-    plt.xticks([])
     
-    #part two: plots the model and scope values for q-channel against time
-    plt.subplot(212)
-    plt.title("q-channel")
-    #plots the q-channel in another colour
-    plt.plot(merge_df.Time,merge_df.q_ch_model,label='model',
-             color=colour_models('q_light'))
-    plt.plot(merge_df.Time,merge_df.q_ch_scope,label='scope',
-             color=colour_models('q_dark'))
+    m_keys=get_df_keys(merge_df,"_diff")
     
-    #plots the axis labels rotated so they're legible
-    plt.xticks(rotation=90)
-    plt.legend(frameon=False)
-    plt.xlabel('Time')
-    
-    #prints the plot
-    plt.show()
+    for i in range(len(m_keys)):
+        #creates a two part plot of the values of model and scope
+        #part one: plots the model and scope values for p-channel against time
+        plt.figure()
+        plt.title("Plot of the values in "+str(m_keys[i])+"-channel over time")
+
+        #plots the p-channel in one colour
+        plt.plot(merge_df.Time,merge_df[str(m_keys[i])+'_model'],label='model',
+                 color=colour_models(str(m_keys[i])+'_light'))
+        plt.plot(merge_df.Time,merge_df[str(m_keys[i])+'_scope'],label='scope',
+                 color=colour_models(str(m_keys[i])+'_dark'))
+        plt.legend(frameon=False)
+        #plots the axis labels rotated so they're legible
+        plt.xticks(rotation=90)
+        plt.xlabel('Time')
+        
+        #prints the plot
+        plt.show()
     return(0)
     
     
@@ -79,15 +75,30 @@ def plot_diff_values_1f(merge_df):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    plt.plot(merge_df.Time,merge_df.p_ch_diff,label=r'$\Delta p$',
-             color=colour_models('p'))
-    plt.plot(merge_df.Time,merge_df.q_ch_diff,label=r'$\Delta q$',
-             color=colour_models('q'))
+    
+    m_keys=get_df_keys(merge_df,"_diff")
+    
+    plt.figure()
+    graph_title = "Plot of the differences in "
+    for i in range(len(m_keys)):
+        plt.plot(merge_df.Time,
+                 merge_df[str(m_keys[i])+'_diff'], 
+                 label=r'$\Delta $'+str(m_keys[i]),
+                 color=colour_models(str(m_keys[i])))
+        if i < (len(m_keys)-2):
+            graph_title=graph_title+str(m_keys[i])+", "
+        elif (len(m_keys)-2) == i:
+            graph_title=graph_title+str(m_keys[i])+" & "
+        else:
+            graph_title=graph_title+str(m_keys[i])
+
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
     
     #calculates and adds title with frequency in MHz
-    plt.title("Plot of the differences in p- and q-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6))
+    
+    graph_title=graph_title+"-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6)
+    plt.title(graph_title)
     plt.legend(frameon=False)
     plt.xlabel('Time')
     plt.show()
@@ -113,16 +124,16 @@ def merge_dfs(model_df,scope_df):
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
     
     #calculates the p-channel intensity as per DreamBeam for both model and scope
-    merge_df['p_ch_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-    merge_df['p_ch_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
+    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
+    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
     #calculates the difference between model and scope
-    merge_df['p_ch_diff'] = merge_df.p_ch_model - merge_df.p_ch_scope
+    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
     
     #calculates the q-channel intensity as per DreamBeam for both model and scope
-    merge_df['q_ch_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-    merge_df['q_ch_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
+    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
+    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
     #calculates the difference between model and scope
-    merge_df['q_ch_diff'] = merge_df.q_ch_model - merge_df.q_ch_scope
+    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
     
     #creates a variable to hold the time since the start of the plot
     #this is necessary for plots that are not compatible with Timestamp data
@@ -137,15 +148,19 @@ def merge_dfs(model_df,scope_df):
 def calc_corr_1d(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
-    calculates the pearson correlation coeffiecient between scope 
+    calculates the pearson correlation coeffiecients between scope 
     and model
     '''
     #using [0] from the pearsonr to return the correlation coefficient, but not
     #the 2-tailed p-value stored in [1]
-    p_corr=pearsonr(merge_df.p_ch_model,merge_df.p_ch_scope)[0]
-    q_corr=pearsonr(merge_df.q_ch_model,merge_df.q_ch_scope)[0]
     
-    return(p_corr,q_corr)
+    m_keys=get_df_keys(merge_df,"_diff")
+    corr_outs=[]
+    for i in range(len(m_keys)):
+        corr_outs.append(pearsonr(merge_df[str(m_keys[i])+'_model'],merge_df[str(m_keys[i])+'_scope'])[0])
+    
+    
+    return(corr_outs)
     
     
     
@@ -208,9 +223,12 @@ def calc_rmse_1d(merge_df):
     calculates and returns the root mean square difference between scope and 
     model
     '''
-    p_rmse=np.mean(merge_df.p_ch_diff**2)**0.5
-    q_rmse=np.mean(merge_df.q_ch_diff**2)**0.5
-    return(p_rmse,q_rmse)
+    m_keys=get_df_keys(merge_df,"_diff")
+    rmse_outs=[]
+    for i in range(len(m_keys)):
+        rmse_outs.append(np.mean(merge_df[str(m_keys[i])+'_diff']**2)**0.5)
+   
+    return(rmse_outs)
  
     
     
@@ -282,7 +300,7 @@ def plot_diff_values_nf(merge_df):
     #display main title and subplot title together
     plt.title("Plot of the differences in p- and q-channel over time and frequency\np-channel")
     #plots p-channel difference
-    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_ch_diff,
+    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_diff,
                   cmap=plt.get_cmap(colour_models('ps')))
     plt.ylabel("Frequency")
     #blanks x labels on p-channel plot as x-axis is shared
@@ -292,7 +310,7 @@ def plot_diff_values_nf(merge_df):
     plt.subplot(212)
     plt.title("q-channel")
     #plots p-channel differences
-    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_ch_diff,
+    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_diff,
                   cmap=plt.get_cmap(colour_models('qs')))
     #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -307,8 +325,8 @@ def analysis_1d(merge_df):
     Future iterations may include optional arguments to enable selection of the
     plots that are preferred
     '''
-    #plots the p and q values
-    plot_p_q_values_1f(merge_df)
+    #plots the values for each channel
+    plot_values_1f(merge_df)
     
     #plots the differences in the values
     plot_diff_values_1f(merge_df)
