@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr
-
+import argparse
 
 def read_dreambeam_csv(in_file):
     '''
@@ -42,8 +42,10 @@ def plot_p_q_values_1f(merge_df):
     plt.subplot(211)
     plt.title("p-channel")
     #plots the p-channel in one colour
-    plt.plot(merge_df.Time,merge_df.p_ch_model,label='model',color='orangered')
-    plt.plot(merge_df.Time,merge_df.p_ch_scope,label='scope',color='darkred')
+    plt.plot(merge_df.Time,merge_df.p_ch_model,label='model',
+             color=colour_models('p_light'))
+    plt.plot(merge_df.Time,merge_df.p_ch_scope,label='scope',
+             color=colour_models('p_dark'))
     plt.legend(frameon=False)
     #removes axis labels: the two plots share an x-axis
     plt.xticks([])
@@ -52,8 +54,10 @@ def plot_p_q_values_1f(merge_df):
     plt.subplot(212)
     plt.title("q-channel")
     #plots the q-channel in another colour
-    plt.plot(merge_df.Time,merge_df.q_ch_model,label='model',color='limegreen')
-    plt.plot(merge_df.Time,merge_df.q_ch_scope,label='scope',color='darkgreen')
+    plt.plot(merge_df.Time,merge_df.q_ch_model,label='model',
+             color=colour_models('q_light'))
+    plt.plot(merge_df.Time,merge_df.q_ch_scope,label='scope',
+             color=colour_models('q_dark'))
     
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
@@ -75,8 +79,10 @@ def plot_diff_values_1f(merge_df):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    plt.plot(merge_df.Time,merge_df.p_ch_diff,label=r'$\Delta p$',color='red')
-    plt.plot(merge_df.Time,merge_df.q_ch_diff,label=r'$\Delta q$',color='green')
+    plt.plot(merge_df.Time,merge_df.p_ch_diff,label=r'$\Delta p$',
+             color=colour_models('p'))
+    plt.plot(merge_df.Time,merge_df.q_ch_diff,label=r'$\Delta q$',
+             color=colour_models('q'))
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
     
@@ -179,8 +185,8 @@ def calc_corr_nd(merge_df, var_str):
     plt.title("Plot of the correlations in p- and q-channels over "+var_str)
     
     #uses colour codes for the correlations
-    plt.plot(unique_vals,p_corrs,label='p_correlation',color='red')
-    plt.plot(unique_vals,q_corrs,label='q_correlation',color='green')
+    plt.plot(unique_vals,p_corrs,label='p_correlation',color=colour_models('p'))
+    plt.plot(unique_vals,q_corrs,label='q_correlation',color=colour_models('q'))
     
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
@@ -245,8 +251,8 @@ def calc_rmse_nd(merge_df, var_str):
     plt.title("Plot of the RMSE in p- and q-channels over "+var_str)
     
     #uses colour codes for the correlations
-    plt.plot(unique_vals,p_rmses,label='p_RMSE',color='red')
-    plt.plot(unique_vals,q_rmses,label='q_RMSE',color='green')
+    plt.plot(unique_vals,p_rmses,label='p_RMSE',color=colour_models('p'))
+    plt.plot(unique_vals,q_rmses,label='q_RMSE',color=colour_models('q'))
     
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
@@ -277,7 +283,7 @@ def plot_diff_values_nf(merge_df):
     plt.title("Plot of the differences in p- and q-channel over time and frequency\np-channel")
     #plots p-channel difference
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_ch_diff,
-                  cmap=plt.get_cmap("Reds"))
+                  cmap=plt.get_cmap(colour_models('ps')))
     plt.ylabel("Frequency")
     #blanks x labels on p-channel plot as x-axis is shared
     plt.xticks([])
@@ -287,7 +293,7 @@ def plot_diff_values_nf(merge_df):
     plt.title("q-channel")
     #plots p-channel differences
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_ch_diff,
-                  cmap=plt.get_cmap("Greens"))
+                  cmap=plt.get_cmap(colour_models('qs')))
     #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
     plt.ylabel("Frequency")
@@ -336,14 +342,107 @@ def analysis_nd(merge_df):
     p_corrs,q_corrs=calc_corr_nd(merge_df,"Time")
     p_rmses,q_rmses=calc_rmse_nd(merge_df,"Time")    
 
+ 
+def colour_models(colour_id):
+    '''
+    The colours used are defined in a function that returns the colour strings
+    '''
+    #sets oranges for various applications for the P channel
+    if 'p'==colour_id:
+        return('orange')
+    if 'p_light'==colour_id:
+        return('sandybrown')
+    if 'p_dark'==colour_id:
+        return('darkorange')
+    if 'ps'==colour_id:
+        return('Oranges')
+        
+    #sets greens for various applications of the Q channel    
+    if 'q'==colour_id:
+        return('green')
+    if 'q_light'==colour_id:
+        return('limegreen')
+    if 'q_dark'==colour_id:
+        return('darkgreen')
+    if 'qs'==colour_id:
+        return('Greens')
+    
+    #sets Red, Purple and Blue as colour maps for XX, XY and YY values
+    if 'xx'==colour_id:
+        return('Reds')    
+    if 'xy'==colour_id:
+        return('Purples')
+    if 'yy'==colour_id:
+        return('Blues')
+    
+    #returns black as a default
+    else:
+        print("Warning: Colour incorrectly specified.  Defaulting to Black")
+        return ('black')    
+
+def beam_arg_parser():
+    '''
+    This function parses the arguments from the command line and returns the 
+    file names for the model data and the scope data
+    
+    Several options are provided: Positional arguments, followed by optional
+    arguments followed by interactive entry of the argument values.
+    
+    future expansions to arguments will allow the user to specify modes of 
+    operation and the type of output generated
+    '''
+    
+    parser = argparse.ArgumentParser()
+    
+    #creates a group for the model filename
+    group_model = parser.add_mutually_exclusive_group()
+    
+    #gives positional and optional ways of providing the model data 
+    group_model.add_argument("model_p",nargs='?', default=None, 
+                             help="The file containing the data from the model (Usually DreamBeam)")
+    group_model.add_argument("--model","-m", 
+                             help="Alternative way of specifying the file containing the data from the model")
+    
+    
+    #creates a group for the scope filename
+    group_scope = parser.add_mutually_exclusive_group()
+    
+    #gives positional and optional ways of providing the scope data 
+    group_scope.add_argument("scope_p",nargs='?', default=None, 
+                             help="The file containing the observed data from the telescope")
+    group_scope.add_argument("--scope","-s", 
+                             help="Alternative way of specifying the file containing the observed data from the telescope")
+    
+    
+    #passes these arguments to a unified variable
+    args = parser.parse_args()
+    
+    #outputs the filename for the model to a returnable variable
+    if args.model_p != None:
+        in_file_model=args.model_p
+    elif args.model != None:
+        in_file_model=args.model
+    else:
+        in_file_model=raw_input("No model filename specified:\n"
+                                "Please enter the model filename:\n")
+    
+    
+    #outputs the filename for the scope to a returnable variable
+    if args.scope_p != None:
+        in_file_scope=args.scope_p
+    elif args.scope != None:
+        in_file_scope=args.scope
+    else:
+        in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
+                                "Please enter the telescope filename:\n")
+    
+    return(in_file_model,in_file_scope)
     
 if __name__ == "__main__":
-    #User input the filenames - probably want to parameterise this.
-    in_file_model=raw_input("Please enter the model filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/SE607_1d_160M.csv"
-    in_file_scope=raw_input("Please enter the scope filename:\n")#"~/outputs/test/dreamBeam/2018-03-05/IE613_1d_160M.csv"
+    #gets the command line arguments for the scope and model filename
+    in_file_model,in_file_scope=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
-    #want to modularise this
     model_df=read_dreambeam_csv(in_file_model)
     
     #using dreambeam input initially, will replace this with something suited to real telescope input if possible
