@@ -44,17 +44,17 @@ def plot_values_1f(merge_df):
     
     m_keys=get_df_keys(merge_df,"_diff")
     
-    for i in range(len(m_keys)):
+    for key in m_keys:
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values for p-channel against time
         plt.figure()
-        plt.title("Plot of the values in "+str(m_keys[i])+"-channel over time")
+        plt.title("Plot of the values in "+key+"-channel over time")
 
         #plots the p-channel in one colour
-        plt.plot(merge_df.Time,merge_df[str(m_keys[i])+'_model'],label='model',
-                 color=colour_models(str(m_keys[i])+'_light'))
-        plt.plot(merge_df.Time,merge_df[str(m_keys[i])+'_scope'],label='scope',
-                 color=colour_models(str(m_keys[i])+'_dark'))
+        plt.plot(merge_df.Time,merge_df[key+'_model'],label='model',
+                 color=colour_models(key+'_light'))
+        plt.plot(merge_df.Time,merge_df[key+'_scope'],label='scope',
+                 color=colour_models(key+'_dark'))
         plt.legend(frameon=False)
         #plots the axis labels rotated so they're legible
         plt.xticks(rotation=90)
@@ -77,27 +77,33 @@ def plot_diff_values_1f(merge_df):
     '''
     
     m_keys=get_df_keys(merge_df,"_diff")
-    
-    plt.figure()
-    graph_title = "Plot of the differences in "
-    for i in range(len(m_keys)):
-        plt.plot(merge_df.Time,
-                 merge_df[str(m_keys[i])+'_diff'], 
-                 label=r'$\Delta $'+str(m_keys[i]),
-                 color=colour_models(str(m_keys[i])))
-        if i < (len(m_keys)-2):
-            graph_title=graph_title+str(m_keys[i])+", "
-        elif (len(m_keys)-2) == i:
-            graph_title=graph_title+str(m_keys[i])+" & "
-        else:
-            graph_title=graph_title+str(m_keys[i])
 
-    #plots the axis labels rotated so they're legible
-    plt.xticks(rotation=90)
+    plt.figure()
+    
+    graph_title = "Plot of the differences in "
+    for key in m_keys:
+        plt.plot(merge_df.Time,
+                 merge_df[key+'_diff'], 
+                 label=r'$\Delta $'+key,
+                 color=colour_models(key))
+        if (m_keys.index(key) < (len(m_keys)-2)) :
+            graph_title=graph_title+key+", "
+        elif m_keys.index(key)==(len(m_keys)-2):
+            graph_title=graph_title+key+" & "
+        else:
+            graph_title=graph_title+key
     
     #calculates and adds title with frequency in MHz
     
-    graph_title=graph_title+"-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6)
+    graph_title=graph_title+"-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6)    
+    
+    
+
+
+    
+    #plots the axis labels rotated so they're legible
+    plt.xticks(rotation=90)
+
     plt.title(graph_title)
     plt.legend(frameon=False)
     plt.xlabel('Time')
@@ -156,8 +162,8 @@ def calc_corr_1d(merge_df):
     
     m_keys=get_df_keys(merge_df,"_diff")
     corr_outs=[]
-    for i in range(len(m_keys)):
-        corr_outs.append(pearsonr(merge_df[str(m_keys[i])+'_model'],merge_df[str(m_keys[i])+'_scope'])[0])
+    for key in m_keys:
+        corr_outs.append(pearsonr(merge_df[key+'_model'],merge_df[key+'_scope'])[0])
     
     
     return(corr_outs)
@@ -173,11 +179,16 @@ def calc_corr_nd(merge_df, var_str):
     
     in current versions, useable values for var_str are "Time" and "Freq"
     '''
-    
+    #identifies the keys with _diff suffix
+    m_keys=get_df_keys(merge_df,"_diff")
+        
     #creates empty lists for the correlations
-    p_corrs=[]
-    q_corrs=[]
+    n_corrs=[]
+    for i in range(len(m_keys)):
+        n_corrs.append([])
     
+    
+
     #identifies allthe unique values of the variable in the column
     unique_vals=merge_df[var_str].unique()
     
@@ -188,20 +199,35 @@ def calc_corr_nd(merge_df, var_str):
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
         #uses this unique value for and the 1-dimensional calc_corr_1d function
         #to calculate the correlations for each channel
-        p_corr,q_corr=calc_corr_1d(unique_merge_df)
+        n_corr=calc_corr_1d(unique_merge_df)
         
         #appends these to the list
-        p_corrs.append(p_corr)
-        q_corrs.append(q_corr)
-    
+        for i in range(len(m_keys)):
+            n_corrs[i].append(n_corr[i])
+
     #creates an overlaid plot of how the correlation of between model and scope
-    #varies for each of the p-and q-channels against var_str
+    #varies for each of the channels against var_str
     plt.figure()
-    plt.title("Plot of the correlations in p- and q-channels over "+var_str)
+
+    graph_title = "Plot of the correlation in "
+    for key in m_keys:    
+        plt.plot(unique_vals,n_corrs[m_keys.index(key)],
+                label=key+'_correlation',color=colour_models(key))
+        
+        if (m_keys.index(key) < (len(m_keys)-2)) :
+            graph_title=graph_title+key+", "
+        elif m_keys.index(key)==(len(m_keys)-2):
+            graph_title=graph_title+key+" & "
+        else:
+            graph_title=graph_title+key
     
-    #uses colour codes for the correlations
-    plt.plot(unique_vals,p_corrs,label='p_correlation',color=colour_models('p'))
-    plt.plot(unique_vals,q_corrs,label='q_correlation',color=colour_models('q'))
+    #calculates and adds title with frequency in MHz
+    
+    graph_title=graph_title+"-channels over "+var_str    
+            
+    
+
+    plt.title(graph_title)
     
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
@@ -212,7 +238,7 @@ def calc_corr_nd(merge_df, var_str):
     plt.show()
     
     #returns the correlation lists if needed    
-    return (p_corrs,q_corrs)    
+    return (n_corrs)    
     
 
 
@@ -225,8 +251,8 @@ def calc_rmse_1d(merge_df):
     '''
     m_keys=get_df_keys(merge_df,"_diff")
     rmse_outs=[]
-    for i in range(len(m_keys)):
-        rmse_outs.append(np.mean(merge_df[str(m_keys[i])+'_diff']**2)**0.5)
+    for key in m_keys:
+        rmse_outs.append(np.mean(merge_df[key+'_diff']**2)**0.5)
    
     return(rmse_outs)
  
@@ -242,9 +268,14 @@ def calc_rmse_nd(merge_df, var_str):
     in current versions, useable values for var_str are "Time" and "Freq"
     '''
     
+    #identifies the keys with _diff suffix
+    m_keys=get_df_keys(merge_df,"_diff")
+        
     #creates empty lists for the Errors
-    p_rmses=[]
-    q_rmses=[]
+    n_rmses=[]
+    for i in range(len(m_keys)):
+        n_rmses.append([])
+    
     
     
     #identifies allthe unique values of the variable in the column
@@ -257,21 +288,34 @@ def calc_rmse_nd(merge_df, var_str):
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
         #uses this unique value for and the 1-dimensional calc_corr_1d function
         #to calculate the RMSE for each channel
-        p_rmse,q_rmse=calc_rmse_1d(unique_merge_df)
+        n_rmse=calc_rmse_1d(unique_merge_df)
         
         #appends these to the list
-        p_rmses.append(p_rmse)
-        q_rmses.append(q_rmse)
+        for i in range(len(m_keys)):
+            n_rmses[i].append(n_rmse[i])
     
     #creates an overlaid plot of how the correlation of between model and scope
     #varies for each of the p-and q-channels against var_str    
     plt.figure()
-    plt.title("Plot of the RMSE in p- and q-channels over "+var_str)
+    graph_title = "Plot of the RMSE in "
+    for key in m_keys:    
+        plt.plot(unique_vals,n_rmses[m_keys.index(key)],
+                label=key+'_RMSE',color=colour_models(key))
+        
+        if (m_keys.index(key) < (len(m_keys)-2)) :
+            graph_title=graph_title+key+", "
+        elif m_keys.index(key)==(len(m_keys)-2):
+            graph_title=graph_title+key+" & "
+        else:
+            graph_title=graph_title+key
     
-    #uses colour codes for the correlations
-    plt.plot(unique_vals,p_rmses,label='p_RMSE',color=colour_models('p'))
-    plt.plot(unique_vals,q_rmses,label='q_RMSE',color=colour_models('q'))
+    #calculates and adds title with frequency in MHz
     
+    graph_title=graph_title+"-channels over "+var_str    
+            
+    plt.title(graph_title)
+
+
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
@@ -281,41 +325,35 @@ def calc_rmse_nd(merge_df, var_str):
     plt.show()
     
     #returns the correlation lists if needed    
-    return (p_rmses,q_rmses)    
+    return (n_rmses)
 
 
 
 
 def plot_diff_values_nf(merge_df):
     '''
-    This function creates two 3d colour plots using time and frequency from a 
+    This function creates 3d colour plots using time and frequency from a 
     merged data frame as the independent variables and the difference between
     source and model as the dependent (colour) variable 
     '''
-    #create a plot with two subplots
-    plt.figure()
     
-    #top subplot for P-channel
-    plt.subplot(211)
-    #display main title and subplot title together
-    plt.title("Plot of the differences in p- and q-channel over time and frequency\np-channel")
-    #plots p-channel difference
-    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.p_diff,
-                  cmap=plt.get_cmap(colour_models('ps')))
-    plt.ylabel("Frequency")
-    #blanks x labels on p-channel plot as x-axis is shared
-    plt.xticks([])
+    #identifies the keys with _diff suffix
+    m_keys=get_df_keys(merge_df,"_diff")    
     
-    #bottom subplot is q-channel
-    plt.subplot(212)
-    plt.title("q-channel")
-    #plots p-channel differences
-    plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df.q_diff,
-                  cmap=plt.get_cmap(colour_models('qs')))
-    #plots x-label for both using start time 
-    plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
-    plt.ylabel("Frequency")
-    plt.show()
+    for key in m_keys:
+        #create a plot with two subplots
+        plt.figure()
+        
+        #display main title and subplot title together
+        plt.title("Plot of the differences in %s over time and frequency"%key)
+        #plots p-channel difference
+        plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df[key+'_diff'],
+                      cmap=plt.get_cmap(colour_models(key+'s')))
+
+        #plots x-label for both using start time 
+        plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+        plt.ylabel("Frequency")
+        plt.show()
 
 def analysis_1d(merge_df):
     '''
@@ -331,6 +369,7 @@ def analysis_1d(merge_df):
     #plots the differences in the values
     plot_diff_values_1f(merge_df)
     
+    #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff")    
     
     #calculates the pearson correlation coefficient between scope and model
@@ -347,22 +386,58 @@ def analysis_1d(merge_df):
     
     
 def analysis_nd(merge_df):
-    #using 1-d versions to provide an overall perspective
-    #calculates the pearson correlation coefficient between scope and model
-    p_corr,q_corr=calc_corr_1d(merge_df)
-    print("\nThe overall P-channel correlation is %f\nThe overall Q-channel correlation is %f"%(p_corr,q_corr))
+    '''
+    This function carries out all plotting and calculations needed for a n-d 
+    dataset (i.e. multiple frequencies)
     
-    #calculates the root mean squared error between scope and model
-    p_rmse,q_rmse=calc_rmse_1d(merge_df)
-    print("\nThe overall P-channel RMSE is %f\nThe overall Q-channel RMSE is %f"%(p_rmse,q_rmse))
+    Future iterations may include optional arguments to enable selection of the
+    plots that are preferred
+    '''
+        
+    #identifies the keys with _diff suffix
+    m_keys=get_df_keys(merge_df,"_diff")
+    
+    #calculates the pearson correlation coefficient between scope and model
+    corrs=calc_corr_1d(merge_df)
+    #prints that coefficient for each key and correlation
+    for i in range(len(m_keys)):
+        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
 
+    #newline to separate outputs
+    print("\n")  
+        
+    #calculates the root mean squared error between scope and model
+    rmses=calc_rmse_1d(merge_df)
+    for i in range(len(m_keys)):
+        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+
+    #plots the differences in values for the various channels
     plot_diff_values_nf(merge_df)
     
-    p_corrs,q_corrs=calc_corr_nd(merge_df,"Freq")
-    p_rmses,q_rmses=calc_rmse_nd(merge_df,"Freq")
+    #calculates the correlations and rmse over time at each frequency 
+    #return values are stored as possible future outputs
+    n_corrs_freq=calc_corr_nd(merge_df,"Freq")
+    n_rmses_freq=calc_rmse_nd(merge_df,"Freq")
+    n_freq=merge_df.Freq.unique()
+    freq_df=pd.DataFrame(data={"Freq":n_freq})
+    for key in m_keys:
+        freq_df[key+'_corr']=n_corrs_freq[m_keys.index(key)]
+        freq_df[key+'_RMSE']=n_rmses_freq[m_keys.index(key)]
     
-    p_corrs,q_corrs=calc_corr_nd(merge_df,"Time")
-    p_rmses,q_rmses=calc_rmse_nd(merge_df,"Time")    
+    #calculates the correlations and rmse over frequency at each time 
+    #return values are stored as possible future outputs
+    n_corrs_time=calc_corr_nd(merge_df,"Time")
+    n_rmses_time=calc_rmse_nd(merge_df,"Time")
+    n_time=merge_df.Time.unique()
+    time_df=pd.DataFrame(data={"Time":n_time})
+    for key in m_keys:
+        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
+        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
+    
+    return (freq_df,time_df)
+    
+    
+    
 
  
 def colour_models(colour_id):
@@ -389,12 +464,36 @@ def colour_models(colour_id):
     if 'qs'==colour_id:
         return('Greens')
     
-    #sets Red, Purple and Blue as colour maps for XX, XY and YY values
+    #sets reds for various applications of the XX channel 
     if 'xx'==colour_id:
-        return('Reds')    
+        return('red')   
+    if 'xx_light'==colour_id:
+        return('orangered')
+    if 'xx_dark'==colour_id:
+        return('darktrf')
+    if 'qs'==colour_id:
+        return('Reds')
+    
+    
+    #sets purples for various applications of the XY channel 
     if 'xy'==colour_id:
+        return('darkviolet')
+    if 'xy_light'==colour_id:
+        return('mediumorchid')
+    if 'xy_dark'==colour_id:
+        return('purple')
+    if 'xys'==colour_id:
         return('Purples')
+    
+    
+    #sets greens for various applications of the YY channel 
     if 'yy'==colour_id:
+        return('blue')
+    if 'yy_light'==colour_id:
+        return('deepskyblue')
+    if 'yy_dark'==colour_id:
+        return('darkblue')
+    if 'yys'==colour_id:
         return('Blues')
     
     #returns black as a default
