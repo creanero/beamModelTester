@@ -331,15 +331,19 @@ def analysis_1d(merge_df):
     #plots the differences in the values
     plot_diff_values_1f(merge_df)
     
-    #calculates the pearson correlation coefficient between scope and model
-    p_corr,q_corr=calc_corr_1d(merge_df)
-    print("\nThe P-channel correlation is %f\nThe Q-channel correlation is %f"
-          %(p_corr,q_corr))
+    m_keys=get_df_keys(merge_df,"_diff")    
     
+    #calculates the pearson correlation coefficient between scope and model
+    corrs=calc_corr_1d(merge_df)
+    
+    for i in range(len(m_keys)):
+        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
+
+    print("\n")    
     #calculates the root mean squared error between scope and model
-    p_rmse,q_rmse=calc_rmse_1d(merge_df)
-    print("\nThe P-channel RMSE is %f\nThe Q-channel RMSE is %f"
-          %(p_rmse,q_rmse))
+    rmses=calc_rmse_1d(merge_df)
+    for i in range(len(m_keys)):
+        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
     
     
 def analysis_nd(merge_df):
