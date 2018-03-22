@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr
 import argparse
+import h5py
 
 def read_dreambeam_csv(in_file):
     '''
@@ -112,42 +113,42 @@ def plot_diff_values_1f(merge_df):
     
     
     
-    
-def merge_dfs(model_df,scope_df):
-    '''
-    This function takes a dataframe created from the dream_beam model and one
-    created from the scope and merges them into a single dataframe using the 
-    time and frequency as the joining variables. In the merged dataframe are
-    calculated the p- and q-channel intensities & the differences between them.
-    Finally, a time difference from the start time is calculated.
-    
-    The merged dataframe is then returned
-    
-    NOTE this module currently uses DreamBeam type output for the scope input
-    data.  If this changes, then changes may be needed to this module
-    '''
-    #merges the two datagrames using time and frequency
-    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
-    
-    #calculates the p-channel intensity as per DreamBeam for both model and scope
-    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
-    #calculates the difference between model and scope
-    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
-    
-    #calculates the q-channel intensity as per DreamBeam for both model and scope
-    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
-    #calculates the difference between model and scope
-    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
-    
-    #creates a variable to hold the time since the start of the plot
-    #this is necessary for plots that are not compatible with Timestamp data
-    start_time=min(merge_df.Time)
-    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
-    
-    return(merge_df)
-
+#   
+#def merge_dfs(model_df,scope_df):
+#    '''
+#    This function takes a dataframe created from the dream_beam model and one
+#    created from the scope and merges them into a single dataframe using the 
+#    time and frequency as the joining variables. In the merged dataframe are
+#    calculated the p- and q-channel intensities & the differences between them.
+#    Finally, a time difference from the start time is calculated.
+#    
+#    The merged dataframe is then returned
+#    
+#    NOTE this module currently uses DreamBeam type output for the scope input
+#    data.  If this changes, then changes may be needed to this module
+#    '''
+#    #merges the two datagrames using time and frequency
+#    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
+#    
+#    #calculates the p-channel intensity as per DreamBeam for both model and scope
+#    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
+#    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
+#    #calculates the difference between model and scope
+#    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
+#    
+#    #calculates the q-channel intensity as per DreamBeam for both model and scope
+#    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
+#    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
+#    #calculates the difference between model and scope
+#    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
+#    
+#    #creates a variable to hold the time since the start of the plot
+#    #this is necessary for plots that are not compatible with Timestamp data
+#    start_time=min(merge_df.Time)
+#    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
+#    
+#    return(merge_df)
+#
 
 
     
@@ -157,14 +158,17 @@ def calc_corr_1d(merge_df):
     calculates the pearson correlation coeffiecients between scope 
     and model
     '''
-    #using [0] from the pearsonr to return the correlation coefficient, but not
-    #the 2-tailed p-value stored in [1]
+    
     
     m_keys=get_df_keys(merge_df,"_diff")
     corr_outs=[]
     for key in m_keys:
-        corr_outs.append(pearsonr(merge_df[key+'_model'],merge_df[key+'_scope'])[0])
-    
+        #uses absolute values as real values cannot be negative and complex 
+        #values cannot be plotted
+        corr_outs.append(pearsonr(abs(merge_df[key+'_model']),
+                                  abs(merge_df[key+'_scope']))[0])
+    #using [0] from the pearsonr to return the correlation coefficient, but not
+    #the 2-tailed p-value stored in [1]
     
     return(corr_outs)
     
@@ -347,7 +351,7 @@ def plot_diff_values_nf(merge_df):
         #display main title and subplot title together
         plt.title("Plot of the differences in %s over time and frequency"%key)
         #plots p-channel difference
-        plt.tripcolor(merge_df.d_Time,merge_df.Freq,merge_df[key+'_diff'],
+        plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_diff']),
                       cmap=plt.get_cmap(colour_models(key+'s')))
 
         #plots x-label for both using start time 
@@ -470,8 +474,8 @@ def colour_models(colour_id):
     if 'xx_light'==colour_id:
         return('orangered')
     if 'xx_dark'==colour_id:
-        return('darktrf')
-    if 'qs'==colour_id:
+        return('darkred')
+    if 'xxs'==colour_id:
         return('Reds')
     
     
@@ -558,16 +562,187 @@ def beam_arg_parser():
                                 "Please enter the telescope filename:\n")
     
     return(in_file_model,in_file_scope)
+
+
+def read_OSO_h5 (filename):
+    '''
+    This function reads in the data from an OSO-supplied HDF5 file and converts#
+    it into a data frame. This data is then returned to the calling function
+    
+    Inputs: file name containing the path to a HDF5 file
+    Outputs: Data Frame containing time, frequency, xx, xy and yy values
+    
+    This function uses slightly crude methods, and probably needs to be 
+    updated with a more straightforward conversion from HDF5 to a dataframe
+    '''
+    #'/home/creanero/outputs/observations/OSO/2018-03-16T11_26_11_acc2bst_rcu5_CasA_dur2587_ct20161220.hdf5'
+    #Reads in the designated HDF5 file
+    f = h5py.File(filename, 'r')
+    
+    #Creates lists to hold the contents of the various HDF5 datasets within the
+    #file.  These are then merged to form the data frame.
+    time_list=[]
+    d_time=[]
+    freq_list=[]
+    xx_list=[]
+    xy_list=[]
+    yy_list=[]
+
+    #creates an index for the time stamps
+    time_index=0
+
+    #identifies the start time.  Times in HDF5 are stored as floats since the
+    #epoch of Jan 01 00:00:00 1970
+    min_time=pd.to_datetime(min(list(f["timeaccstart"])),unit='s')
+    
+    #this shouldn't be needed in the final product, included durind calibration
+    #mismatch issues
+    min_freq=min(list(f['frequency']))
+    
+    #Iterates over the time values in the HDF5 file
+    for time_val in list(f["timeaccstart"]):
+        #(re-)initialises the index for frequencies in the HDF5 file
+        freq_index=0
+        #Iterates over the frequency values in the HDF5 file
+        for freq_val in list(f['frequency']):
+            time_stamp_val=pd.to_datetime(time_val,unit='s')
+            #appends the values from the iterators for Time and Frequency
+            time_list.append(time_stamp_val)
+            d_time.append((time_stamp_val-min_time)/np.timedelta64(1,'s')) #useful for calculations
+
+
+
+            #TTTTTTT         FFFFFFF iii       
+            #  TTT    oooo   FF          xx  xx
+            #  TTT   oo  oo  FFFF    iii   xx  
+            #  TTT   oo  oo  FF      iii   xx  
+            #  TTT    oooo   FF      iii xx  xx            
+            #TODO: Fix and replace once HDF5 writer is fixed
+            
+            freq_list.append(min_freq+(freq_index*(1e8/512.0)))
+            
+            
+            ##This is the correct code to process from the file
+            #freq_list.append(freq_val)
+            
+            #uses the indices to find the correct values for XX, XY and YY
+            xx_list.append(f['XX'][time_index][freq_index])
+            xy_list.append(f['XY'][time_index][freq_index])
+            yy_list.append(f['YY'][time_index][freq_index])
+            
+            #increments the indices
+            freq_index = freq_index+1
+        time_index=time_index+1
+    
+    #creates the data frame by pasting the lists together    
+    scope_df=pd.DataFrame(data={'Time':time_list, 'd_Time':d_time, 
+                                'Freq':freq_list,
+                                'xx':xx_list,'xy':xy_list,'yy':yy_list})
+    
+    #returns the data frame
+    return(scope_df)
+
+def read_var_file(file_name):
+    suffix=file_name.rsplit('.',1)[1]
+    if 'csv'==suffix:
+        out_df=read_dreambeam_csv(file_name)
+    if 'hdf5'==suffix:
+        out_df=read_OSO_h5(file_name)    
+    return(out_df)
+
+
+def merge_dfs(model_df,scope_df):
+    '''
+    This function takes a dataframe created from the dream_beam model and one
+    created from the scope and merges them into a single dataframe using the 
+    time and frequency as the joining variables. In the merged dataframe are
+    calculated the p- and q-channel intensities & the differences between them.
+    Finally, a time difference from the start time is calculated.
+    
+    The merged dataframe is then returned
+    
+    '''
+    #merges the two datagrames using time and frequency
+    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
+    if 'J11_scope' in merge_df:
+        merge_df=calc_pq(merge_df)
+    elif 'xx' in merge_df:
+        merge_df=calc_xy(merge_df)
+    
+    return(merge_df)        
+
+def calc_pq(merge_df):
+    '''
+    Calculates the P and Q channel intensities as per dreamBeam, and from there
+    calculates the differeces in each channel, as well as the time since start
+    '''
+    
+    #calculates the p-channel intensity as per DreamBeam for both model and scope
+    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
+    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
+    #calculates the difference between model and scope
+    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
+    
+    #calculates the q-channel intensity as per DreamBeam for both model and scope
+    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
+    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
+    #calculates the difference between model and scope
+    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
+    
+    #creates a variable to hold the time since the start of the plot
+    #this is necessary for plots that are not compatible with Timestamp data
+    start_time=min(merge_df.Time)
+    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
+    
+    return (merge_df)
+
+
+def calc_xy(merge_df):
+    
+    '''
+    Calculates the XY parameters for the model from the JNN values and 
+    normalises the XY parameters from the scope so they are comparable.  
+    
+    NOTE: this version makes no allowance for outliers or smoothing in the
+    scope data.  This may be added to future versions
+    
+    calculates the xx, xy, yx and yy parameters for the model from the JNN 
+    values Using the formulae below
+     B = [[XX, XY] ,[YX, YY]]
+     J = [[J11,J12],[J21,J22]]
+     B = J * J'
+     XX= (J11 *  ̅J̅1̅1 )+ (J12 *  ̅J̅1̅2 )
+     XY= (J11 *  ̅J̅2̅1 )+ (J12 *  ̅J̅2̅2 )
+     YX= (J21 *  ̅J̅1̅1 )+ (J22 *  ̅J̅1̅2 )
+     YY= (J21 *  ̅J̅2̅1 )+ (J22 *  ̅J̅2̅2 )
+    '''
+    merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
+    merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
+    merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+    merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
+    
+    #normalises by dividing by the maximum
+    merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
+    merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
+    merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)
+    
+    #calculates the differences
+    merge_df['xx_diff']=abs(merge_df.xx_model)-abs(merge_df.xx_scope)
+    merge_df['xy_diff']=abs(merge_df.xy_model)-abs(merge_df.xy_scope)
+    merge_df['yy_diff']=abs(merge_df.yy_model)-abs(merge_df.yy_scope)
+    
+    #note the d_Time is already calculated
+    return (merge_df)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
     in_file_model,in_file_scope=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
-    model_df=read_dreambeam_csv(in_file_model)
+    model_df=read_var_file(in_file_model)
     
-    #using dreambeam input initially, will replace this with something suited to real telescope input if possible
-    scope_df=read_dreambeam_csv(in_file_scope)
+    #read in the file from the scope using variable reader
+    scope_df=read_var_file(in_file_scope)
     
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df)
