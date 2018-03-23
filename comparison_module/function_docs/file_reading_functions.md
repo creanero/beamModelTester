@@ -4,7 +4,7 @@ Version 0.3\
 23ʳᵈ March 2018\
 Oisin Creaner**
 
-This set of functions describes the file reading elements of the [comparison module](comparison_module/Comparison_Module.md).
+This set of functions describes the file reading elements of the [comparison module](/comparison_module/Comparison_Module.md).
 
 **Functions**\
 read_var_file\
