@@ -44,7 +44,8 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Operation**
 
-1. Parse the command line arguments or user interactive input using [beam_arg_parser](/link_needed.md)
+1. Parse the command line arguments or user interactive input using 
+[beam_arg_parser](/comparison_module/function_docs/arg_parser.md)
 2. Read in the data from the model file using the variable reader function 
 [read_var_file](/comparison_module/function_docs/file_reading_functions.md)
 and store the contents in a dataframe
