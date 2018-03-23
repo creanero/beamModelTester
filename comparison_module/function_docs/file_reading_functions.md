@@ -18,25 +18,26 @@ Numpy
 
 **Outline**\
 These functions form the file entry component of the 
-[comparison module](comparison_module/Comparison_Module.md) of [beamModelTester](README.md)
+[comparison module](/comparison_module/Comparison_Module.md) of 
+[beamModelTester](/README.md)
 Depending on the file type provided, the system uses one of several (currently two) options
 to read the file into memory as a dataframe suitable for futher processing.
 
 **Design Diagram**\
-![Design Diagram](images/comparison_module_read_functions_fig1_v1.PNG)
+![Design Diagram](/images/comparison_module_read_functions_fig1_v1.PNG)
 
 **Operation**
 
 1.  The function parses the extension from the filename provided.
 2.  If the suffix is "csv", execute read_dreambeam_csv:
-    1.  This means the data must be of [dreamBeam output format](data_descriptions/DreamBeam_Source_data_description.md)
+    1.  This means the data must be of [dreamBeam output format](/data_descriptions/DreamBeam_Source_data_description.md)
     2.  This function calls the pandas read_csv method with the following arguments
         1.  converters to read in the Jones matrix elements as complex numbers
         2.  A date parser for the Time column
         3.  An argument to specify to skip initial spaces if needed.
     3.  This function returns the dataframe containing the output from dreamBeam
 3.  If the suffix is "hdf5", execute read_OSO_h5:
-    1.  This means the data must be of [OSO HDF5 format](data_descriptions/OSO_HDF5.md)
+    1.  This means the data must be of [OSO HDF5 format](/data_descriptions/OSO_HDF5.md)
     2.  Call the h5py File method in read mode
     3.  Creates lists to hold the data from the file
     4.  Creates a time index
