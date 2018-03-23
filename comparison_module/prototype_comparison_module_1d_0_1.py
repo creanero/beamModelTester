@@ -718,8 +718,13 @@ def calc_xy(merge_df):
     '''
     merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
     merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
-    merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
+    
+    #yx_model not calculated for two reasons
+    # 1. xy equal to within floating point errors
+    # 2. yx not included in scope data (presumably because of 1.)
+    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+   
     
     #normalises by dividing by the maximum
     merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
