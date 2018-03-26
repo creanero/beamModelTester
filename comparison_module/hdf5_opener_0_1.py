@@ -99,7 +99,7 @@ def plot_OSO_h5(scope_df,pol_str,plot_type=""):
     
     plt.figure()
     plt.tripcolor(scope_df.d_time,scope_df.Freq,abs(scope_df[pol_str]),
-                  cmap=plt.get_cmap(colour_models(pol_str)))
+                  cmap=plt.get_cmap(colour_models(pol_str+'s')))
     
     if "dirty" == plot_type:
         plot_title = "Plot of "+pol_str+" against time and frequency without cleaning\nDominated by OUTLIERS"
