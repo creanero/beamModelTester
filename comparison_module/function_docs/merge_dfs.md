@@ -29,7 +29,7 @@ Depending on the dataframe content provided, the system uses one of several (cur
 to process the data from two existing dataframes suitable for futher processing.
 
 **Design Diagram**\
-![Design diagram](/images/comparison_module_merge_dfs_fig1_v2.PNG) \
+![Design diagram](/images/comparison_module_merge_dfs_fig1_v3.PNG) \
 **Figure 1: Schematic representation of merge software.  A slightly more precise,
 if less clear, diagram is available at [this link](/images/comparison_module_merge_dfs_fig1_v1.PNG).**
 
