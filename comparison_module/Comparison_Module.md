@@ -50,19 +50,20 @@ the variables. (*These outputs can be expanded in Future*)
 [read_var_file](/comparison_module/function_docs/file_reading_functions.md)
 and store the contents in a dataframe
    
-3.  Read in the data from the telescope file using the variable reader function and store the contents in a
+3.  Read in the data from the telescope file using the same variable reader function and store the contents in a
     dataframe
 
 4.  Merge the dataframes using an inner join to ensure only data points
     where a common value(s) for the independent variable(s) exists using 
-    the flexible dataframe merger function (merge_dfs)
+    the flexible dataframe merger function, 
+    [merge_dfs](/comparison_module/function_docs/merge_dfs.md)
     1.  (*Option: consider including statistics of this operation in the outputs?*)
 
-5.  The difference between the two sets of values for the dependent
-    variable(s) (either p- and q-channels or xx, xy and yy channels) 
-    is calculated and stored as a column in the merged dataframe
+    2.  As part of this process, the difference between the two sets of values for the dependent
+        variable(s) (either p- and q-channels or xx, xy and yy channels) 
+        is calculated and stored as a column in the merged dataframe
 
-6.  Depending on whether there is a single value for frequency or multiple values, 
+5.  Depending on whether there is a single value for frequency or multiple values, 
     the program will perform slightly different analyses.  
 
     1.  In one-frequency mode, the outputs are
