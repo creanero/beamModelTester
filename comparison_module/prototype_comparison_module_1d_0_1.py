@@ -49,7 +49,8 @@ def plot_values_1f(merge_df):
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values for p-channel against time
         plt.figure()
-        plt.title("Plot of the values in "+key+"-channel over time")
+        plt.title("Plot of the values in "+key+"-channel over time"+
+                  "\nat %.0f MHz"%(merge_df.Freq[0]/1e6))
 
         #plots the p-channel in one colour
         plt.plot(merge_df.Time,merge_df[key+'_model'],label='model',
