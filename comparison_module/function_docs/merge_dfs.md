@@ -9,7 +9,7 @@ This set of functions describes the Dataframe merging elements of the [compariso
 **Functions**\
 merge_dfs\
 calc_pq\
-calc_xy\
+calc_xy
 
 **Dependencies**\
 pandas\
@@ -55,10 +55,10 @@ if less clear, diagram is available at [this link](/images/comparison_module_mer
     NOTE: This will actually work with either input (scope or model), 
     calculating the channels for the input that didn't have it
     3.  Calculates the XX, XY and YY channel values for the model
-        1.  XX= (J11 *  ̅J̅1̅1 )+ (J12 *  ̅J̅1̅2 )
-        2.  XY= (J11 *  ̅J̅2̅1 )+ (J12 *  ̅J̅2̅2 )
-        3.  YY= (J21 *  ̅J̅2̅1 )+ (J22 *  ̅J̅2̅2 )
-        4.  NOTE: not currently using YX= (J21 *  ̅J̅1̅1 )+ (J22 *  ̅J̅1̅2 )
+        1.  XX = (J11 * conj(J11)) + (J12 * conj(J12))
+        2.  XX = (J11 * conj(J21)) + (J12 * conj(J22))
+        3.  YY = (J21 * conj(J21)) + (J22 * conj(J22))
+        4.  NOTE: not currently using YX = (J21 * conj(J11)) + (J22 * conj(J12))
     4.  Normalises the XX, XY and YY channel values for the scope 
     by dividing by the maximum for each
     5.  Calculates the difference in XX, XY and YY between scope and model
