@@ -38,7 +38,7 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Design Diagram**
 
-![Design Diagram](../images/comparison_module_fig1_v2.PNG)
+![Design Diagram](../images/comparison_module_fig1_v3.PNG)
 
 **Figure 1: Outline of the Comparison Module**
 
