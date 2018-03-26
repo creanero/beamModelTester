@@ -500,9 +500,27 @@ def colour_models(colour_id):
     if 'yys'==colour_id:
         return('Blues')
     
-    #returns black as a default
+    #sets grey values for other plots, where there are partial matches.
+    if '_light' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'light' found in colourstring.\n"
+              "Defaulting to grey\n")
+        return ('grey')    
+    if '_dark' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'dark' found in colourstring.\n"
+              "Defaulting to darkeslategrey\n")
+        return ('darkslategrey')  
+    if 's' in colour_id:    
+        print("Warning: Colour incompletely or inaccurately specified as:\n\n\t"+colour_id+              
+              "\n\n's' found in colourstring.\n"
+              "Defaulting to Greys\n")
+        return ('Greys')      
+    
+    #returns black as a final default
     else:
-        print("Warning: Colour incorrectly specified.  Defaulting to Black")
+        print("Warning: Colour incorrectly specified as:\n\n\t"+colour_id+              
+              "\n\nDefaulting to black\n")
         return ('black')    
 
 def beam_arg_parser():
