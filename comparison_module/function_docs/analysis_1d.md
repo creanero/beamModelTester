@@ -21,7 +21,7 @@ scipy.stats.stats.pearsonr
 **Inputs**\
 A merged data frame containing model and scope data
 
-**Outputs**\
+**Outputs**
 1.  A plot of the values of each of the channels for both model and scope over time
 2.  A plot of the differences between the model and scope for each channel over time
 3.  A calculation of the correlation coefficient between the model
@@ -37,7 +37,7 @@ This element produces outputs for each polarisation for which there is a differe
 recorded in the input.  
 
 **Design Diagram**\
-TODO: add design diagram
+![Design diagram](/images/comparison_module_analysis_1f_fig1_v1.PNG)
 
 **Operation**
 1.  plots the values for each channel using plot_values_1f
@@ -49,7 +49,7 @@ TODO: add design diagram
         2.  Plots the values for the model in a light **shade** using colour_models
         3.  Plots the values for the scope in a dark **shade** using colour_models
         4.  Adds a legend, xticks and xlabel to the graph and shows it
-2.  plots the differences in the values using plot_diff_values_1ff
+2.  plots the differences in the values using plot_diff_values_1f
     1.  identifies the keys (polarisation channels) with '_diff' suffix using get_df_keys
     2.  Begins to create the graph title
     3.  for each such channel, plots the differences for the channels on the **same** graph
@@ -61,6 +61,7 @@ TODO: add design diagram
     3.  Calculates and appends the frequency in MHz
     4.  Adds a legend, xticks and xlabel to the graph and shows it
 3.  identifies the keys (polarisation channels) with '_diff' suffix using get_df_keys
-4.  for each such key
-    1.  calculates and prints the pearson correlation coefficient between scope and model using calc_corr_1d
-    2.  calculates and prints  the root mean squared error between scope and model using calc_rmse_1d(merge_df)
+4.  calculates the pearson correlation coefficient between scope and model using calc_corr_1d
+    1.  for each channel prints the correlation 
+5.  calculates the root mean squared error between scope and model using calc_rmse_1d
+    1.  for each channel prints the RMSE 
