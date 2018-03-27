@@ -519,9 +519,17 @@ def beam_arg_parser():
     group_scope.add_argument("--scope","-s", 
                              help="Alternative way of specifying the file containing the observed data from the telescope")
     
+    #adds an optional argument for normalisation method
+    parser.add_argument("--norm_mode","-n", default="t",choices=("t","f"), 
+                             help="Method for normalising the scope data\n"+
+                             "t = trivial (divide by maximum for all scope data)\n"+
+                             "f = frequency (divide by maximum by frequency/subband)")
+    
     
     #passes these arguments to a unified variable
     args = parser.parse_args()
+    
+    
     
     #outputs the filename for the model to a returnable variable
     if args.model_p != None:
@@ -541,8 +549,10 @@ def beam_arg_parser():
     else:
         in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
                                 "Please enter the telescope filename:\n")
+        
+    norm_mode=args.norm_mode
     
-    return(in_file_model,in_file_scope)
+    return(in_file_model,in_file_scope,norm_mode)
 
 
 def read_OSO_h5 (filename):
@@ -638,7 +648,7 @@ def read_var_file(file_name):
     return(out_df)
 
 
-def merge_dfs(model_df,scope_df):
+def merge_dfs(model_df,scope_df,norm_mode):
     '''
     This function takes a dataframe created from the dream_beam model and one
     created from the scope and merges them into a single dataframe using the 
@@ -654,7 +664,7 @@ def merge_dfs(model_df,scope_df):
     if 'J11_scope' in merge_df:
         merge_df=calc_pq(merge_df)
     elif 'xx' in merge_df:
-        merge_df=calc_xy(merge_df)
+        merge_df=calc_xy(merge_df,norm_mode)
     
     return(merge_df)        
 
@@ -684,7 +694,7 @@ def calc_pq(merge_df):
     return (merge_df)
 
 
-def calc_xy(merge_df):
+def calc_xy(merge_df,norm_mode):
     
     '''
     Calculates the XY parameters for the model from the JNN values and 
@@ -712,11 +722,9 @@ def calc_xy(merge_df):
     # 2. yx not included in scope data (presumably because of 1.)
     #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
    
-    
-    #normalises by dividing by the maximum
-    merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-    merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
-    merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)
+    #normalises the dataframe
+    merge_df=normalise_scope(merge_df,norm_mode)
+
     
     #calculates the differences
     merge_df['xx_diff']=abs(merge_df.xx_model)-abs(merge_df.xx_scope)
@@ -725,10 +733,57 @@ def calc_xy(merge_df):
     
     #note the d_Time is already calculated
     return (merge_df)
+
+def normalise_scope(merge_df,norm_mode):
+    '''
+    This function normalises the data for the scope according to the 
+    normalisation mode specified.  These options are detailed belwo
+    '''
+    if 't' == norm_mode :
+        #normalises by dividing by the maximum
+        merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
+        merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
+        merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
+    elif 'f' == norm_mode:
+        var_str='Freq'
+        #normalises by dividing by the maximum for each frequency
+        #xx_scope_maxes=[]
+        xx_scope_vals=[]
+        #identifies allthe unique values of the variable in the column
+        unique_vals=merge_df[var_str].unique()
+        merge_df=merge_df.sort_values(["Freq","Time"])
+        
+        #iterates over all unique values
+        for unique_val in unique_vals:
+            #creates a dataframe with  only the elements that match the current 
+            #unique value
+            unique_merge_df=merge_df[merge_df[var_str]==unique_val]
+            #uses this dataframe to calculate the max for a given freq
+            unique_max = np.max(unique_merge_df.xx)
+            #xx_scope_maxes.append(unique_max)
+        
+        
+#        for element in merge_df:
+#            xx_norm_val = element['xx']
+#            xx_scope_vals.append(xx_norm_val)
+            unique_merge_df['xx_scope']=unique_merge_df.xx/unique_max
+            for unique_norm in unique_merge_df['xx_scope']:
+                xx_scope_vals.append(unique_norm)
+        
+        merge_df['xx_scope']=xx_scope_vals
+        ##included for testing, should be as above
+    
+        merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
+        merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
+        
+        merge_df.sort_values(["Time","Freq"])
+    
+    
+    return (merge_df)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
-    in_file_model,in_file_scope=beam_arg_parser()
+    in_file_model,in_file_scope,norm_mode=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(in_file_model)
@@ -737,7 +792,7 @@ if __name__ == "__main__":
     scope_df=read_var_file(in_file_scope)
     
     #merges the dataframes
-    merge_df=merge_dfs(model_df, scope_df)
+    merge_df=merge_dfs(model_df, scope_df, norm_mode)
     
     #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
