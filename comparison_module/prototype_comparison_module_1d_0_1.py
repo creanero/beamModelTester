@@ -72,7 +72,7 @@ def plot_values_1f(merge_df):
 def plot_diff_values_1f(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
-    plots the differences in p-channel and q-channel values over time
+    plots the differences in various channel values over time
     
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
@@ -114,45 +114,7 @@ def plot_diff_values_1f(merge_df):
     
     
     
-#   
-#def merge_dfs(model_df,scope_df):
-#    '''
-#    This function takes a dataframe created from the dream_beam model and one
-#    created from the scope and merges them into a single dataframe using the 
-#    time and frequency as the joining variables. In the merged dataframe are
-#    calculated the p- and q-channel intensities & the differences between them.
-#    Finally, a time difference from the start time is calculated.
-#    
-#    The merged dataframe is then returned
-#    
-#    NOTE this module currently uses DreamBeam type output for the scope input
-#    data.  If this changes, then changes may be needed to this module
-#    '''
-#    #merges the two datagrames using time and frequency
-#    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
-#    
-#    #calculates the p-channel intensity as per DreamBeam for both model and scope
-#    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-#    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
-#    #calculates the difference between model and scope
-#    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
-#    
-#    #calculates the q-channel intensity as per DreamBeam for both model and scope
-#    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-#    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
-#    #calculates the difference between model and scope
-#    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
-#    
-#    #creates a variable to hold the time since the start of the plot
-#    #this is necessary for plots that are not compatible with Timestamp data
-#    start_time=min(merge_df.Time)
-#    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
-#    
-#    return(merge_df)
-#
-
-
-    
+   
 def calc_corr_1d(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
