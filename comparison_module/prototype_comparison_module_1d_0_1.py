@@ -578,7 +578,7 @@ def read_OSO_h5 (filename):
     
     #this shouldn't be needed in the final product, included durind calibration
     #mismatch issues
-    min_freq=min(list(f['frequency']))
+    #min_freq=min(list(f['frequency']))
     
     #Iterates over the time values in the HDF5 file
     for time_val in list(f["timeaccstart"]):
@@ -592,7 +592,11 @@ def read_OSO_h5 (filename):
             d_time.append((time_stamp_val-min_time)/np.timedelta64(1,'s')) #useful for calculations
 
 
-
+            '''
+            Code removed after corrections to lightcurve generation software
+            
+            leave this here for possible tests in case there are issues later
+            
             #TTTTTTT         FFFFFFF iii       
             #  TTT    oooo   FF          xx  xx
             #  TTT   oo  oo  FFFF    iii   xx  
@@ -604,7 +608,9 @@ def read_OSO_h5 (filename):
             
             
             ##This is the correct code to process from the file
-            #freq_list.append(freq_val)
+            #
+            '''            
+            freq_list.append(freq_val)
             
             #uses the indices to find the correct values for XX, XY and YY
             xx_list.append(f['XX'][time_index][freq_index])
