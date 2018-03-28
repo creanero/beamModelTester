@@ -57,13 +57,15 @@ recorded in the input.
         1.  creates the graph title from the key
         2.  Plots the differences for each channel in a scale of consistient **hue** 
         using colour_models and plt.tripcolor to plot differences against time and frequency
-    3.  Adds a ylabel and xlabel to the graph and shows it    
+        3.  Adds a ylabel and xlabel to the graph and shows it    
 5.  For each of the independent variables (Frequency and Time)
     1.  Calculates and plots the correlation between the model and the scope 
-    for each value of that independent variable using [calc_corr_nd](/comparison_module/function_docs/calc_corr_nd.md) 
+    for each value of that independent variable for each channel using 
+    [calc_corr_nd](/comparison_module/function_docs/calc_corr_nd.md) 
     (e.g. for each frequency, plot the correlation over time)
     2.  Calculates and plots the RMSE between the model and the scope 
-    for each value of that independent variable using [calc_rmse_nd ](/comparison_module/function_docs/calc_rmse_nd.md)
+    for each value of that independent variable using for each channel using 
+    [calc_rmse_nd ](/comparison_module/function_docs/calc_rmse_nd.md)
     (e.g. for each frequency, plot the RMSE over time)
 
 6.  returns a data frame for the correlations and RMSEs over frequency and time
