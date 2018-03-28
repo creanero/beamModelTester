@@ -7,7 +7,27 @@ Oisin Creaner**
 **Outline**\
 This function Calculates and plots the correlation between the model and the scope 
 for each value of a given independent variable (e.g. for each frequency, plot the correlation over time)
+**Functions**\
+calc_corr_1d\
+calc_corr_nd
 
+**Dependencies**\
+pandas\
+numpy\
+matplotlib.pyplot\
+scipy.stats.stats.pearsonr
+
+**Inputs**\
+A merged data frame containing model and scope data
+A string indicating which independent variable to analyse
+
+**Outputs**
+1.  A plot and list of the how the correlation coefficient between the model
+    and the scope data for each channel varies over each independent variable
+
+**Design Diagram**\
+![Design diagram](/images/comparison_module_calc_corr_nd_fig1_v1.PNG)
+    
 **Operations**
 1.  identifies the keys (polarisation channels) with '_diff' suffix using get_df_keys
 2.  creates a list of lists to hold the correlations for each channel
