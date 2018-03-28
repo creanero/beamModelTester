@@ -66,7 +66,7 @@ and store the contents in a dataframe
 5.  Depending on whether there is a single value for frequency or multiple values, 
     the program will perform slightly different analyses.  
 
-    1.  In one-frequency mode, the outputs are
+    1.  In [one-frequency mode](/comparison_module/function_docs/analysis_1d.md), the outputs are
         1.  A plot of the values of each of the channels for both model and scope over time
         2.  A plot of the differences between the model and scope for each channel over time
         3.  A calculation of the correlation coefficient between the model
