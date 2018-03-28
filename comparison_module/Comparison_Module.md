@@ -24,11 +24,44 @@ h5py
     actual variable, or variables that can be calculated from those stored in the data.)
 4.  Inputs will only be provided in the correct format.
 
+**Inputs**\
+a file containing the model data in [dreamBeam csv format](/DreamBeam_Source_data_description.md)
+
+Either:
+1.  a file containing model data in dreamBeam csv format to compare models
+2.  a file containing scope data in OSO HDF5 format\
+
+Command line arguments specifying 
+1.  the mode in which the scope data is normalised
+
+**Outputs**
+
+1.  In [one-frequency mode](/comparison_module/function_docs/analysis_1d.md), the outputs are
+    1.  A plot of the values of each of the channels for both model and scope over time
+    2.  A plot of the differences between the model and scope for each channel over time
+    3.  A calculation of the correlation coefficient between the model
+        and the scope data for each channel
+    4.  A calculation of the Root Mean Square Error between the model
+        and the scope data for each channel
+
+2.  In [multi-frequency mode](/comparison_module/function_docs/analysis_nd.md), the outputs are
+    1.  A calculation of the correlation coefficient between the model
+        and the scope data for each channel
+    2.  A calculation of the Root Mean Square Error between the model
+        and the scope data for each channel
+    3.  A 3-d colour plot of the differences between the model and scope
+        for each channel over time and frequency.  
+    4.  A plot of the correlations over time between the model and scope for each channel at each frequency
+    5.  A plot of the root mean square error over time between the model and scope for each channel at each frequency        
+    6.  A plot of the correlations over time between the model and scope for each channel at each time
+    7.  A plot of the root mean square error over time between the model and scope for each channel at each time     
+
 **Outline**
 
 This Python module reads in input from a modelling system and input from a real
 telescope and compares the two against one another. This module assumes
-that the inputs have been brought to a suitable format (so far dreamBeam CSV or OSO HDF5 formats are supported), with common
+that the inputs have been brought to a suitable format (so far dreamBeam CSV 
+or OSO HDF5 formats are supported), with common
 independent variables (e.g. position, time, frequency) and at least one
 common dependent variable to be compared. Outputs include a plot of the
 variation of the dependent variable between the "scope" and the "model" files, 
@@ -65,24 +98,9 @@ and store the contents in a dataframe
 
 5.  Depending on whether there is a single value for frequency or multiple values, 
     the program will perform slightly different analyses.  
-
-    1.  In [one-frequency mode](/comparison_module/function_docs/analysis_1d.md), the outputs are
-        1.  A plot of the values of each of the channels for both model and scope over time
-        2.  A plot of the differences between the model and scope for each channel over time
-        3.  A calculation of the correlation coefficient between the model
-            and the scope data for each channel
-        4.  A calculation of the Root Mean Square Error between the model
-            and the scope data for each channel
-            
-    2.  In multi-frequency mode, the outputs are
-        1.  A calculation of the correlation coefficient between the model
-            and the scope data for each channel
-        2.  A calculation of the Root Mean Square Error between the model
-            and the scope data for each channel
-        3.  A 3-d colour plot of the differences between the model and scope
-            for each channel over time and frequency.  
-        4.  A plot of the correlations over time between the model and scope for each channel at each frequency
-        5.  A plot of the root mean square error over time between the model and scope for each channel at each frequency        
-        6.  A plot of the correlations over time between the model and scope for each channel at each time
-        7.  A plot of the root mean square error over time between the model and scope for each channel at each time        
+    1.  [one-frequency mode](/comparison_module/function_docs/analysis_1d.md) 
+    produces outputs suitable for single frequency operations 
+    2.  [multi-frequency mode](/comparison_module/function_docs/analysis_nd.md)
+        produces outputs suitable for multiple frequency operations 
+   
 
