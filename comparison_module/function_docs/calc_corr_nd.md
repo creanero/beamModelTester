@@ -7,6 +7,7 @@ Oisin Creaner**
 **Outline**\
 This function Calculates and plots the correlation between the model and the scope 
 for each value of a given independent variable (e.g. for each frequency, plot the correlation over time)
+
 **Functions**\
 calc_corr_1d\
 calc_corr_nd
