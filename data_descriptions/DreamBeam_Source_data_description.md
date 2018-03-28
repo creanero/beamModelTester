@@ -26,7 +26,7 @@ instant for a given frequency.
 
 **Outline of Modes**
 
-![Outline of modes](images/DB_SOURCE_Fig1.PNG)
+![Outline of modes](/images/DB_SOURCE_Fig1.PNG)
 
 Figure 1: Outline of modes
 
