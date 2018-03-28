@@ -60,51 +60,12 @@ recorded in the input.
     3.  Adds a ylabel and xlabel to the graph and shows it    
 5.  For each of the independent variables (Frequency and Time)
     1.  Calculates and plots the correlation between the model and the scope 
-    for each value of that independent variable using calc_corr_nd 
+    for each value of that independent variable using [calc_corr_nd](/comparison_module/function_docs/calc_corr_nd.md) 
     (e.g. for each frequency, plot the correlation over time)
-        1.  identifies the keys (polarisation channels) with '_diff' suffix using get_df_keys
-        2.  creates a list of lists to hold the correlations for each channel
-        3.  identifies the unique values of the independent variable
-        4.  for each such unique value
-            1.  creates a temporary dataframe which holds the values from merge_df 
-            corresponding to the unique value
-            2.  calculates the correlation for that dataframe using [calc_corr_1d](/comparison_module/function_docs/analysis_1d.md)
-            3.  for each channel
-                1.  Appends the correlation for the given unique value to the list of correlations
-        5.  creates a plot
-        6.  Begins to create the graph title
-        7.  For each channel
-            1.  Plots the correlations for each channel in a different hue using colour_models
-            2.  Adds the channel to the title
-                1.  If it is before the second last, adds the channel name and a comma
-                2.  If it is the second last, adds the channel name and an ampersand
-                3.  Otherwise, (if it is the last) adds the channel name   
-        8.  Completes the title using the independent variable
-        9.  Adds a legend, xticks and xlabel to the graph and shows it
-        10. Returns the lists of correlations
     2.  Calculates and plots the RMSE between the model and the scope 
-    for each value of that independent variable using calc_rmse_nd 
+    for each value of that independent variable using [calc_rmse_nd ](/comparison_module/function_docs/calc_rmse_nd.md)
     (e.g. for each frequency, plot the RMSE over time)
-        1.  identifies the keys (polarisation channels) with '_diff' suffix using get_df_keys
-        2.  creates a list of lists to hold the RMSEs for each channel
-        3.  identifies the unique values of the independent variable
-        4.  for each such unique value
-            1.  creates a temporary dataframe which holds the values from merge_df 
-            corresponding to the unique value
-            2.  calculates the correlation for that dataframe using [calc_rmse_1d](/comparison_module/function_docs/analysis_1d.md)
-            3.  for each channel
-                1.  Appends the RMSE for the given unique value to the list of correlations
-        5.  creates a plot
-        6.  Begins to create the graph title
-        7.  For each channel
-            1.  Plots the RMSEs for each channel in a different hue using colour_models
-            2.  Adds the channel to the title
-                1.  If it is before the second last, adds the channel name and a comma
-                2.  If it is the second last, adds the channel name and an ampersand
-                3.  Otherwise, (if it is the last) adds the channel name   
-        8.  Completes the title using the independent variable
-        9.  Adds a legend, xticks and xlabel to the graph and shows it
-        10. Returns the lists of RMSEs
+
 6.  returns a data frame for the correlations and RMSEs over frequency and time
  
 
