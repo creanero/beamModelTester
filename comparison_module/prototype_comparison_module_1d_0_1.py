@@ -705,10 +705,7 @@ def calc_xy(merge_df,norm_mode):
     
     '''
 
-    #yx_model not calculated for two reasons
-    # 1. xy equal to within floating point errors
-    # 2. yx not included in scope data (presumably because of 1.)
-    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+
    
     #normalises the dataframe
     merge_df=normalise_scope(merge_df,norm_mode)
@@ -723,6 +720,11 @@ def calc_xy(merge_df,norm_mode):
      XY= (J11 *  ̅J̅2̅1 )+ (J12 *  ̅J̅2̅2 )
      YX= (J21 *  ̅J̅1̅1 )+ (J22 *  ̅J̅1̅2 )
      YY= (J21 *  ̅J̅2̅1 )+ (J22 *  ̅J̅2̅2 )
+        
+    #yx_model not calculated for two reasons
+    # 1. xy equal to within floating point errors
+    # 2. yx not included in scope data (presumably because of 1.)
+    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     '''
     merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
     merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
@@ -749,47 +751,20 @@ def normalise_scope(merge_df,norm_mode):
     elif 'f' == norm_mode:
         var_str='Freq'
         #normalises by dividing by the maximum for each frequency
-        
-        xx_scope_vals=[]
-        xy_scope_vals=[]
-        yy_scope_vals=[]
-        
-        
+
         #identifies allthe unique values of the variable in the column
         unique_vals=merge_df[var_str].unique()
         
-        #sorts by frequency
-        merge_df=merge_df.sort_values(["Freq","Time"])
-        
         #iterates over all unique values
         for unique_val in unique_vals:
-            #creates a dataframe with  only the elements that match the current 
-            #unique value
-            unique_merge_df=merge_df[merge_df[var_str]==unique_val]
-            #uses this dataframe to calculate the max for a given freq
-            unique_max_xx = np.max(unique_merge_df.xx)
-            unique_max_xy = np.max(unique_merge_df.xy)
-            unique_max_yy = np.max(unique_merge_df.yy)
-        
-        
+            for channel in ['xx','xy','yy']:
+                unique_max = np.max(merge_df.loc[(merge_df.Freq==unique_val),channel])
 
-            unique_merge_df['xx_scope']=unique_merge_df.xx/unique_max_xx
-            unique_merge_df['xy_scope']=unique_merge_df.xy/unique_max_xy
-            unique_merge_df['yy_scope']=unique_merge_df.yy/unique_max_yy
-            
-            for i in range(len(unique_merge_df)):
-                xx_scope_vals.append(unique_merge_df['xx_scope'][i])
-                xy_scope_vals.append(unique_merge_df['xy_scope'][i])
-                yy_scope_vals.append(unique_merge_df['yy_scope'][i])
-        
-        merge_df['xx_scope']=xx_scope_vals
-        merge_df['xy_scope']=xy_scope_vals
-        merge_df['yy_scope']=yy_scope_vals
+                if unique_max !=0:
+                    merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=merge_df.loc[(merge_df.Freq==unique_val),channel]/unique_max
+                else:
+                    merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=0
  
-        
-        merge_df.sort_values(["Time","Freq"])
-    
-    
     return (merge_df)
     
 if __name__ == "__main__":
