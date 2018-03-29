@@ -188,7 +188,7 @@ def calc_corr_nd(merge_df, var_str):
         else:
             graph_title=graph_title+key
     
-    #calculates and adds title with frequency in MHz
+    #completes the title using the independent variable plotted over
     
     graph_title=graph_title+"-channels over "+var_str    
             
@@ -308,7 +308,7 @@ def plot_diff_values_nf(merge_df):
     m_keys=get_df_keys(merge_df,"_diff")    
     
     for key in m_keys:
-        #create a plot with two subplots
+        #create a plot 
         plt.figure()
         
         #display main title and subplot title together
@@ -703,6 +703,17 @@ def calc_xy(merge_df,norm_mode):
     NOTE: this version makes no allowance for outliers or smoothing in the
     scope data.  This may be added to future versions
     
+    '''
+
+    #yx_model not calculated for two reasons
+    # 1. xy equal to within floating point errors
+    # 2. yx not included in scope data (presumably because of 1.)
+    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+   
+    #normalises the dataframe
+    merge_df=normalise_scope(merge_df,norm_mode)
+
+    '''
     calculates the xx, xy, yx and yy parameters for the model from the JNN 
     values Using the formulae below
      B = [[XX, XY] ,[YX, YY]]
@@ -716,16 +727,7 @@ def calc_xy(merge_df,norm_mode):
     merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
     merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
     merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
-    
-    #yx_model not calculated for two reasons
-    # 1. xy equal to within floating point errors
-    # 2. yx not included in scope data (presumably because of 1.)
-    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
-   
-    #normalises the dataframe
-    merge_df=normalise_scope(merge_df,norm_mode)
-
-    
+       
     #calculates the differences
     merge_df['xx_diff']=abs(merge_df.xx_model)-abs(merge_df.xx_scope)
     merge_df['xy_diff']=abs(merge_df.xy_model)-abs(merge_df.xy_scope)
@@ -747,10 +749,16 @@ def normalise_scope(merge_df,norm_mode):
     elif 'f' == norm_mode:
         var_str='Freq'
         #normalises by dividing by the maximum for each frequency
-        #xx_scope_maxes=[]
+        
         xx_scope_vals=[]
+        xy_scope_vals=[]
+        yy_scope_vals=[]
+        
+        
         #identifies allthe unique values of the variable in the column
         unique_vals=merge_df[var_str].unique()
+        
+        #sorts by frequency
         merge_df=merge_df.sort_values(["Freq","Time"])
         
         #iterates over all unique values
@@ -759,22 +767,25 @@ def normalise_scope(merge_df,norm_mode):
             #unique value
             unique_merge_df=merge_df[merge_df[var_str]==unique_val]
             #uses this dataframe to calculate the max for a given freq
-            unique_max = np.max(unique_merge_df.xx)
-            #xx_scope_maxes.append(unique_max)
+            unique_max_xx = np.max(unique_merge_df.xx)
+            unique_max_xy = np.max(unique_merge_df.xy)
+            unique_max_yy = np.max(unique_merge_df.yy)
         
         
-#        for element in merge_df:
-#            xx_norm_val = element['xx']
-#            xx_scope_vals.append(xx_norm_val)
-            unique_merge_df['xx_scope']=unique_merge_df.xx/unique_max
-            for unique_norm in unique_merge_df['xx_scope']:
-                xx_scope_vals.append(unique_norm)
+
+            unique_merge_df['xx_scope']=unique_merge_df.xx/unique_max_xx
+            unique_merge_df['xy_scope']=unique_merge_df.xy/unique_max_xy
+            unique_merge_df['yy_scope']=unique_merge_df.yy/unique_max_yy
+            
+            for i in range(len(unique_merge_df)):
+                xx_scope_vals.append(unique_merge_df['xx_scope'][i])
+                xy_scope_vals.append(unique_merge_df['xy_scope'][i])
+                yy_scope_vals.append(unique_merge_df['yy_scope'][i])
         
         merge_df['xx_scope']=xx_scope_vals
-        ##included for testing, should be as above
-    
-        merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
-        merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
+        merge_df['xy_scope']=xy_scope_vals
+        merge_df['yy_scope']=yy_scope_vals
+ 
         
         merge_df.sort_values(["Time","Freq"])
     
