@@ -1,6 +1,6 @@
 **DreamBeam Source data\
 Version 0.0\
-8^th^ February 2018\
+29^th^ March 2018\
 Oisin Creaner**
 
 This describes the formats for output from DreamBeam in its current
@@ -34,58 +34,41 @@ Figure 1: Outline of modes
 
 1.  Pointing Mode\
     Pointing Mode plots the light curves as observed from a given
-    station in a given band over a given time period at a given set of
+    station in a given band over a given time period at given
     intervals. Frequency is an optional parameter which allows a user to
     either specify a frequency to work at (1-*ν*, below) or to require
     that the system calculate the Jones Matrices for all frequencies in
-    the system. (n-*ν*, below)
+    the system by leaving out this parameter. (n-*ν*, below)
 
     1.  1-*ν*\
         In this mode, the light-curve in Jones matrix terms is
         calculated for a single frequency over time
-
         1.  Print\
-            The print output for this mode consists of a row for each
-            time interval, with each row consisting of the following
-            elements, separated by spaces. *Note: this mode does not
-            include a header.*
-
+            The print output for this mode consists of 
+            -   a header describing the content *Time, Freq, J11, J12, J21, J22*
+            -   a row for each time interval, with each row consisting of the following
+            elements, separated by commas.
             -   Frequency (print-formatted Python float)
-
-            -   Time (print-formatted Python datetime *YYYY-MM-DD
-                HH:MM:SS*)
-
+            -   Time (print-formatted Python datetime *YYYY-MM-DDTHH:MM:SS*)
             -   Four Jones Matrix elements (print-formatted Python
                 complex numbers using the notation (*X.xxxx*+*Y.yyyy*j)
                 in the order
-
                 -   \[1,1\]
-
                 -   \[1,2\]
-
                 -   \[2,1\]
-
                 -   \[2,2\]
                 
-![1-frequency print output](/images/DB_SOURCE_Fig2.PNG)
+![1-frequency print output](/images/DB_SOURCE_Fig2_v2.PNG)
 
 Figure 2: Schematic of Print output for single-frequency use of Pointing
 mode
 
 **Sample Output**
 
-60000000.0 2012-04-01 01:02:03 (-0.0376926375124+0.0467493608816j)
-(-0.559791351791+0.0899978276011j) (0.738602661591-0.196422717245j)
-(0.159103880251-0.0775363649726j)\
-60000000.0 2012-04-01 01:02:04 (-0.0376395582277+0.0467382172651j)
-(-0.55979972323+0.0899965320884j) (0.738611482535-0.196421498181j)
-(0.159158232172-0.0775483040615j)\
-60000000.0 2012-04-01 01:02:05 (-0.0375864775634+0.0467270738462j)
-(-0.559808091231+0.0899952354983j) (0.738620299442-0.196420277746j)
-(0.159212585231-0.0775602427118j)\
-60000000.0 2012-04-01 01:02:06 (-0.0375333955529+0.0467159306318j)
-(-0.559816455789+0.0899939378314j) (0.738629112309-0.196419055939j)
-(0.159266939393-0.0775721809157j) 
+Time, Freq, J11, J12, J21, J22\
+2018-03-01T00:00:00,100000000.0,(-0.332417348324-0.00174180468029j),(-0.151027693651-0.00224741459058j),(0.248921114269+0.000678606249047j),(-0.274213110649-0.00267578547374j)\
+2018-03-01T00:01:00,100000000.0,(-0.330965823806-0.00173312560831j),(-0.152454209941-0.00225879860975j),(0.250232467494+0.000690120685984j),(-0.272889641047-0.00266605130817j)\
+2018-03-01T00:02:00,100000000.0,(-0.329512964372-0.00172439925913j),(-0.153873968917-0.002270162415j),(0.251539358186+0.000701583461056j),(-0.271563428615-0.00265627153832j)
 
 2.  Plot\
     The plot mode produces an image of the trajectory of the selected
@@ -95,20 +78,21 @@ mode
     The trajectory plot (as shown in Figure 3) shows the apparent
     position of the object at each point in time. *Note: In LOFAR, for a
     non-core station, these coordinates will not be centred on the pole
-    as the orientation is set for the LOFAR core -- Check details of how
-    that works -- OC *
+    as the orientation is set for the LOFAR core*
 
 ![track of the coordinates](/images/DB_SOURCE_Fig3.png)
 
 Figure 3: Sample of plot output of the track of the coordinates of the
 target object for pointing mode
 
-> The Light curve plot displays the p-channel
-> $\left( p = \left| {J\left\lbrack 1,1 \right\rbrack}^{2} \right| + \left| {J\left\lbrack 1,2 \right\rbrack}^{2} \right| \right)$
-> and q-channel
-> $\left( q = \left| {J\left\lbrack 2,1 \right\rbrack}^{2} \right| + \left| {J\left\lbrack 2,2 \right\rbrack}^{2} \right| \right)$
-> calculated for each point in time against time for the given
-> frequency. *Note: These channels refer to the power over time of the polarised channels: p- and -q are used as alternatives to x and y*
+The Light curve plot displays the p-channel
+(p=|J\[1,1\]|² +|J\[1,2\]|²) 
+and q-channel
+(q=|J\[2,1\]|² +|J\[2,2\]|²) 
+calculated for each point in time against time for the given
+frequency. *Note: These channels refer to the power over time of the polarised channels: 
+p- and -q can be arbitrary channels, including left and right polarised or 
+x- and y- polarised.  The current system outputs for x and y*
 
 ![1-frequency plot output](/images/DB_SOURCE_Fig4.png)
 
@@ -119,28 +103,20 @@ are plotted on the y-axis.
 2.  n-*ν\
     *In this mode, the light-curve in Jones matrix terms is calculated
     for a number of (*all possible? -- to check*) frequencies over time
-
     3.  Print\
-        The print output for this mode consists of a row for each time
-        interval/frequency combination, with a header to describe the
-        columns. Each row consists of the following elements, separated
-        by spaces
-
-        -   Time (print-formatted Python datetime
-            *YYYY-MM-DD*T*HH:MM:SS*)
-
-        -   Frequency (print-formatted Python float)
-
-        -   Four Jones Matrix elements (print-formatted Python complex
-            numbers using the notation (X.xxxx+Y.yyyyj) in the order
-
-            -   \[1,1\]
-
-            -   \[1,2\]
-
-            -   \[2,1\]
-
-            -   \[2,2\]
+        The print output for this mode consists of 
+        -   a header to describe the columns.
+        -   a row for each time interval/frequency combination  
+        -   Each row consists of the following elements, separated by commas
+            -   Time (print-formatted Python datetime
+                *YYYY-MM-DD*T*HH:MM:SS*)
+            -   Frequency (print-formatted Python float)
+            -   Four Jones Matrix elements (print-formatted Python complex
+                numbers using the notation (X.xxxx+Y.yyyyj) in the order
+                -   \[1,1\]
+                -   \[1,2\]
+                -   \[2,1\]
+                -   \[2,2\]
             
 ![N-frequency print output](/images/DB_SOURCE_Fig5.PNG)
 
@@ -150,15 +126,10 @@ mode
 Sample Output
 
 Time, Freq, J11, J12, J21, J22\
-2018-02-06T14:00:00 100000000.0 (0.66341703593+3.81594230048e-05j)
-(0.734230798413+4.67556454144e-05j) (-0.728670398582-0.000157718454146j)
-(0.657853576392+0.000149924324324j)\
-2018-02-06T14:00:00 100195312.5 (0.663422817909+3.78016297019e-05j)
-(0.734237231341+4.63214173956e-05j) (-0.728672812056-0.000156021203443j)
-(0.657855732724+0.000148292112886j)\
-2018-02-06T14:00:00 100390625.0 (0.663428623131+3.74508255174e-05j)
-(0.734243690078+4.58952493196e-05j) (-0.728675253667-0.000154346887646j)
-(0.657857914921+0.000146681668139j)
+2018-03-01T00:00:00,100000000.0,(-0.332417348324-0.00174180468029j),(-0.151027693651-0.00224741459058j),(0.248921114269+0.000678606249047j),(-0.274213110649-0.00267578547374j)\
+2018-03-01T00:00:00,100195312.5,(-0.332523995452-0.00172552582091j),(-0.151147212914-0.00223710070454j),(0.248971710186+0.00066751702167j),(-0.274364953445-0.00266045605641j)\
+2018-03-01T00:00:00,100390625.0,(-0.332631104279-0.00170950100127j),(-0.151266877453-0.00222685026169j),(0.249022699449+0.000656640777448j),(-0.274517129125-0.00264528363489j)\
+2018-03-01T00:00:00,100585937.5,(-0.332738673914-0.00169372847052j),(-0.151386689649-0.00221666186212j),(0.249074080125+0.000645976454977j),(-0.274669639399-0.00263026630536j)
 
 1.  Plot\
     The plot mode produces an image of the trajectory of the selected
@@ -168,15 +139,17 @@ Time, Freq, J11, J12, J21, J22\
     The trajectory plot (as shown in Figure 3) shows the apparent
     position of the object at each point in time. *Note: In LOFAR, for a
     non-core station, these coordinates will not be centred on the pole
-    as the orientation is set for the LOFAR core -- Check details of how
-    that works -- OC *
+    as the orientation is set for the LOFAR core*
 
 ![track of the coordinates](/images/DB_SOURCE_Fig6.png)
 
 Figure 6: Sample of plot output of the track of the coordinates of the
 target object for pointing mode for n-frequencies
 
-The Light curve plot displays the p-channel (p=|〖J[1,1]〗^2 |+|〖J[1,2]〗^2 |) and q-channel (q=|〖J[2,1]〗^2 |+|〖J[2,2]〗^2 |) values calculated for each point in time against time for each frequency.  The plot then shows the values in colour, with the time and frequency as x- and y-axes respectively
+The Light curve plot displays the p-channel
+(p=|J\[1,1\]|² +|J\[1,2\]|²) 
+and q-channel
+(q=|J\[2,1\]|² +|J\[2,2\]|²) values calculated for each point in time against time for each frequency.  The plot then shows the values in colour, with the time and frequency as x- and y-axes respectively
 
 ![n-frequency Lightcurve](/images/DB_SOURCE_Fig7.png)
 
@@ -185,36 +158,23 @@ pointing mode. Time is plotted on the x-axis, frequency on the y-axis,
 p- and q-channel values are plotted on the z-axis (colour).
 
 1.  FoV Mode
-
-    1.  Print
-
+    1.  Print\
         The print output for this mode consists of a pair of rows for
         each time interval, with each alternating row consisting of the
         following elements, separated by spaces. *Note: this mode
         produces output with labels for each row.*
-
         -   First Row
-
             -   Label (az, el: )
-
             -   Azimuth (print-formatted Python float)
-
             -   Elevation (print-formatted Python float) (*Alternative term for Altitude*)
-
         -   Alternate Rows
-
             -   Label (Jones: )
-
             -   Four Jones Matrix elements (print-formatted Python
                 complex numbers using the notation (*X.xxxx*+*Y.yyyy*j)
                 in the order
-
                 -   \[1,1\]
-
                 -   \[1,2\]
-
                 -   \[2,1\]
-
                 -   \[2,2\]
 
 ![FOV Print](/images/DB_SOURCE_Fig8.PNG)
@@ -222,8 +182,8 @@ p- and q-channel values are plotted on the z-axis (colour).
 Figure 8: Schematic of Print output for single-frequency use of Pointing
 mode
 
-Sample Output 
-*these values include negative elevations.  This is because the print model does not include a mask for the data for the horizon.  This is implemented in the plotting system.* 
+Sample Output \
+*these values include negative elevations.  This is because the print model does not include a mask for the data for the horizon.  This is implemented in the plotting system.* \
 *Some of these seem to show different Jones values at different RA values at DEC 90. This is a known issue with the Hamaker model, which is limited close to the Zenith.  While approximations may be reasonable close to the Zenith in some systems, this can be a serious issue for telescopes which are not mechanically steered.*)
 
 az, el: 0.0 1.57079632679\
