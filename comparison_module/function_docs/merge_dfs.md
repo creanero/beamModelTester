@@ -16,7 +16,8 @@ pandas\
 numpy
 
 **Inputs**\
-Two data frames containing model or scope data
+Two data frames containing model or scope data\
+argument *norm_mode* which describes the desired normalisation mode to use
 
 **Outputs**\
 One merged dataframe containing data for model, scope and differences
@@ -29,9 +30,8 @@ Depending on the dataframe content provided, the system uses one of several (cur
 to process the data from two existing dataframes suitable for futher processing.
 
 **Design Diagram**\
-![Design diagram](/images/comparison_module_merge_dfs_fig1_v3.PNG) \
-**Figure 1: Schematic representation of merge software.  A slightly more precise,
-if less clear, diagram is available at [this link](/images/comparison_module_merge_dfs_fig1_v1.PNG).**
+![Design diagram](/images/comparison_module_merge_dfs_fig1_v4.PNG) \
+**Figure 1: Schematic representation of merge software. **
 
 **Operations**
 1.  This function calls the pandas merge method with the following arguments
@@ -54,13 +54,13 @@ if less clear, diagram is available at [this link](/images/comparison_module_mer
     for the model input.\
     NOTE: This will actually work with either input (scope or model), 
     calculating the channels for the input that didn't have it
-    3.  Calculates the XX, XY and YY channel values for the model
+    3.  Normalises the XX, XY and YY channel values using normalise_scope and 
+    based on the normalisation mode provided
+    4.  Calculates the XX, XY and YY channel values for the model
         1.  XX = (J11 * conj(J11)) + (J12 * conj(J12))
         2.  XX = (J11 * conj(J21)) + (J12 * conj(J22))
         3.  YY = (J21 * conj(J21)) + (J22 * conj(J22))
         4.  NOTE: not currently using YX = (J21 * conj(J11)) + (J22 * conj(J12))
-    4.  Normalises the XX, XY and YY channel values for the scope 
-    by dividing by the maximum for each
     5.  Calculates the difference in XX, XY and YY between scope and model
     6.  Returns the merged dataframe
 4.  Returns the merged dataframe
