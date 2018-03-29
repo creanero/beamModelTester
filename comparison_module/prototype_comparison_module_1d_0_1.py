@@ -49,7 +49,8 @@ def plot_values_1f(merge_df):
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values for p-channel against time
         plt.figure()
-        plt.title("Plot of the values in "+key+"-channel over time")
+        plt.title("Plot of the values in "+key+"-channel over time"+
+                  "\nat %.0f MHz"%(merge_df.Freq[0]/1e6))
 
         #plots the p-channel in one colour
         plt.plot(merge_df.Time,merge_df[key+'_model'],label='model',
@@ -71,7 +72,7 @@ def plot_values_1f(merge_df):
 def plot_diff_values_1f(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
-    plots the differences in p-channel and q-channel values over time
+    plots the differences in various channel values over time
     
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
@@ -113,45 +114,7 @@ def plot_diff_values_1f(merge_df):
     
     
     
-#   
-#def merge_dfs(model_df,scope_df):
-#    '''
-#    This function takes a dataframe created from the dream_beam model and one
-#    created from the scope and merges them into a single dataframe using the 
-#    time and frequency as the joining variables. In the merged dataframe are
-#    calculated the p- and q-channel intensities & the differences between them.
-#    Finally, a time difference from the start time is calculated.
-#    
-#    The merged dataframe is then returned
-#    
-#    NOTE this module currently uses DreamBeam type output for the scope input
-#    data.  If this changes, then changes may be needed to this module
-#    '''
-#    #merges the two datagrames using time and frequency
-#    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
-#    
-#    #calculates the p-channel intensity as per DreamBeam for both model and scope
-#    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-#    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
-#    #calculates the difference between model and scope
-#    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
-#    
-#    #calculates the q-channel intensity as per DreamBeam for both model and scope
-#    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-#    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
-#    #calculates the difference between model and scope
-#    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
-#    
-#    #creates a variable to hold the time since the start of the plot
-#    #this is necessary for plots that are not compatible with Timestamp data
-#    start_time=min(merge_df.Time)
-#    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
-#    
-#    return(merge_df)
-#
-
-
-    
+   
 def calc_corr_1d(merge_df):
     '''
     This function takes a merged dataframe as an argument and 
@@ -225,7 +188,7 @@ def calc_corr_nd(merge_df, var_str):
         else:
             graph_title=graph_title+key
     
-    #calculates and adds title with frequency in MHz
+    #completes the title using the independent variable plotted over
     
     graph_title=graph_title+"-channels over "+var_str    
             
@@ -345,7 +308,7 @@ def plot_diff_values_nf(merge_df):
     m_keys=get_df_keys(merge_df,"_diff")    
     
     for key in m_keys:
-        #create a plot with two subplots
+        #create a plot 
         plt.figure()
         
         #display main title and subplot title together
@@ -500,9 +463,27 @@ def colour_models(colour_id):
     if 'yys'==colour_id:
         return('Blues')
     
-    #returns black as a default
+    #sets grey values for other plots, where there are partial matches.
+    if '_light' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'light' found in colourstring.\n"
+              "Defaulting to grey\n")
+        return ('grey')    
+    if '_dark' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'dark' found in colourstring.\n"
+              "Defaulting to darkeslategrey\n")
+        return ('darkslategrey')  
+    if 's' in colour_id:    
+        print("Warning: Colour incompletely or inaccurately specified as:\n\n\t"+colour_id+              
+              "\n\n's' found in colourstring.\n"
+              "Defaulting to Greys\n")
+        return ('Greys')      
+    
+    #returns black as a final default
     else:
-        print("Warning: Colour incorrectly specified.  Defaulting to Black")
+        print("Warning: Colour incorrectly specified as:\n\n\t"+colour_id+              
+              "\n\nDefaulting to black\n")
         return ('black')    
 
 def beam_arg_parser():
@@ -538,9 +519,17 @@ def beam_arg_parser():
     group_scope.add_argument("--scope","-s", 
                              help="Alternative way of specifying the file containing the observed data from the telescope")
     
+    #adds an optional argument for normalisation method
+    parser.add_argument("--norm_mode","-n", default="t",choices=("t","f"), 
+                             help="Method for normalising the scope data\n"+
+                             "t = trivial (divide by maximum for all scope data)\n"+
+                             "f = frequency (divide by maximum by frequency/subband)")
+    
     
     #passes these arguments to a unified variable
     args = parser.parse_args()
+    
+    
     
     #outputs the filename for the model to a returnable variable
     if args.model_p != None:
@@ -560,8 +549,10 @@ def beam_arg_parser():
     else:
         in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
                                 "Please enter the telescope filename:\n")
+        
+    norm_mode=args.norm_mode
     
-    return(in_file_model,in_file_scope)
+    return(in_file_model,in_file_scope,norm_mode)
 
 
 def read_OSO_h5 (filename):
@@ -597,7 +588,7 @@ def read_OSO_h5 (filename):
     
     #this shouldn't be needed in the final product, included durind calibration
     #mismatch issues
-    min_freq=min(list(f['frequency']))
+    #min_freq=min(list(f['frequency']))
     
     #Iterates over the time values in the HDF5 file
     for time_val in list(f["timeaccstart"]):
@@ -611,7 +602,11 @@ def read_OSO_h5 (filename):
             d_time.append((time_stamp_val-min_time)/np.timedelta64(1,'s')) #useful for calculations
 
 
-
+            '''
+            Code removed after corrections to lightcurve generation software
+            
+            leave this here for possible tests in case there are issues later
+            
             #TTTTTTT         FFFFFFF iii       
             #  TTT    oooo   FF          xx  xx
             #  TTT   oo  oo  FFFF    iii   xx  
@@ -623,7 +618,9 @@ def read_OSO_h5 (filename):
             
             
             ##This is the correct code to process from the file
-            #freq_list.append(freq_val)
+            #
+            '''            
+            freq_list.append(freq_val)
             
             #uses the indices to find the correct values for XX, XY and YY
             xx_list.append(f['XX'][time_index][freq_index])
@@ -651,7 +648,7 @@ def read_var_file(file_name):
     return(out_df)
 
 
-def merge_dfs(model_df,scope_df):
+def merge_dfs(model_df,scope_df,norm_mode):
     '''
     This function takes a dataframe created from the dream_beam model and one
     created from the scope and merges them into a single dataframe using the 
@@ -667,7 +664,7 @@ def merge_dfs(model_df,scope_df):
     if 'J11_scope' in merge_df:
         merge_df=calc_pq(merge_df)
     elif 'xx' in merge_df:
-        merge_df=calc_xy(merge_df)
+        merge_df=calc_xy(merge_df,norm_mode)
     
     return(merge_df)        
 
@@ -697,7 +694,7 @@ def calc_pq(merge_df):
     return (merge_df)
 
 
-def calc_xy(merge_df):
+def calc_xy(merge_df,norm_mode):
     
     '''
     Calculates the XY parameters for the model from the JNN values and 
@@ -706,6 +703,17 @@ def calc_xy(merge_df):
     NOTE: this version makes no allowance for outliers or smoothing in the
     scope data.  This may be added to future versions
     
+    '''
+
+    #yx_model not calculated for two reasons
+    # 1. xy equal to within floating point errors
+    # 2. yx not included in scope data (presumably because of 1.)
+    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+   
+    #normalises the dataframe
+    merge_df=normalise_scope(merge_df,norm_mode)
+
+    '''
     calculates the xx, xy, yx and yy parameters for the model from the JNN 
     values Using the formulae below
      B = [[XX, XY] ,[YX, YY]]
@@ -718,14 +726,8 @@ def calc_xy(merge_df):
     '''
     merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
     merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
-    merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
-    
-    #normalises by dividing by the maximum
-    merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-    merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
-    merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)
-    
+       
     #calculates the differences
     merge_df['xx_diff']=abs(merge_df.xx_model)-abs(merge_df.xx_scope)
     merge_df['xy_diff']=abs(merge_df.xy_model)-abs(merge_df.xy_scope)
@@ -733,10 +735,66 @@ def calc_xy(merge_df):
     
     #note the d_Time is already calculated
     return (merge_df)
+
+def normalise_scope(merge_df,norm_mode):
+    '''
+    This function normalises the data for the scope according to the 
+    normalisation mode specified.  These options are detailed belwo
+    '''
+    if 't' == norm_mode :
+        #normalises by dividing by the maximum
+        merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
+        merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
+        merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
+    elif 'f' == norm_mode:
+        var_str='Freq'
+        #normalises by dividing by the maximum for each frequency
+        
+        xx_scope_vals=[]
+        xy_scope_vals=[]
+        yy_scope_vals=[]
+        
+        
+        #identifies allthe unique values of the variable in the column
+        unique_vals=merge_df[var_str].unique()
+        
+        #sorts by frequency
+        merge_df=merge_df.sort_values(["Freq","Time"])
+        
+        #iterates over all unique values
+        for unique_val in unique_vals:
+            #creates a dataframe with  only the elements that match the current 
+            #unique value
+            unique_merge_df=merge_df[merge_df[var_str]==unique_val]
+            #uses this dataframe to calculate the max for a given freq
+            unique_max_xx = np.max(unique_merge_df.xx)
+            unique_max_xy = np.max(unique_merge_df.xy)
+            unique_max_yy = np.max(unique_merge_df.yy)
+        
+        
+
+            unique_merge_df['xx_scope']=unique_merge_df.xx/unique_max_xx
+            unique_merge_df['xy_scope']=unique_merge_df.xy/unique_max_xy
+            unique_merge_df['yy_scope']=unique_merge_df.yy/unique_max_yy
+            
+            for i in range(len(unique_merge_df)):
+                xx_scope_vals.append(unique_merge_df['xx_scope'][i])
+                xy_scope_vals.append(unique_merge_df['xy_scope'][i])
+                yy_scope_vals.append(unique_merge_df['yy_scope'][i])
+        
+        merge_df['xx_scope']=xx_scope_vals
+        merge_df['xy_scope']=xy_scope_vals
+        merge_df['yy_scope']=yy_scope_vals
+ 
+        
+        merge_df.sort_values(["Time","Freq"])
+    
+    
+    return (merge_df)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
-    in_file_model,in_file_scope=beam_arg_parser()
+    in_file_model,in_file_scope,norm_mode=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(in_file_model)
@@ -745,7 +803,7 @@ if __name__ == "__main__":
     scope_df=read_var_file(in_file_scope)
     
     #merges the dataframes
-    merge_df=merge_dfs(model_df, scope_df)
+    merge_df=merge_dfs(model_df, scope_df, norm_mode)
     
     #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
