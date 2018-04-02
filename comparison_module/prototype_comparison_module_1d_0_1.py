@@ -89,9 +89,9 @@ def plot_values_nf(merge_df):
             plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_'+source]),
                           cmap=plt.get_cmap(colour_models(key+'s')))
             plt.legend(frameon=False)
-            #plots the axis labels rotated so they're legible
-            plt.xticks(rotation=90)
-            plt.xlabel('Time')
+            #plots x-label for both using start time 
+            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+            plt.ylabel("Frequency")
             plt.colorbar()
             #prints the plot
             plt.show()
@@ -827,7 +827,7 @@ def normalise_scope(merge_df,modes):
     if 't' == modes['norm'] :
         #normalises by dividing by the maximum
         merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-        merge_df['xy_scope']=abs(merge_df.xy)/np.max(abs(merge_df.xy))
+        merge_df['xy_scope']=merge_df.xy/np.max(abs(merge_df.xy))
         merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
     elif 'f' == modes['norm']:
         var_str='Freq'
@@ -891,7 +891,7 @@ def crop_operation (in_df,modes):
                         col_limit = np.percentile(out_df[col],modes['crop'])
                     else:
                         print("WARNING: Percentile must be less than 100")
-                        col_limit = np.max(out_df[col])
+                        col_limit = np.max(abs(out_df[col]))
                 else:
                     print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']

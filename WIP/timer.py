@@ -6,7 +6,7 @@ Created on Mon Apr  2 23:21:22 2018
 @author: creanero
 """
 
-def timer (function_to_run,args_funct):
+def timer (function_to_run,args_funct=None):
     import datetime
     start=datetime.datetime.now()
     output=function_to_run(args_funct)
