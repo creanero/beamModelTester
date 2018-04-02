@@ -561,12 +561,28 @@ def beam_arg_parser():
                              "t = trivial (divide by maximum for all scope data)\n"+
                              "f = frequency (divide by maximum by frequency/subband)")
     
+    #adds an optional argument for the cropping type for noise on the scope
+    parser.add_argument("--crop_type","-C", default="median",
+                        choices=("median","mean","percentile"),
+                        help = "Sets what style of cropping will be applied "+
+                        "to the scope data to remove outliers. A value for "+
+                        "--crop must also be specified or this argument is"+
+                        "ignored.")     
+
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop","-c", default = 0.0, type=float,
-                        help = "Set the number of times above the MEDIAN which"+
-                        "is filtered when interpreting the scope data. "+
+                        help = "Set the numeric value for cropping. Depending"+
+                        "on crop mode, this may be a multiple of the mean or "+
+                        "median, or the percentile level to cut the scope "+
+                        "values to."+
                         "Default is not to crop (crop = 0.0).  Negative "+
                         "values are converted to positive before use.")
+
+    #adds an optional argument for normalisation method
+    parser.add_argument("--crop_basis","-k", default="t",choices=("t","f"), 
+                             help="Method for normalising the scope data\n"+
+                             "t = trivial (crop equally for all data)\n"+
+                             "f = frequency (crop by frequency/subband)")
     
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--diff","-d", default = "sub",choices=("sub","div"),
@@ -599,8 +615,12 @@ def beam_arg_parser():
     else:
         in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
                                 "Please enter the telescope filename:\n")
+    
+    #creates and uses a dictionary to store the mode arguments
     modes={}    
     modes['norm']=args.norm
+    modes['crop_type']=args.crop_type
+    modes['crop_basis']=args.crop_basis
     modes['crop']=abs(args.crop)
     modes['diff']=args.diff
     
@@ -633,21 +653,28 @@ def read_OSO_h5 (filename):
 
     #creates an index for the time stamps
     time_index=0
+    
+    #creates lists from the file
+    f_start_list = list(f["timeaccstart"])
+    f_freq_list = list(f['frequency'])
+    f_xx=list(f['XX'])
+    f_xy=list(f['XY'])
+    f_yy=list(f['YY'])
 
     #identifies the start time.  Times in HDF5 are stored as floats since the
     #epoch of Jan 01 00:00:00 1970
-    min_time=pd.to_datetime(min(list(f["timeaccstart"])),unit='s')
+    min_time=pd.to_datetime(min(f_start_list),unit='s')
     
     #this shouldn't be needed in the final product, included durind calibration
     #mismatch issues
     #min_freq=min(list(f['frequency']))
     
     #Iterates over the time values in the HDF5 file
-    for time_val in list(f["timeaccstart"]):
+    for time_val in f_start_list:
         #(re-)initialises the index for frequencies in the HDF5 file
         freq_index=0
         #Iterates over the frequency values in the HDF5 file
-        for freq_val in list(f['frequency']):
+        for freq_val in f_freq_list:
             time_stamp_val=pd.to_datetime(time_val,unit='s')
             #appends the values from the iterators for Time and Frequency
             time_list.append(time_stamp_val)
@@ -675,9 +702,9 @@ def read_OSO_h5 (filename):
             freq_list.append(freq_val)
             
             #uses the indices to find the correct values for XX, XY and YY
-            xx_list.append(f['XX'][time_index][freq_index])
-            xy_list.append(f['XY'][time_index][freq_index])
-            yy_list.append(f['YY'][time_index][freq_index])
+            xx_list.append(f_xx[time_index][freq_index])
+            xy_list.append(f_xy[time_index][freq_index])
+            yy_list.append(f_yy[time_index][freq_index])
             
             #increments the indices
             freq_index = freq_index+1
@@ -800,7 +827,7 @@ def normalise_scope(merge_df,modes):
     if 't' == modes['norm'] :
         #normalises by dividing by the maximum
         merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-        merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
+        merge_df['xy_scope']=abs(merge_df.xy)/np.max(abs(merge_df.xy))
         merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
     elif 'f' == modes['norm']:
         var_str='Freq'
@@ -813,7 +840,7 @@ def normalise_scope(merge_df,modes):
         #iterates over all unique values
         for unique_val in unique_vals:
             for channel in ['xx','xy','yy']:
-                unique_max = np.max(merge_df.loc[(merge_df.Freq==unique_val),channel])
+                unique_max = np.max(abs(merge_df.loc[(merge_df.Freq==unique_val),channel]))
 
                 if unique_max !=0:
                     merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=merge_df.loc[(merge_df.Freq==unique_val),channel]/unique_max
@@ -830,18 +857,47 @@ def crop_scope(scope_df,modes):
     
     This function also removes all 0.0 values for the various channels.
     '''
+    if modes["crop_basis"] == 't':
+        scope_df=crop_operation (scope_df,modes)
+    elif modes["crop_basis"] == 'f':
+        var_str='Freq'
+        unique_vals=scope_df[var_str].unique()
+        out_df= pd.DataFrame(columns=scope_df.columns)
+        for unique_val in unique_vals:
+            in_df=scope_df.loc[(scope_df.Freq==unique_val),:].copy()
+            out_df=out_df.append(crop_operation (in_df,modes))
+        scope_df=out_df
+    else:
+        scope_df=crop_operation (scope_df,modes)
+    
+    return(scope_df)
+
+def crop_operation (in_df,modes):
+    out_df=in_df.copy()
     #goes through all the columns of the data
-    for col in scope_df:
+    for col in out_df:
         #targets the dependent variables
         if col not in ['Time','Freq','d_Time']:
             #drops all zero values from the data
-            scope_df.drop(scope_df[scope_df[col] == 0.0].index, inplace=True)
+            out_df.drop(out_df[scope_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data
             if 0.0 != modes['crop']:
-                col_median = np.median(scope_df[col])
-                col_limit = col_median*modes['crop']
-                scope_df.drop(scope_df[scope_df[col] > col_limit].index, inplace=True)
-    return(scope_df)
+                if modes['crop_type']=="median":
+                    col_limit = np.median(out_df[col])*modes['crop']
+                elif modes['crop_type']=="mean":
+                    col_limit = np.mean(out_df[col])*modes['crop']
+                elif modes['crop_type']=="percentile":
+                    if modes['crop'] <100:
+                        col_limit = np.percentile(out_df[col],modes['crop'])
+                    else:
+                        print("WARNING: Percentile must be less than 100")
+                        col_limit = np.max(out_df[col])
+                else:
+                    print("WARNING: crop_type incorrectly specified.")
+                    col_limit = np.median(out_df[col])*modes['crop']
+                out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
+    return(out_df)
+
     
 def calc_diff(merge_df, modes, channel):
     if modes['diff']=='sub':
