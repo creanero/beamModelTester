@@ -498,6 +498,47 @@ def colour_models(colour_id):
         return('darkblue')
     if 'yys'==colour_id:
         return('Blues')
+        
+    #sets golds/yellows for various applications of stokes U
+    if 'U'==colour_id:
+        return('gold')
+    if 'U_light'==colour_id:
+        return('palegoldenrod')
+    if 'U_dark'==colour_id:
+        return('goldenrod')
+    if 'Us'==colour_id:
+        return('YlOrBr')
+        
+    #sets oranges for various applications for the Stokes V
+    if 'V'==colour_id:
+        return('orange')
+    if 'V_light'==colour_id:
+        return('sandybrown')
+    if 'V_dark'==colour_id:
+        return('darkorange')
+    if 'Vs'==colour_id:
+        return('Oranges')        
+
+    #sets cyans for various applications for the Stokes I
+    if 'I'==colour_id:
+        return('cyan')
+    if 'I_light'==colour_id:
+        return('aquamarine')
+    if 'I_dark'==colour_id:
+        return('teal')
+    if 'Is'==colour_id:
+        return('viridis')   
+
+    #sets magentas for various applications for the Stokes Q
+    #note the distinction from the generic q-channel
+    if 'Q'==colour_id:
+        return('magenta')
+    if 'Q_light'==colour_id:
+        return('fuchsia')
+    if 'Q_dark'==colour_id:
+        return('darkmagenta')
+    if 'Qs'==colour_id:
+        return('bwr')                
     
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
