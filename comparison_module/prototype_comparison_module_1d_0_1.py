@@ -66,7 +66,36 @@ def plot_values_1f(merge_df):
         plt.show()
     return(0)
     
+def plot_values_nf(merge_df):
+    '''
+    This function takes a merged dataframe as an argument and plots a graph of
+    each of the various values for the model and the scope against time.
     
+    This plot is only usable and valid if the data is ordered in time and has 
+    only a single frequency
+    '''
+    
+    m_keys=get_df_keys(merge_df,"_diff")
+    
+    for key in m_keys:
+        #creates a plot each of the values of model and scope
+        #part one: plots the model and scope values for p-channel against time
+        for source in ["model","scope"]:
+            plt.figure()
+            plt.title("Plot of the values in "+key+"-channel over time "+
+                      "and frequency for "+source)
+    
+            #plots the p-channel in one colour
+            plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_'+source]),
+                          cmap=plt.get_cmap(colour_models(key+'s')))
+            plt.legend(frameon=False)
+            #plots the axis labels rotated so they're legible
+            plt.xticks(rotation=90)
+            plt.xlabel('Time')
+            plt.colorbar()
+            #prints the plot
+            plt.show()
+    return(0)    
     
     
 def plot_diff_values_1f(merge_df):
@@ -320,7 +349,7 @@ def plot_diff_values_nf(merge_df):
         #plots p-channel difference
         plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_diff']),
                       cmap=plt.get_cmap(colour_models(key+'s')))
-
+        plt.colorbar()
         #plots x-label for both using start time 
         plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
         plt.ylabel("Frequency")
@@ -381,7 +410,10 @@ def analysis_nd(merge_df):
     rmses=calc_rmse_1d(merge_df)
     for i in range(len(m_keys)):
         print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
-
+    
+    #plots the values of scope and model 
+    plot_values_nf(merge_df)
+    
     #plots the differences in values for the various channels
     plot_diff_values_nf(merge_df)
     
