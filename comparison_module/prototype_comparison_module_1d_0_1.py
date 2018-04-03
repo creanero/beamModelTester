@@ -355,7 +355,7 @@ def plot_diff_values_nf(merge_df):
         plt.ylabel("Frequency")
         plt.show()
 
-def analysis_1d(merge_df):
+def analysis_1d(merge_df,modes):
     '''
     This function carries out all plotting and calculations needed for a 1-d 
     dataset (i.e. one frequency)
@@ -385,7 +385,7 @@ def analysis_1d(merge_df):
         print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
     
     
-def analysis_nd(merge_df):
+def analysis_nd(merge_df,modes):
     '''
     This function carries out all plotting and calculations needed for a n-d 
     dataset (i.e. multiple frequencies)
@@ -631,6 +631,14 @@ def beam_arg_parser():
                         "divisive differences when calculating the difference"+
                         " between the scope and the model.  Default is subtract")
     
+    #adds an optional argument for the cropping type for noise on the scope
+    parser.add_argument("--values","-v", default="all",
+                        choices=("all","xy","stokes"),
+                        help = "Sets the parameters that will be plotted "+
+                        "on the value and difference graphs.  xy means xx, xy"+
+                        " and yy-channel values will be plotted. stokes means"+
+                        "that Stokes U- V- I- and Q-channels will be plotted "+
+                        "all means that all seven channels will be plotted.")     
     
     
     #passes these arguments to a unified variable
@@ -662,8 +670,10 @@ def beam_arg_parser():
     modes['norm']=args.norm
     modes['crop_type']=args.crop_type
     modes['crop_basis']=args.crop_basis
-    modes['crop']=abs(args.crop)
+    modes['crop']=abs(args.crop)#abs value to prevent use of negative crops
     modes['diff']=args.diff
+    modes['values']=args.values
+    
     
     return(in_file_model,in_file_scope,modes)
 
@@ -760,11 +770,17 @@ def read_OSO_h5 (filename):
     return(scope_df)
 
 def read_var_file(file_name):
+    '''
+    This function reads in the filename and checks the suffix.  Depending on
+    the suffix chosen, it calls different file reader functions
+    '''
     suffix=file_name.rsplit('.',1)[1]
     if 'csv'==suffix:
         out_df=read_dreambeam_csv(file_name)
-    if 'hdf5'==suffix:
+    elif 'hdf5'==suffix:
         out_df=read_OSO_h5(file_name)    
+    else:
+        print (file_name+" is not an appropriate file")
     return(out_df)
 
 
@@ -785,6 +801,7 @@ def merge_dfs(model_df,scope_df,modes):
         merge_df=calc_pq(merge_df,modes)
     elif 'xx' in merge_df:
         merge_df=calc_xy(merge_df,modes)
+        merge_df=calc_stokes(merge_df,modes)
     
     return(merge_df)        
 
@@ -858,6 +875,22 @@ def calc_xy(merge_df,modes):
     for channel in ["xx","xy","yy"]:
         calc_diff(merge_df, modes, channel)
     #note the d_Time is already calculated
+    return (merge_df)
+
+def calc_stokes(merge_df,modes):
+    '''
+    this function calculates the Stokes UVIQ parameters for each time and 
+    frequency in a merged dataframe
+    '''
+
+    for source in ["model","scope"]:
+        merge_df['U_'+source]=np.real(merge_df['xy_'+source])
+        merge_df['V_'+source]=np.imag(merge_df['xy_'+source])
+        merge_df['I_'+source]=merge_df['xx_'+source]+merge_df['yy_'+source]
+        merge_df['Q_'+source]=merge_df['xx_'+source]-merge_df['yy_'+source]
+
+    for channel in ["U","V","I","Q"]:
+        calc_diff(merge_df, modes, channel)    
     return (merge_df)
 
 def normalise_scope(merge_df,modes):
@@ -966,7 +999,7 @@ if __name__ == "__main__":
     #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
         #if only one frequency, does one-dimensional analysis
-        analysis_1d(merge_df)
+        analysis_1d(merge_df,modes)
     else:
         #otherwise does multi-dimensional analysis
-        analysis_nd(merge_df)
+        analysis_nd(merge_df,modes)
