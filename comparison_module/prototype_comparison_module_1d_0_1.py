@@ -27,14 +27,26 @@ def read_dreambeam_csv(in_file):
                         parse_dates=['Time'], skipinitialspace=True)  
     return out_df
 
-def get_df_keys(merge_df,key_str):
+def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
+    '''
+    Calculates the keys from a given dataframe or based on the input modes.
+    '''
     m_keys=[]
-    for m_key in merge_df.keys():
-        if key_str in m_key:
-            m_keys.append(m_key.split(key_str)[0])
+    if "stokes"==modes["values"]:
+        m_keys = ["U","V","I","Q"]
+    elif "xy"==modes["values"]:
+        m_keys = ["xx","xy","yy"]
+    elif "all"==modes["values"]:
+        for m_key in merge_df.keys():
+            if key_str in m_key:
+                m_keys.append(m_key.split(key_str)[0])
+    else:
+        print ("Warning, no appropriate keys found!")
+    
+    
     return(m_keys)
 
-def plot_values_1f(merge_df):
+def plot_values_1f(merge_df, m_keys):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -43,7 +55,6 @@ def plot_values_1f(merge_df):
     only a single frequency
     '''
     
-    m_keys=get_df_keys(merge_df,"_diff")
     
     for key in m_keys:
         #creates a two part plot of the values of model and scope
@@ -66,7 +77,7 @@ def plot_values_1f(merge_df):
         plt.show()
     return(0)
     
-def plot_values_nf(merge_df):
+def plot_values_nf(merge_df, m_keys):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -74,8 +85,7 @@ def plot_values_nf(merge_df):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    
-    m_keys=get_df_keys(merge_df,"_diff")
+
     
     for key in m_keys:
         #creates a plot each of the values of model and scope
@@ -89,16 +99,16 @@ def plot_values_nf(merge_df):
             plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_'+source]),
                           cmap=plt.get_cmap(colour_models(key+'s')))
             plt.legend(frameon=False)
-            #plots the axis labels rotated so they're legible
-            plt.xticks(rotation=90)
-            plt.xlabel('Time')
+            #plots x-label for both using start time 
+            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+            plt.ylabel("Frequency")
             plt.colorbar()
             #prints the plot
             plt.show()
     return(0)    
     
     
-def plot_diff_values_1f(merge_df):
+def plot_diff_values_1f(merge_df, m_keys):
     '''
     This function takes a merged dataframe as an argument and 
     plots the differences in various channel values over time
@@ -106,8 +116,6 @@ def plot_diff_values_1f(merge_df):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    
-    m_keys=get_df_keys(merge_df,"_diff")
 
     plt.figure()
     
@@ -144,7 +152,7 @@ def plot_diff_values_1f(merge_df):
     
     
    
-def calc_corr_1d(merge_df):
+def calc_corr_1d(merge_df, m_keys):
     '''
     This function takes a merged dataframe as an argument and 
     calculates the pearson correlation coeffiecients between scope 
@@ -152,7 +160,6 @@ def calc_corr_1d(merge_df):
     '''
     
     
-    m_keys=get_df_keys(merge_df,"_diff")
     corr_outs=[]
     for key in m_keys:
         #uses absolute values as real values cannot be negative and complex 
@@ -167,7 +174,7 @@ def calc_corr_1d(merge_df):
     
     
     
-def calc_corr_nd(merge_df, var_str):
+def calc_corr_nd(merge_df, var_str, m_keys):
     '''
     This function calculates the correlation between the scope and model values
     for p- and q-channel as they are distributed against another column of the 
@@ -175,8 +182,6 @@ def calc_corr_nd(merge_df, var_str):
     
     in current versions, useable values for var_str are "Time" and "Freq"
     '''
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff")
         
     #creates empty lists for the correlations
     n_corrs=[]
@@ -197,7 +202,7 @@ def calc_corr_nd(merge_df, var_str):
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
         #uses this unique value for and the 1-dimensional calc_corr_1d function
         #to calculate the correlations for each channel
-        n_corr=calc_corr_1d(unique_merge_df)
+        n_corr=calc_corr_1d(unique_merge_df, m_keys)
         
         #appends these to the list
         for i in range(len(m_keys)):
@@ -241,13 +246,12 @@ def calc_corr_nd(merge_df, var_str):
 
 
 
-def calc_rmse_1d(merge_df):
+def calc_rmse_1d(merge_df, m_keys):
     '''
     This function takes a merged dataframe as an argument and 
     calculates and returns the root mean square difference between scope and 
     model
     '''
-    m_keys=get_df_keys(merge_df,"_diff")
     rmse_outs=[]
     for key in m_keys:
         rmse_outs.append(np.mean(merge_df[key+'_diff']**2)**0.5)
@@ -257,7 +261,7 @@ def calc_rmse_1d(merge_df):
     
     
     
-def calc_rmse_nd(merge_df, var_str):
+def calc_rmse_nd(merge_df, var_str, m_keys):
     '''
     This function calculates the correlation between the scope and model values
     for p- and q-channel  as they are distributed against another column of the 
@@ -265,9 +269,7 @@ def calc_rmse_nd(merge_df, var_str):
     
     in current versions, useable values for var_str are "Time" and "Freq"
     '''
-    
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff")
+
         
     #creates empty lists for the Errors
     n_rmses=[]
@@ -286,9 +288,9 @@ def calc_rmse_nd(merge_df, var_str):
         #creates a dataframe with  only the elements that match the current 
         #unique value
         unique_merge_df=merge_df[merge_df[var_str]==unique_val]
-        #uses this unique value for and the 1-dimensional calc_corr_1d function
+        #uses this unique value for and the 1-dimensional calc_rmse_1d function
         #to calculate the RMSE for each channel
-        n_rmse=calc_rmse_1d(unique_merge_df)
+        n_rmse=calc_rmse_1d(unique_merge_df, m_keys)
         
         #appends these to the list
         for i in range(len(m_keys)):
@@ -330,15 +332,13 @@ def calc_rmse_nd(merge_df, var_str):
 
 
 
-def plot_diff_values_nf(merge_df):
+def plot_diff_values_nf(merge_df, m_keys):
     '''
     This function creates 3d colour plots using time and frequency from a 
     merged data frame as the independent variables and the difference between
     source and model as the dependent (colour) variable 
     '''
-    
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff")    
+     
     
     for key in m_keys:
         #create a plot 
@@ -355,7 +355,7 @@ def plot_diff_values_nf(merge_df):
         plt.ylabel("Frequency")
         plt.show()
 
-def analysis_1d(merge_df):
+def analysis_1d(merge_df,modes, m_keys):
     '''
     This function carries out all plotting and calculations needed for a 1-d 
     dataset (i.e. one frequency)
@@ -363,29 +363,33 @@ def analysis_1d(merge_df):
     Future iterations may include optional arguments to enable selection of the
     plots that are preferred
     '''
-    #plots the values for each channel
-    plot_values_1f(merge_df)
+  
+    if "value" in modes["plots"]:
+        #plots the values for each channel
+        plot_values_1f(merge_df, m_keys)
     
-    #plots the differences in the values
-    plot_diff_values_1f(merge_df)
+    if "diff" in modes["plots"]:    
+        #plots the differences in the values
+        plot_diff_values_1f(merge_df, m_keys)
     
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff")    
-    
-    #calculates the pearson correlation coefficient between scope and model
-    corrs=calc_corr_1d(merge_df)
-    
-    for i in range(len(m_keys)):
-        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
 
-    print("\n")    
-    #calculates the root mean squared error between scope and model
-    rmses=calc_rmse_1d(merge_df)
-    for i in range(len(m_keys)):
-        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+    if "corr" in modes["plots"]:
+        #calculates the pearson correlation coefficient between scope and model
+        corrs=calc_corr_1d(merge_df, m_keys)
+        
+        for i in range(len(m_keys)):
+            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
+    
+        print("\n")
+        
+    if "rmse" in modes["plots"]:        
+        #calculates the root mean squared error between scope and model
+        rmses=calc_rmse_1d(merge_df, m_keys)
+        for i in range(len(m_keys)):
+            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
     
     
-def analysis_nd(merge_df):
+def analysis_nd(merge_df,modes, m_keys):
     '''
     This function carries out all plotting and calculations needed for a n-d 
     dataset (i.e. multiple frequencies)
@@ -394,50 +398,69 @@ def analysis_nd(merge_df):
     plots that are preferred
     '''
         
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff")
+  
+    if "corr" in modes["plots"]:
+        #calculates the pearson correlation coefficient between scope and model
+        corrs=calc_corr_1d(merge_df, m_keys)
+        #prints that coefficient for each key and correlation
+        for i in range(len(m_keys)):
+            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
     
-    #calculates the pearson correlation coefficient between scope and model
-    corrs=calc_corr_1d(merge_df)
-    #prints that coefficient for each key and correlation
-    for i in range(len(m_keys)):
-        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
-
-    #newline to separate outputs
-    print("\n")  
+        #newline to separate outputs
+        print("\n")  
+    
+    if "rmse" in modes["plots"]:        
+        #calculates the root mean squared error between scope and model
+        rmses=calc_rmse_1d(merge_df, m_keys)
+        for i in range(len(m_keys)):
+            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+    
+    if "value" in modes["plots"]:
+        #plots the values of scope and model 
+        plot_values_nf(merge_df, m_keys)
+    
+    if "diff" in modes["plots"]:
+        #plots the differences in values for the various channels
+        plot_diff_values_nf(merge_df, m_keys)
+    
+    #calculates the correlations and rmse over time at each independent variable 
+    #return values are stored as possible future outputs
+    ind_var = ["Freq", "Time"]
+    ind_dfs = {}
+    for ind in ind_var:        
+        n_ind=merge_df[ind].unique()
         
-    #calculates the root mean squared error between scope and model
-    rmses=calc_rmse_1d(merge_df)
-    for i in range(len(m_keys)):
-        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+        
+        
+
+        if "corr" in modes["plots"]:
+            ind_df=pd.DataFrame(data={ind:n_ind})
+            n_corrs=calc_corr_nd(merge_df,ind, m_keys)
+            for key in m_keys:
+                ind_df[key+'_corr']=n_corrs[m_keys.index(key)]
+            ind_dfs[ind+"_corr"]=ind_df
+        
+        ind_df=pd.DataFrame(data={ind:n_ind})
+        if "rmse" in modes["plots"]: 
+            ind_df=pd.DataFrame(data={ind:n_ind})
+            n_rmses=calc_rmse_nd(merge_df,ind, m_keys)
+            for key in m_keys:
+                ind_df[key+'_RMSE']=n_rmses[m_keys.index(key)]
+            ind_dfs[ind+"_RMSE"]=ind_df
+        
+
     
-    #plots the values of scope and model 
-    plot_values_nf(merge_df)
+#    #calculates the correlations and rmse over frequency at each time 
+#    #return values are stored as possible future outputs
+#    n_corrs_time=calc_corr_nd(merge_df,"Time", m_keys)
+#    n_rmses_time=calc_rmse_nd(merge_df,"Time", m_keys)
+#    n_time=merge_df.Time.unique()
+#    time_df=pd.DataFrame(data={"Time":n_time})
+#    for key in m_keys:
+#        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
+#        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
     
-    #plots the differences in values for the various channels
-    plot_diff_values_nf(merge_df)
-    
-    #calculates the correlations and rmse over time at each frequency 
-    #return values are stored as possible future outputs
-    n_corrs_freq=calc_corr_nd(merge_df,"Freq")
-    n_rmses_freq=calc_rmse_nd(merge_df,"Freq")
-    n_freq=merge_df.Freq.unique()
-    freq_df=pd.DataFrame(data={"Freq":n_freq})
-    for key in m_keys:
-        freq_df[key+'_corr']=n_corrs_freq[m_keys.index(key)]
-        freq_df[key+'_RMSE']=n_rmses_freq[m_keys.index(key)]
-    
-    #calculates the correlations and rmse over frequency at each time 
-    #return values are stored as possible future outputs
-    n_corrs_time=calc_corr_nd(merge_df,"Time")
-    n_rmses_time=calc_rmse_nd(merge_df,"Time")
-    n_time=merge_df.Time.unique()
-    time_df=pd.DataFrame(data={"Time":n_time})
-    for key in m_keys:
-        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
-        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
-    
-    return (freq_df,time_df)
+    return (ind_dfs)
     
     
     
@@ -498,6 +521,47 @@ def colour_models(colour_id):
         return('darkblue')
     if 'yys'==colour_id:
         return('Blues')
+        
+    #sets golds/yellows for various applications of stokes U
+    if 'U'==colour_id:
+        return('yellow')
+    if 'U_light'==colour_id:
+        return('palegoldenrod')
+    if 'U_dark'==colour_id:
+        return('goldenrod')
+    if 'Us'==colour_id:
+        return('YlOrBr')
+        
+    #sets oranges for various applications for the Stokes V
+    if 'V'==colour_id:
+        return('darkorange')
+    if 'V_light'==colour_id:
+        return('sandybrown')
+    if 'V_dark'==colour_id:
+        return('chocolate')
+    if 'Vs'==colour_id:
+        return('Oranges')        
+
+    #sets cyans for various applications for the Stokes I
+    if 'I'==colour_id:
+        return('cyan')
+    if 'I_light'==colour_id:
+        return('aquamarine')
+    if 'I_dark'==colour_id:
+        return('teal')
+    if 'Is'==colour_id:
+        return('viridis')   
+
+    #sets magentas for various applications for the Stokes Q
+    #note the distinction from the generic q-channel
+    if 'Q'==colour_id:
+        return('magenta')
+    if 'Q_light'==colour_id:
+        return('fuchsia')
+    if 'Q_dark'==colour_id:
+        return('darkmagenta')
+    if 'Qs'==colour_id:
+        return('bwr')                
     
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
@@ -590,6 +654,20 @@ def beam_arg_parser():
                         "divisive differences when calculating the difference"+
                         " between the scope and the model.  Default is subtract")
     
+    #adds an optional argument for the set of values to analyse and plot
+    parser.add_argument("--values","-v", default="all",
+                        choices=("all","xy","stokes"),
+                        help = "Sets the parameters that will be plotted "+
+                        "on the value and difference graphs.  xy means xx, xy"+
+                        " and yy-channel values will be plotted. stokes means"+
+                        "that Stokes U- V- I- and Q-channels will be plotted "+
+                        "all means that all seven channels will be plotted.")     
+    
+    #adds an optional argument for the plots to show
+    parser.add_argument("--plots","-p", nargs="*",
+                        default=["rmse", "corr", "value", "diff"],
+                        choices=("rmse", "corr", "value", "diff"),
+                        help = "Sets which plots will be shown") 
     
     
     #passes these arguments to a unified variable
@@ -621,8 +699,11 @@ def beam_arg_parser():
     modes['norm']=args.norm
     modes['crop_type']=args.crop_type
     modes['crop_basis']=args.crop_basis
-    modes['crop']=abs(args.crop)
+    modes['crop']=abs(args.crop)#abs value to prevent use of negative crops
     modes['diff']=args.diff
+    modes['values']=args.values
+    modes['plots']=args.plots
+    
     
     return(in_file_model,in_file_scope,modes)
 
@@ -719,11 +800,17 @@ def read_OSO_h5 (filename):
     return(scope_df)
 
 def read_var_file(file_name):
+    '''
+    This function reads in the filename and checks the suffix.  Depending on
+    the suffix chosen, it calls different file reader functions
+    '''
     suffix=file_name.rsplit('.',1)[1]
     if 'csv'==suffix:
         out_df=read_dreambeam_csv(file_name)
-    if 'hdf5'==suffix:
+    elif 'hdf5'==suffix:
         out_df=read_OSO_h5(file_name)    
+    else:
+        print (file_name+" is not an appropriate file")
     return(out_df)
 
 
@@ -744,6 +831,7 @@ def merge_dfs(model_df,scope_df,modes):
         merge_df=calc_pq(merge_df,modes)
     elif 'xx' in merge_df:
         merge_df=calc_xy(merge_df,modes)
+        merge_df=calc_stokes(merge_df,modes)
     
     return(merge_df)        
 
@@ -819,6 +907,22 @@ def calc_xy(merge_df,modes):
     #note the d_Time is already calculated
     return (merge_df)
 
+def calc_stokes(merge_df,modes):
+    '''
+    this function calculates the Stokes UVIQ parameters for each time and 
+    frequency in a merged dataframe
+    '''
+
+    for source in ["model","scope"]:
+        merge_df['U_'+source]=np.real(merge_df['xy_'+source])
+        merge_df['V_'+source]=np.imag(merge_df['xy_'+source])
+        merge_df['I_'+source]=merge_df['xx_'+source]+merge_df['yy_'+source]
+        merge_df['Q_'+source]=merge_df['xx_'+source]-merge_df['yy_'+source]
+
+    for channel in ["U","V","I","Q"]:
+        calc_diff(merge_df, modes, channel)    
+    return (merge_df)
+
 def normalise_scope(merge_df,modes):
     '''
     This function normalises the data for the scope according to the 
@@ -827,7 +931,7 @@ def normalise_scope(merge_df,modes):
     if 't' == modes['norm'] :
         #normalises by dividing by the maximum
         merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-        merge_df['xy_scope']=abs(merge_df.xy)/np.max(abs(merge_df.xy))
+        merge_df['xy_scope']=merge_df.xy/np.max(abs(merge_df.xy))
         merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
     elif 'f' == modes['norm']:
         var_str='Freq'
@@ -891,7 +995,7 @@ def crop_operation (in_df,modes):
                         col_limit = np.percentile(out_df[col],modes['crop'])
                     else:
                         print("WARNING: Percentile must be less than 100")
-                        col_limit = np.max(out_df[col])
+                        col_limit = np.max(abs(out_df[col]))
                 else:
                     print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']
@@ -922,10 +1026,13 @@ if __name__ == "__main__":
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df, modes)
     
+    #identifies the keys with _diff suffix
+    m_keys=get_df_keys(merge_df,"_diff", modes)
+    
     #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
         #if only one frequency, does one-dimensional analysis
-        analysis_1d(merge_df)
+        analysis_1d(merge_df,modes, m_keys)
     else:
         #otherwise does multi-dimensional analysis
-        analysis_nd(merge_df)
+        analysis_nd(merge_df,modes, m_keys)
