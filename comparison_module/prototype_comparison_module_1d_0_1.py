@@ -364,26 +364,29 @@ def analysis_1d(merge_df,modes, m_keys):
     plots that are preferred
     '''
   
+    if "value" in modes["plots"]:
+        #plots the values for each channel
+        plot_values_1f(merge_df, m_keys)
     
-    #plots the values for each channel
-    plot_values_1f(merge_df, m_keys)
-    
-    #plots the differences in the values
-    plot_diff_values_1f(merge_df, m_keys)
+    if "diff" in modes["plots"]:    
+        #plots the differences in the values
+        plot_diff_values_1f(merge_df, m_keys)
     
 
+    if "corr" in modes["plots"]:
+        #calculates the pearson correlation coefficient between scope and model
+        corrs=calc_corr_1d(merge_df, m_keys)
+        
+        for i in range(len(m_keys)):
+            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
     
-    #calculates the pearson correlation coefficient between scope and model
-    corrs=calc_corr_1d(merge_df, m_keys)
-    
-    for i in range(len(m_keys)):
-        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
-
-    print("\n")    
-    #calculates the root mean squared error between scope and model
-    rmses=calc_rmse_1d(merge_df, m_keys)
-    for i in range(len(m_keys)):
-        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+        print("\n")
+        
+    if "rmse" in modes["plots"]:        
+        #calculates the root mean squared error between scope and model
+        rmses=calc_rmse_1d(merge_df, m_keys)
+        for i in range(len(m_keys)):
+            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
     
     
 def analysis_nd(merge_df,modes, m_keys):
@@ -396,47 +399,68 @@ def analysis_nd(merge_df,modes, m_keys):
     '''
         
   
-    #calculates the pearson correlation coefficient between scope and model
-    corrs=calc_corr_1d(merge_df, m_keys)
-    #prints that coefficient for each key and correlation
-    for i in range(len(m_keys)):
-        print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
-
-    #newline to separate outputs
-    print("\n")  
+    if "corr" in modes["plots"]:
+        #calculates the pearson correlation coefficient between scope and model
+        corrs=calc_corr_1d(merge_df, m_keys)
+        #prints that coefficient for each key and correlation
+        for i in range(len(m_keys)):
+            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
+    
+        #newline to separate outputs
+        print("\n")  
+    
+    if "rmse" in modes["plots"]:        
+        #calculates the root mean squared error between scope and model
+        rmses=calc_rmse_1d(merge_df, m_keys)
+        for i in range(len(m_keys)):
+            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+    
+    if "value" in modes["plots"]:
+        #plots the values of scope and model 
+        plot_values_nf(merge_df, m_keys)
+    
+    if "diff" in modes["plots"]:
+        #plots the differences in values for the various channels
+        plot_diff_values_nf(merge_df, m_keys)
+    
+    #calculates the correlations and rmse over time at each independent variable 
+    #return values are stored as possible future outputs
+    ind_var = ["Freq", "Time"]
+    ind_dfs = {}
+    for ind in ind_var:        
+        n_ind=merge_df[ind].unique()
         
-    #calculates the root mean squared error between scope and model
-    rmses=calc_rmse_1d(merge_df, m_keys)
-    for i in range(len(m_keys)):
-        print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+        
+        
+
+        if "corr" in modes["plots"]:
+            ind_df=pd.DataFrame(data={ind:n_ind})
+            n_corrs=calc_corr_nd(merge_df,ind, m_keys)
+            for key in m_keys:
+                ind_df[key+'_corr']=n_corrs[m_keys.index(key)]
+            ind_dfs[ind+"_corr"]=ind_df
+        
+        ind_df=pd.DataFrame(data={ind:n_ind})
+        if "rmse" in modes["plots"]: 
+            ind_df=pd.DataFrame(data={ind:n_ind})
+            n_rmses=calc_rmse_nd(merge_df,ind, m_keys)
+            for key in m_keys:
+                ind_df[key+'_RMSE']=n_rmses[m_keys.index(key)]
+            ind_dfs[ind+"_RMSE"]=ind_df
+        
+
     
-    #plots the values of scope and model 
-    plot_values_nf(merge_df, m_keys)
+#    #calculates the correlations and rmse over frequency at each time 
+#    #return values are stored as possible future outputs
+#    n_corrs_time=calc_corr_nd(merge_df,"Time", m_keys)
+#    n_rmses_time=calc_rmse_nd(merge_df,"Time", m_keys)
+#    n_time=merge_df.Time.unique()
+#    time_df=pd.DataFrame(data={"Time":n_time})
+#    for key in m_keys:
+#        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
+#        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
     
-    #plots the differences in values for the various channels
-    plot_diff_values_nf(merge_df, m_keys)
-    
-    #calculates the correlations and rmse over time at each frequency 
-    #return values are stored as possible future outputs
-    n_corrs_freq=calc_corr_nd(merge_df,"Freq", m_keys)
-    n_rmses_freq=calc_rmse_nd(merge_df,"Freq", m_keys)
-    n_freq=merge_df.Freq.unique()
-    freq_df=pd.DataFrame(data={"Freq":n_freq})
-    for key in m_keys:
-        freq_df[key+'_corr']=n_corrs_freq[m_keys.index(key)]
-        freq_df[key+'_RMSE']=n_rmses_freq[m_keys.index(key)]
-    
-    #calculates the correlations and rmse over frequency at each time 
-    #return values are stored as possible future outputs
-    n_corrs_time=calc_corr_nd(merge_df,"Time", m_keys)
-    n_rmses_time=calc_rmse_nd(merge_df,"Time", m_keys)
-    n_time=merge_df.Time.unique()
-    time_df=pd.DataFrame(data={"Time":n_time})
-    for key in m_keys:
-        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
-        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
-    
-    return (freq_df,time_df)
+    return (ind_dfs)
     
     
     
@@ -640,14 +664,10 @@ def beam_arg_parser():
                         "all means that all seven channels will be plotted.")     
     
     #adds an optional argument for the plots to show
-    parser.add_argument("--plots","-p", nargs="?",
-                        default=["rmse", "corr", "values", "diffs"],
-                        choices=("rmse", "corr", "values", "diffs"),
-                        help = "Sets the parameters that will be plotted "+
-                        "on the value and difference graphs.  xy means xx, xy"+
-                        " and yy-channel values will be plotted. stokes means"+
-                        "that Stokes U- V- I- and Q-channels will be plotted "+
-                        "all means that all seven channels will be plotted.") 
+    parser.add_argument("--plots","-p", nargs="*",
+                        default=["rmse", "corr", "value", "diff"],
+                        choices=("rmse", "corr", "value", "diff"),
+                        help = "Sets which plots will be shown") 
     
     
     #passes these arguments to a unified variable
@@ -682,6 +702,7 @@ def beam_arg_parser():
     modes['crop']=abs(args.crop)#abs value to prevent use of negative crops
     modes['diff']=args.diff
     modes['values']=args.values
+    modes['plots']=args.plots
     
     
     return(in_file_model,in_file_scope,modes)
