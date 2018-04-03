@@ -531,9 +531,17 @@ def beam_arg_parser():
     
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop","-c", default = 0.0, type=float,
-                        help = "Set the number of times above the mean which"+
+                        help = "Set the number of times above the MEDIAN which"+
                         "is filtered when interpreting the scope data. "+
-                        "Default is not to crop (crop = 0.0).")
+                        "Default is not to crop (crop = 0.0).  Negative "+
+                        "values are converted to positive before use.")
+    
+    #adds an optional argument for the cropping level for noise on the scope
+    parser.add_argument("--diff","-d", default = "sub",choices=("sub","div"),
+                        help = "determines whether to use subtractive or "+
+                        "divisive differences when calculating the difference"+
+                        " between the scope and the model.  Default is subtract")
+    
     
     
     #passes these arguments to a unified variable
@@ -561,7 +569,8 @@ def beam_arg_parser():
                                 "Please enter the telescope filename:\n")
     modes={}    
     modes['norm']=args.norm
-    modes['crop']=args.crop
+    modes['crop']=abs(args.crop)
+    modes['diff']=args.diff
     
     return(in_file_model,in_file_scope,modes)
 
@@ -673,13 +682,13 @@ def merge_dfs(model_df,scope_df,modes):
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
     if 'J11_scope' in merge_df:
-        merge_df=calc_pq(merge_df)
+        merge_df=calc_pq(merge_df,modes)
     elif 'xx' in merge_df:
         merge_df=calc_xy(merge_df,modes)
     
     return(merge_df)        
 
-def calc_pq(merge_df):
+def calc_pq(merge_df,modes):
     '''
     Calculates the P and Q channel intensities as per dreamBeam, and from there
     calculates the differeces in each channel, as well as the time since start
@@ -689,13 +698,17 @@ def calc_pq(merge_df):
     merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
     merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
     #calculates the difference between model and scope
-    merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
+    #merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
     
     #calculates the q-channel intensity as per DreamBeam for both model and scope
     merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
     merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
     #calculates the difference between model and scope
-    merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
+    #merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
+    
+    #calculates the differences
+    for channel in ["p","q"]:
+        calc_diff(merge_df, modes, channel)
     
     #creates a variable to hold the time since the start of the plot
     #this is necessary for plots that are not compatible with Timestamp data
@@ -742,10 +755,8 @@ def calc_xy(merge_df,modes):
     merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
        
     #calculates the differences
-    merge_df['xx_diff']=abs(merge_df.xx_model)-abs(merge_df.xx_scope)
-    merge_df['xy_diff']=abs(merge_df.xy_model)-abs(merge_df.xy_scope)
-    merge_df['yy_diff']=abs(merge_df.yy_model)-abs(merge_df.yy_scope)
-    
+    for channel in ["xx","xy","yy"]:
+        calc_diff(merge_df, modes, channel)
     #note the d_Time is already calculated
     return (merge_df)
 
@@ -780,13 +791,31 @@ def normalise_scope(merge_df,modes):
     return (merge_df)
 
 def crop_scope(scope_df,modes):
+    '''
+    This function drops all rows where the value for the channel is greater 
+    than the MEDIAN for that channel by thenumber of times specified by the 
+    cropping argument
     
+    This function also removes all 0.0 values for the various channels.
+    '''
+    #goes through all the columns of the data
     for col in scope_df:
+        #targets the dependent variables
         if col not in ['Time','Freq','d_Time']:
-            col_median = np.median(scope_df[col])
-            col_limit = col_median*modes['crop']
-            scope_df.drop(scope_df[scope_df[col] > col_limit].index, inplace=True)
+            #drops all zero values from the data
+            scope_df.drop(scope_df[scope_df[col] == 0.0].index, inplace=True)
+            #if the cropping mode isn't set to 0, crop the scope data
+            if 0.0 != modes['crop']:
+                col_median = np.median(scope_df[col])
+                col_limit = col_median*modes['crop']
+                scope_df.drop(scope_df[scope_df[col] > col_limit].index, inplace=True)
     return(scope_df)
+    
+def calc_diff(merge_df, modes, channel):
+    if modes['diff']=='sub':
+        merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])-abs(merge_df[channel+"_scope"])
+    elif modes['diff']=='div':
+        merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])/(abs(merge_df[channel+"_scope"])+0.0)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
@@ -798,9 +827,8 @@ if __name__ == "__main__":
     #read in the file from the scope using variable reader
     scope_df=read_var_file(in_file_scope)
     
-    #if the cropping mode isn't set to 0, crop the scope data
-    if 0.0 != modes['crop']:
-        scope_df=crop_scope(scope_df,modes)
+    #always crops zero values, may crop high values depending on user input
+    scope_df=crop_scope(scope_df,modes)
         
     
     #merges the dataframes
