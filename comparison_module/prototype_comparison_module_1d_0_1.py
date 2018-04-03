@@ -34,12 +34,26 @@ def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
     m_keys=[]
     if "stokes"==modes["values"]:
         m_keys = ["U","V","I","Q"]
-    elif "xy"==modes["values"]:
+    elif "linear"==modes["values"]:
         m_keys = ["xx","xy","yy"]
     elif "all"==modes["values"]:
         for m_key in merge_df.keys():
             if key_str in m_key:
                 m_keys.append(m_key.split(key_str)[0])
+    elif "xx"==modes["values"]:
+        m_keys = ["xx"]
+    elif "xy"==modes["values"]:
+        m_keys = ["xy"]
+    elif "yy"==modes["values"]:
+        m_keys = ["yy"]
+    elif "U"==modes["values"]:
+        m_keys = ["U"]
+    elif "V"==modes["values"]:
+        m_keys = ["V"]
+    elif "I"==modes["values"]:
+        m_keys = ["I"]
+    elif "Q"==modes["values"]:
+        m_keys = ["Q"]
     else:
         print ("Warning, no appropriate keys found!")
     
@@ -656,12 +670,15 @@ def beam_arg_parser():
     
     #adds an optional argument for the set of values to analyse and plot
     parser.add_argument("--values","-v", default="all",
-                        choices=("all","xy","stokes"),
+                        choices=("all","linear","stokes",
+                                 "xx","xy","yy","U","V","I","Q"),
                         help = "Sets the parameters that will be plotted "+
-                        "on the value and difference graphs.  xy means xx, xy"+
-                        " and yy-channel values will be plotted. stokes means"+
-                        "that Stokes U- V- I- and Q-channels will be plotted "+
-                        "all means that all seven channels will be plotted.")     
+                        "on the value and difference graphs.  linear means xx"+
+                        ", xy and yy-channel values will be plotted. stokes"+
+                        " means that Stokes U- V- I- and Q-channels will be "+
+                        "plotted all means that all seven channels will be " +
+                        "plotted.  An individual channel name means to plot" +
+                        "that channel.")     
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
