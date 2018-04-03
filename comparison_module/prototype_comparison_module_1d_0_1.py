@@ -159,6 +159,8 @@ def calc_corr_nd(merge_df, var_str):
     #identifies allthe unique values of the variable in the column
     unique_vals=merge_df[var_str].unique()
     
+    unique_vals=np.sort(unique_vals)
+    
     #iterates over all unique values
     for unique_val in unique_vals:
         #creates a dataframe with  only the elements that match the current 
@@ -247,6 +249,8 @@ def calc_rmse_nd(merge_df, var_str):
     
     #identifies allthe unique values of the variable in the column
     unique_vals=merge_df[var_str].unique()
+    
+    unique_vals=np.sort(unique_vals)
     
     #iterates over all unique values
     for unique_val in unique_vals:
@@ -520,10 +524,16 @@ def beam_arg_parser():
                              help="Alternative way of specifying the file containing the observed data from the telescope")
     
     #adds an optional argument for normalisation method
-    parser.add_argument("--norm_mode","-n", default="t",choices=("t","f"), 
+    parser.add_argument("--norm","-n", default="t",choices=("t","f"), 
                              help="Method for normalising the scope data\n"+
                              "t = trivial (divide by maximum for all scope data)\n"+
                              "f = frequency (divide by maximum by frequency/subband)")
+    
+    #adds an optional argument for the cropping level for noise on the scope
+    parser.add_argument("--crop","-c", default = 0.0, type=float,
+                        help = "Set the number of times above the mean which"+
+                        "is filtered when interpreting the scope data. "+
+                        "Default is not to crop (crop = 0.0).")
     
     
     #passes these arguments to a unified variable
@@ -549,10 +559,11 @@ def beam_arg_parser():
     else:
         in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
                                 "Please enter the telescope filename:\n")
-        
-    norm_mode=args.norm_mode
+    modes={}    
+    modes['norm']=args.norm
+    modes['crop']=args.crop
     
-    return(in_file_model,in_file_scope,norm_mode)
+    return(in_file_model,in_file_scope,modes)
 
 
 def read_OSO_h5 (filename):
@@ -635,7 +646,7 @@ def read_OSO_h5 (filename):
     scope_df=pd.DataFrame(data={'Time':time_list, 'd_Time':d_time, 
                                 'Freq':freq_list,
                                 'xx':xx_list,'xy':xy_list,'yy':yy_list})
-    
+        
     #returns the data frame
     return(scope_df)
 
@@ -648,7 +659,7 @@ def read_var_file(file_name):
     return(out_df)
 
 
-def merge_dfs(model_df,scope_df,norm_mode):
+def merge_dfs(model_df,scope_df,modes):
     '''
     This function takes a dataframe created from the dream_beam model and one
     created from the scope and merges them into a single dataframe using the 
@@ -664,7 +675,7 @@ def merge_dfs(model_df,scope_df,norm_mode):
     if 'J11_scope' in merge_df:
         merge_df=calc_pq(merge_df)
     elif 'xx' in merge_df:
-        merge_df=calc_xy(merge_df,norm_mode)
+        merge_df=calc_xy(merge_df,modes)
     
     return(merge_df)        
 
@@ -688,13 +699,13 @@ def calc_pq(merge_df):
     
     #creates a variable to hold the time since the start of the plot
     #this is necessary for plots that are not compatible with Timestamp data
-    start_time=min(merge_df.Time)
+    start_time=min(merge_df['Time'])
     merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
     
     return (merge_df)
 
 
-def calc_xy(merge_df,norm_mode):
+def calc_xy(merge_df,modes):
     
     '''
     Calculates the XY parameters for the model from the JNN values and 
@@ -708,7 +719,7 @@ def calc_xy(merge_df,norm_mode):
 
    
     #normalises the dataframe
-    merge_df=normalise_scope(merge_df,norm_mode)
+    merge_df=normalise_scope(merge_df,modes)
 
     '''
     calculates the xx, xy, yx and yy parameters for the model from the JNN 
@@ -738,23 +749,24 @@ def calc_xy(merge_df,norm_mode):
     #note the d_Time is already calculated
     return (merge_df)
 
-def normalise_scope(merge_df,norm_mode):
+def normalise_scope(merge_df,modes):
     '''
     This function normalises the data for the scope according to the 
     normalisation mode specified.  These options are detailed belwo
     '''
-    if 't' == norm_mode :
+    if 't' == modes['norm'] :
         #normalises by dividing by the maximum
         merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
         merge_df['xy_scope']=merge_df.xy/np.max(merge_df.xy)
         merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
-    elif 'f' == norm_mode:
+    elif 'f' == modes['norm']:
         var_str='Freq'
         #normalises by dividing by the maximum for each frequency
 
         #identifies allthe unique values of the variable in the column
         unique_vals=merge_df[var_str].unique()
         
+
         #iterates over all unique values
         for unique_val in unique_vals:
             for channel in ['xx','xy','yy']:
@@ -766,10 +778,19 @@ def normalise_scope(merge_df,norm_mode):
                     merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=0
  
     return (merge_df)
+
+def crop_scope(scope_df,modes):
+    
+    for col in scope_df:
+        if col not in ['Time','Freq','d_Time']:
+            col_median = np.median(scope_df[col])
+            col_limit = col_median*modes['crop']
+            scope_df.drop(scope_df[scope_df[col] > col_limit].index, inplace=True)
+    return(scope_df)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
-    in_file_model,in_file_scope,norm_mode=beam_arg_parser()
+    in_file_model,in_file_scope,modes=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(in_file_model)
@@ -777,8 +798,13 @@ if __name__ == "__main__":
     #read in the file from the scope using variable reader
     scope_df=read_var_file(in_file_scope)
     
+    #if the cropping mode isn't set to 0, crop the scope data
+    if 0.0 != modes['crop']:
+        scope_df=crop_scope(scope_df,modes)
+        
+    
     #merges the dataframes
-    merge_df=merge_dfs(model_df, scope_df, norm_mode)
+    merge_df=merge_dfs(model_df, scope_df, modes)
     
     #runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
