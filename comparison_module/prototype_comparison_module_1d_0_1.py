@@ -663,7 +663,8 @@ def beam_arg_parser():
                              "f = frequency (crop by frequency/subband)")
     
     #adds an optional argument for the cropping level for noise on the scope
-    parser.add_argument("--diff","-d", default = "sub",choices=("sub","div"),
+    parser.add_argument("--diff","-d", default = "sub",
+                        choices=("sub","div", "idiv"),
                         help = "determines whether to use subtractive or "+
                         "divisive differences when calculating the difference"+
                         " between the scope and the model.  Default is subtract")
@@ -1025,6 +1026,8 @@ def calc_diff(merge_df, modes, channel):
         merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])-abs(merge_df[channel+"_scope"])
     elif modes['diff']=='div':
         merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])/(abs(merge_df[channel+"_scope"])+0.0)
+    elif modes['diff']=='idiv':
+        merge_df[channel+'_diff']=abs(merge_df[channel+"_scope"])/(abs(merge_df[channel+"_model"])+0.0)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
