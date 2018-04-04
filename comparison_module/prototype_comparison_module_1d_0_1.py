@@ -484,7 +484,7 @@ def colour_models(colour_id):
     '''
     The colours used are defined in a function that returns the colour strings
     '''
-    #sets oranges for various applications for the P channel
+    #sets oranges for various applications for the p channel
     if 'p'==colour_id:
         return('orange')
     if 'p_light'==colour_id:
@@ -494,7 +494,7 @@ def colour_models(colour_id):
     if 'ps'==colour_id:
         return('Oranges')
         
-    #sets greens for various applications of the Q channel    
+    #sets greens for various applications of the q channel    
     if 'q'==colour_id:
         return('green')
     if 'q_light'==colour_id:
@@ -564,18 +564,18 @@ def colour_models(colour_id):
     if 'I_dark'==colour_id:
         return('teal')
     if 'Is'==colour_id:
-        return('viridis')   
+        return('winter')   
 
     #sets magentas for various applications for the Stokes Q
     #note the distinction from the generic q-channel
     if 'Q'==colour_id:
-        return('magenta')
+        return('green')
     if 'Q_light'==colour_id:
-        return('fuchsia')
+        return('limegreen')
     if 'Q_dark'==colour_id:
-        return('darkmagenta')
+        return('darkgreen')
     if 'Qs'==colour_id:
-        return('bwr')                
+        return('Greens')           
     
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
