@@ -31,7 +31,7 @@ prototype_comparison_module_1d_0_1.py \[arguments\] (see below)
   model_p               *The file containing the data from the model (Usually
                         DreamBeam)*\
   scope_p               *The file containing the observed data from the
-                        telescope*\
+                        telescope*
 
 **optional arguments:**\
   -h, --help            *show this help message and exit*
