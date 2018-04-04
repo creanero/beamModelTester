@@ -75,7 +75,7 @@ def plot_values_1f(merge_df, m_keys):
         #part one: plots the model and scope values for p-channel against time
         plt.figure()
         plt.title("Plot of the values in "+key+"-channel over time"+
-                  "\nat %.0f MHz"%(merge_df.Freq[0]/1e6))
+                  "\nat %.0f MHz"%(min(merge_df.Freq)/1e6))
 
         #plots the p-channel in one colour
         plt.plot(merge_df.Time,merge_df[key+'_model'],label='model',
@@ -106,7 +106,7 @@ def plot_values_nf(merge_df, m_keys):
         #part one: plots the model and scope values for p-channel against time
         for source in ["model","scope"]:
             plt.figure()
-            plt.title("Plot of the values in "+key+"-channel over time "+
+            plt.title("Plot of the values in "+key+"-channel \nover time "+
                       "and frequency for "+source)
     
             #plots the p-channel in one colour
@@ -148,7 +148,7 @@ def plot_diff_values_1f(merge_df, m_keys):
     
     #calculates and adds title with frequency in MHz
     
-    graph_title=graph_title+"-channels over time at %.0f MHz"%(merge_df.Freq[0]/1e6)    
+    graph_title=graph_title+"-channels over time at %.0f MHz"%(min(merge_df.Freq)/1e6)    
     
     
 
@@ -359,7 +359,7 @@ def plot_diff_values_nf(merge_df, m_keys):
         plt.figure()
         
         #display main title and subplot title together
-        plt.title("Plot of the differences in %s over time and frequency"%key)
+        plt.title("Plot of the differences in %s\n over time and frequency"%key)
         #plots p-channel difference
         plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_diff']),
                       cmap=plt.get_cmap(colour_models(key+'s')))
@@ -540,9 +540,9 @@ def colour_models(colour_id):
     if 'U'==colour_id:
         return('yellow')
     if 'U_light'==colour_id:
-        return('palegoldenrod')
-    if 'U_dark'==colour_id:
         return('goldenrod')
+    if 'U_dark'==colour_id:
+        return('darkgoldenrod')
     if 'Us'==colour_id:
         return('YlOrBr')
         
@@ -687,6 +687,20 @@ def beam_arg_parser():
                         choices=("rmse", "corr", "value", "diff"),
                         help = "Sets which plots will be shown") 
     
+    #creates a group for the scope filename
+    group_freq = parser.add_mutually_exclusive_group()
+    #adds an optional argument for the frequency to filter to
+    group_freq.add_argument("--freq","-f", default = [0.0], 
+                            type=float, nargs="*",
+                        help = "set a single frequency filter to and display "+
+                        "the channels for.")
+    #adds an optional argument for a file containing a set of frequenciesy 
+    #to filter to
+    group_freq.add_argument("--freq_file","-F", default = "", 
+                            help = "set a file containing multiple frequencies"+
+                            " to filter to and display the channels for.")    
+    
+    
     
     #passes these arguments to a unified variable
     args = parser.parse_args()
@@ -721,6 +735,8 @@ def beam_arg_parser():
     modes['diff']=args.diff
     modes['values']=args.values
     modes['plots']=args.plots
+    modes['freq']=args.freq
+    modes['freq_file']=args.freq_file
     
     
     return(in_file_model,in_file_scope,modes)
@@ -781,17 +797,10 @@ def read_OSO_h5 (filename):
 
 
             '''
-            Code removed after corrections to lightcurve generation software
+            #Code removed after corrections to lightcurve generation software
             
-            leave this here for possible tests in case there are issues later
-            
-            #TTTTTTT         FFFFFFF iii       
-            #  TTT    oooo   FF          xx  xx
-            #  TTT   oo  oo  FFFF    iii   xx  
-            #  TTT   oo  oo  FF      iii   xx  
-            #  TTT    oooo   FF      iii xx  xx            
-            #TODO: Fix and replace once HDF5 writer is fixed
-            
+            #leave this here for possible tests in case there are issues later
+           
             freq_list.append(min_freq+(freq_index*(1e8/512.0)))
             
             
@@ -855,7 +864,7 @@ def merge_dfs(model_df,scope_df,modes):
 
 def calc_pq(merge_df,modes):
     '''
-    Calculates the P and Q channel intensities as per dreamBeam, and from there
+    Calculates the Linear channel intensities as per dreamBeam, and from there
     calculates the differeces in each channel, as well as the time since start
     '''
     
@@ -1045,6 +1054,14 @@ if __name__ == "__main__":
     
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df, modes)
+    
+    if modes['freq'] !=[0.0]:
+        #drops all frequencies which do not match the filter if applicable
+        merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
+    
+    if modes['freq_file'] != "":
+        freq_df=pd.read_csv(modes['freq_file'], header=None)
+        merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
     
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
