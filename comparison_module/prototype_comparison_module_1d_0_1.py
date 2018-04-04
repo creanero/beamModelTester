@@ -566,7 +566,7 @@ def colour_models(colour_id):
     if 'Is'==colour_id:
         return('winter')   
 
-    #sets magentas for various applications for the Stokes Q
+    #sets greens for various applications for the Stokes Q
     #note the distinction from the generic q-channel
     if 'Q'==colour_id:
         return('green')
@@ -642,19 +642,23 @@ def beam_arg_parser():
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
                         choices=("median","mean","percentile"),
-                        help = "Sets what style of cropping will be applied "+
-                        "to the scope data to remove outliers. A value for "+
-                        "--crop must also be specified or this argument is"+
-                        "ignored.")     
+                        help = '''
+Sets what style of cropping will be applied to the scope data to remove 
+outliers. A value for --crop must also be specified or this argument is ignored.  
+        median implies drop all values over a given multiple of the median value.
+        mean implies drop all values over a given multiple of the median value.
+        percentile implies drop all values over a given percentile value.
+        percentiles over 100 are ignored''')     
 
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop","-c", default = 0.0, type=float,
-                        help = "Set the numeric value for cropping. Depending"+
-                        "on crop mode, this may be a multiple of the mean or "+
-                        "median, or the percentile level to cut the scope "+
-                        "values to."+
-                        "Default is not to crop (crop = 0.0).  Negative "+
-                        "values are converted to positive before use.")
+                        help = '''
+Set the numeric value for cropping. Depending on crop mode, this may be a 
+multiple of the mean or median, or the percentile level to cut the scope values
+ to. Default is not to crop (crop = 0.0). Negative values are converted to 
+ positive before use.
+                             ''')
+    
 
     #adds an optional argument for normalisation method
     parser.add_argument("--crop_basis","-k", default="t",choices=("t","f"), 
