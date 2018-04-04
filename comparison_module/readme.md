@@ -104,15 +104,55 @@ A print of the Pearson R correlation between model and scope for each of the Cha
 A print of the Root Mean Square Error between model and scope for each of the Channels
 
 *Multi Frequency Mode*\
-A print of the Pearson R correlation between model and scope for each of the Channels\
-A print of the Root Mean Square Error between model and scope for each of the Channels\
-A plot of the differences between model and scope over Time and Frequency for each of the Channels\
-A plot of the Pearson R correlation between model and scope for each of the Channels against Frequency\
-A print of the Root Mean Square Error between model and scope for each of the Channels against Frequency\
-A plot of the Pearson R correlation between model and scope each of the Channels against Time\
-A print of the Root Mean Square Error between model and scope each of the Channels against Time
+A print of the Pearson R correlation between model and scope for each of the Channels \
+(Samples: all)
 
-**NOTE: to add (images/links)**
+A print of the Root Mean Square Error between model and scope for each of the Channels\
+(Samples: all)
+
+A plot of the values of each model and scope over Time and Frequency for each of the Channels\
+(Samples: \
+Model: [xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_vals_nf_model.png),
+[xy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xy_vals_nf_model.png),
+[yy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_yy_vals_nf_model.png),
+[U](https://zenodo.org/record/1212382/files/se_607_HBA_24h_U_vals_nf_model.png),
+[V](https://zenodo.org/record/1212382/files/se_607_HBA_24h_V_vals_nf_model.png),
+[I](https://zenodo.org/record/1212382/files/se_607_HBA_24h_I_vals_nf_model.png),
+[Q](https://zenodo.org/record/1212382/files/se_607_HBA_24h_Q_vals_nf_model.png)\
+Scope: [xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_vals_nf_scope.png),
+[xy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xy_vals_nf_scope.png),
+[yy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_yy_vals_nf_scope.png),
+[U](https://zenodo.org/record/1212382/files/se_607_HBA_24h_U_vals_nf_scope.png),
+[V](https://zenodo.org/record/1212382/files/se_607_HBA_24h_V_vals_nf_scope.png),
+[I](https://zenodo.org/record/1212382/files/se_607_HBA_24h_I_vals_nf_scope.png),
+[Q](https://zenodo.org/record/1212382/files/se_607_HBA_24h_Q_vals_nf_scope.png))
+
+A plot of the differences between model and scope over Time and Frequency for each of the Channels\
+(Samples: [xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_diff_nf_sub.png),
+[xy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xy_diff_nf_sub.png),
+[yy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_yy_diff_nf_sub.png),
+[U](https://zenodo.org/record/1212382/files/se_607_HBA_24h_U_diff_nf_sub.png),
+[V](https://zenodo.org/record/1212382/files/se_607_HBA_24h_V_diff_nf_sub.png),
+[I](https://zenodo.org/record/1212382/files/se_607_HBA_24h_I_diff_nf_sub.png),
+[Q](https://zenodo.org/record/1212382/files/se_607_HBA_24h_Q_diff_nf_sub.png))
+
+A plot of the Pearson R correlation between model and scope for each of the Channels against Frequency\
+(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_freq.png),
+xx, xy, yy, U, V, I, Q)
+
+A plot of the Root Mean Square Error between model and scope for each of the Channels against Frequency\
+(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_rmse_freq.png), 
+xx, xy, yy, U, V, I, Q)
+
+A plot of the Pearson R correlation between model and scope each of the Channels against Time\
+(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_time.png),
+xx, xy, yy, U, V, I, Q)
+
+A plot of the Root Mean Square Error between model and scope each of the Channels against Time\
+(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_rmse_time.png),
+xx, xy, yy, U, V, I, Q)
+
+
 
 **Software design**
 Software design diagrams and descriptions are avaulable at [this link](/comparison_module/Comparison_Module.md)
