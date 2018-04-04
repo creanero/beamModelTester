@@ -128,7 +128,8 @@ Scope: [xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_vals_nf_sc
 [Q](https://zenodo.org/record/1212382/files/se_607_HBA_24h_Q_vals_nf_scope.png))
 
 A plot of the differences between model and scope over Time and Frequency for each of the Channels\
-(Samples: [xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_diff_nf_sub.png),
+(Samples: 
+[xx](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xx_diff_nf_sub.png),
 [xy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_xy_diff_nf_sub.png),
 [yy](https://zenodo.org/record/1212382/files/se_607_HBA_24h_yy_diff_nf_sub.png),
 [U](https://zenodo.org/record/1212382/files/se_607_HBA_24h_U_diff_nf_sub.png),
@@ -137,7 +138,8 @@ A plot of the differences between model and scope over Time and Frequency for ea
 [Q](https://zenodo.org/record/1212382/files/se_607_HBA_24h_Q_diff_nf_sub.png))
 
 A plot of the Pearson R correlation between model and scope for each of the Channels against Frequency\
-(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_freq.png),
+(Samples: 
+[all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_freq.png),
 [xx](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_freq_xx.png),
 [xy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_freq_xy.png),
 [yy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_freq_yy.png),
@@ -158,9 +160,10 @@ A plot of the Root Mean Square Error between model and scope for each of the Cha
 [Q](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_freq_Q.png))
 
 A plot of the Pearson R correlation between model and scope each of the Channels against Time\
-(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_time.png),
+(Samples: 
+[all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_corr_time.png),
 [xx](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_xx.png),
-[xy])https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_xy.png),
+[xy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_xy.png),
 [yy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_yy.png),
 [U](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_U.png),
 [V](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_V.png),
@@ -168,7 +171,8 @@ A plot of the Pearson R correlation between model and scope each of the Channels
 [Q](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_corr_time_Q.png))
 
 A plot of the Root Mean Square Error between model and scope each of the Channels against Time\
-(Samples: [all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_rmse_time.png),
+(Samples: 
+[all](https://zenodo.org/record/1212382/files/se_607_HBA_24h_1d_rmse_time.png),
 [xx](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_xx.png),
 [xy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_xy.png),
 [yy](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_yy.png),
