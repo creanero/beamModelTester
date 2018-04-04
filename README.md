@@ -6,6 +6,8 @@ Oisin Creaner**
 This system is designed to provide a comparison between the output for
 models of telescope performance vs calibration data from real telescopes
 
+**[the main component is the comparison module located at this link](https://github.com/creaneroDIAS/beamModelTester/tree/master/comparison_module)**
+
 **Abstract**
 
 The output from the model and from the real observation are extracted
