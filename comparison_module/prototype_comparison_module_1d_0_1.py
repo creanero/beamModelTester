@@ -619,9 +619,13 @@ def beam_arg_parser():
     
     #gives positional and optional ways of providing the model data 
     group_model.add_argument("model_p",nargs='?', default=None, 
-                             help="The file containing the data from the model (Usually DreamBeam)")
+                             help='''
+The file containing the data from the model (Usually DreamBeam)
+                             ''')
     group_model.add_argument("--model","-m", 
-                             help="Alternative way of specifying the file containing the data from the model")
+                             help='''
+Alternative way of specifying the file containing the data from the model
+                             ''')
     
     
     #creates a group for the scope filename
@@ -629,15 +633,21 @@ def beam_arg_parser():
     
     #gives positional and optional ways of providing the scope data 
     group_scope.add_argument("scope_p",nargs='?', default=None, 
-                             help="The file containing the observed data from the telescope")
+                             help='''
+The file containing the observed data from the telescope
+                             ''')
     group_scope.add_argument("--scope","-s", 
-                             help="Alternative way of specifying the file containing the observed data from the telescope")
+                             help='''
+Alternative way of specifying the file containing the observed data from the telescope
+                             ''')
     
     #adds an optional argument for normalisation method
     parser.add_argument("--norm","-n", default="t",choices=("t","f"), 
-                             help="Method for normalising the scope data\n"+
-                             "t = trivial (divide by maximum for all scope data)\n"+
-                             "f = frequency (divide by maximum by frequency/subband)")
+                             help='''
+Method for normalising the scope data 
+t = trivial (divide by maximum for all scope data)
+f = frequency (divide by maximum by frequency/subband)
+                             ''')
     
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
@@ -662,47 +672,64 @@ multiple of the mean or median, or the percentile level to cut the scope values
 
     #adds an optional argument for normalisation method
     parser.add_argument("--crop_basis","-k", default="t",choices=("t","f"), 
-                             help="Method for normalising the scope data\n"+
-                             "t = trivial (crop equally for all data)\n"+
-                             "f = frequency (crop by frequency/subband)")
+                             help='''
+Method for normalising the scope data
+t = trivial (crop equally for all data)
+f = frequency (crop by frequency/subband)
+                             ''')
     
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--diff","-d", default = "sub",
                         choices=("sub","div", "idiv"),
-                        help = "determines whether to use subtractive or "+
-                        "divisive differences when calculating the difference"+
-                        " between the scope and the model.  Default is subtract")
+                        help = '''
+determines whether to use subtractive or divisive differences when calculating 
+the difference between the scope and the model.  Default is subtract
+  sub = model - scope
+  div = model / scope
+  idiv = scope/model
+                        ''')
     
     #adds an optional argument for the set of values to analyse and plot
     parser.add_argument("--values","-v", default="all",
                         choices=("all","linear","stokes",
                                  "xx","xy","yy","U","V","I","Q"),
-                        help = "Sets the parameters that will be plotted "+
-                        "on the value and difference graphs.  linear means xx"+
-                        ", xy and yy-channel values will be plotted. stokes"+
-                        " means that Stokes U- V- I- and Q-channels will be "+
-                        "plotted all means that all seven channels will be " +
-                        "plotted.  An individual channel name means to plot" +
-                        "that channel.")     
+                        help = '''
+Sets the parameters that will be plotted on the value and difference graphs.
+  linear implies xx, xy and yy-channel values will be plotted. 
+  stokes implies that Stokes U- V- I- and Q-channels will be plotted.
+  all implies that all seven channels will be plotted.
+  An individual channel name means to plot that channel alone
+                        ''')     
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
                         default=["rmse", "corr", "value", "diff"],
                         choices=("rmse", "corr", "value", "diff"),
-                        help = "Sets which plots will be shown") 
+                        help = '''
+Sets which plots will be shown.  Default is to show all plots and calculations
+rmse shows plots of RMSE (overall, per time and per freq as appropriate)
+corr shows plots of corrlation (overall, per time and per freq as appropriate)
+value shows plots of the values of the channels (per time and per freq as appropriate)
+diff shows plots of the differences in values of the channels (per time and per freq as appropriate)
+ 
+                        ''') 
     
     #creates a group for the scope filename
     group_freq = parser.add_mutually_exclusive_group()
     #adds an optional argument for the frequency to filter to
     group_freq.add_argument("--freq","-f", default = [0.0], 
                             type=float, nargs="*",
-                        help = "set a single frequency filter to and display "+
-                        "the channels for.")
+                        help = '''
+set a single frequency filter to and display the channels for.  
+User must supply a float.
+                        ''')
     #adds an optional argument for a file containing a set of frequenciesy 
     #to filter to
     group_freq.add_argument("--freq_file","-F", default = "", 
-                            help = "set a file containing multiple frequencies"+
-                            " to filter to and display the channels for.")    
+                            help = '''
+set a file containing multiple frequencies to filter to and display the 
+channels for.  The file must contain one float per line in text format.
+                            ''')    
     
     
     
@@ -748,7 +775,7 @@ multiple of the mean or median, or the percentile level to cut the scope values
 
 def read_OSO_h5 (filename):
     '''
-    This function reads in the data from an OSO-supplied HDF5 file and converts#
+    This function reads in the data from an OSO-supplied HDF5 file and converts
     it into a data frame. This data is then returned to the calling function
     
     Inputs: file name containing the path to a HDF5 file
@@ -1036,11 +1063,11 @@ def crop_operation (in_df,modes):
     
 def calc_diff(merge_df, modes, channel):
     if modes['diff']=='sub':
-        merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])-abs(merge_df[channel+"_scope"])
+        merge_df[channel+'_diff']=(merge_df[channel+"_model"])-(merge_df[channel+"_scope"])
     elif modes['diff']=='div':
-        merge_df[channel+'_diff']=abs(merge_df[channel+"_model"])/(abs(merge_df[channel+"_scope"])+0.0)
+        merge_df[channel+'_diff']=(merge_df[channel+"_model"])/((merge_df[channel+"_scope"])+0.0)
     elif modes['diff']=='idiv':
-        merge_df[channel+'_diff']=abs(merge_df[channel+"_scope"])/(abs(merge_df[channel+"_model"])+0.0)
+        merge_df[channel+'_diff']=(merge_df[channel+"_scope"])/((merge_df[channel+"_model"])+0.0)
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
