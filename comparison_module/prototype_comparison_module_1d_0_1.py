@@ -72,15 +72,16 @@ def plot_values_1f(merge_df, m_keys):
     
     for key in m_keys:
         #creates a two part plot of the values of model and scope
-        #part one: plots the model and scope values for p-channel against time
+        #part one: plots the model and scope values per channel against time
         plt.figure()
         plt.title("Plot of the values in "+key+"-channel over time"+
                   "\nat %.0f MHz"%(min(merge_df.Freq)/1e6))
 
-        #plots the p-channel in one colour
-        plt.plot(merge_df.Time,merge_df[key+'_model'],label='model',
+        #plots the model in one colour
+        plt.plot(merge_df.Time,plottable(merge_df[key+'_model']),label='model',
                  color=colour_models(key+'_light'))
-        plt.plot(merge_df.Time,merge_df[key+'_scope'],label='scope',
+        #plots the scope in another colour
+        plt.plot(merge_df.Time,plottable(merge_df[key+'_scope']),label='scope',
                  color=colour_models(key+'_dark'))
         plt.legend(frameon=False)
         #plots the axis labels rotated so they're legible
@@ -90,6 +91,20 @@ def plot_values_1f(merge_df, m_keys):
         #prints the plot
         plt.show()
     return(0)
+    
+def plottable(in_series):
+    '''
+    turns a complex number into a series of absolute values, but just returns a
+    real number
+    '''
+    out_series=in_series.reset_index(drop=True)
+    if len(out_series)>0:
+        if 'complex' in str(type(out_series[0])):
+            return abs(in_series)
+        else:
+            return in_series
+    else:
+        return in_series
     
 def plot_values_nf(merge_df, m_keys):
     '''
@@ -109,8 +124,8 @@ def plot_values_nf(merge_df, m_keys):
             plt.title("Plot of the values in "+key+"-channel \nover time "+
                       "and frequency for "+source)
     
-            #plots the p-channel in one colour
-            plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_'+source]),
+            #plots the channel in a colour based on its name
+            plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
                           cmap=plt.get_cmap(colour_models(key+'s')))
             plt.legend(frameon=False)
             #plots x-label for both using start time 
@@ -136,7 +151,7 @@ def plot_diff_values_1f(merge_df, m_keys):
     graph_title = "Plot of the differences in "
     for key in m_keys:
         plt.plot(merge_df.Time,
-                 merge_df[key+'_diff'], 
+                 plottable(merge_df[key+'_diff']), 
                  label=r'$\Delta $'+key,
                  color=colour_models(key))
         if (m_keys.index(key) < (len(m_keys)-2)) :
@@ -177,9 +192,11 @@ def calc_corr_1d(merge_df, m_keys):
     corr_outs=[]
     for key in m_keys:
         #uses absolute values as real values cannot be negative and complex 
-        #values cannot be plotted
-        corr_outs.append(pearsonr(abs(merge_df[key+'_model']),
-                                  abs(merge_df[key+'_scope']))[0])
+        #values cannot be correlated
+        model_vals=list(plottable(merge_df[key+'_model']))
+        scope_vals=list(plottable(merge_df[key+'_scope']))
+        corr=pearsonr(model_vals,scope_vals)[0]
+        corr_outs.append(corr)
     #using [0] from the pearsonr to return the correlation coefficient, but not
     #the 2-tailed p-value stored in [1]
     
@@ -268,7 +285,7 @@ def calc_rmse_1d(merge_df, m_keys):
     '''
     rmse_outs=[]
     for key in m_keys:
-        rmse_outs.append(np.mean(merge_df[key+'_diff']**2)**0.5)
+        rmse_outs.append(np.mean(plottable(merge_df[key+'_diff'])**2)**0.5)
    
     return(rmse_outs)
  
@@ -361,7 +378,7 @@ def plot_diff_values_nf(merge_df, m_keys):
         #display main title and subplot title together
         plt.title("Plot of the differences in %s\n over time and frequency"%key)
         #plots p-channel difference
-        plt.tripcolor(merge_df.d_Time,merge_df.Freq,abs(merge_df[key+'_diff']),
+        plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
                       cmap=plt.get_cmap(colour_models(key+'s')))
         plt.colorbar()
         #plots x-label for both using start time 
@@ -392,7 +409,7 @@ def analysis_1d(merge_df,modes, m_keys):
         corrs=calc_corr_1d(merge_df, m_keys)
         
         for i in range(len(m_keys)):
-            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
+            print("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
     
         print("\n")
         
@@ -400,7 +417,7 @@ def analysis_1d(merge_df,modes, m_keys):
         #calculates the root mean squared error between scope and model
         rmses=calc_rmse_1d(merge_df, m_keys)
         for i in range(len(m_keys)):
-            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+            print("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
     
     
 def analysis_nd(merge_df,modes, m_keys):
@@ -418,7 +435,7 @@ def analysis_nd(merge_df,modes, m_keys):
         corrs=calc_corr_1d(merge_df, m_keys)
         #prints that coefficient for each key and correlation
         for i in range(len(m_keys)):
-            print("The %s-channel correlation is %f"%(m_keys[i],corrs[i]))
+            print("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
     
         #newline to separate outputs
         print("\n")  
@@ -427,7 +444,7 @@ def analysis_nd(merge_df,modes, m_keys):
         #calculates the root mean squared error between scope and model
         rmses=calc_rmse_1d(merge_df, m_keys)
         for i in range(len(m_keys)):
-            print("The %s-channel RMSE is %f" %(m_keys[i],rmses[i]))
+            print("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
     
     if "value" in modes["plots"]:
         #plots the values of scope and model 
@@ -899,20 +916,26 @@ def calc_pq(merge_df,modes):
     calculates the differeces in each channel, as well as the time since start
     '''
     
-    #calculates the p-channel intensity as per DreamBeam for both model and scope
-    merge_df['p_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-    merge_df['p_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
+    #calculates the xx-channel intensity as per DreamBeam for both model and scope
+    merge_df['xx_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
+    merge_df['xx_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
     #calculates the difference between model and scope
     #merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
     
-    #calculates the q-channel intensity as per DreamBeam for both model and scope
-    merge_df['q_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-    merge_df['q_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
+    
+    merge_df['xy_model']=merge_df.J11_model*np.conj(merge_df.J21_model)+\
+                         merge_df.J12_model*np.conj(merge_df.J22_model)
+    merge_df['xy_scope']=merge_df.J11_scope*np.conj(merge_df.J21_scope)+\
+                         merge_df.J12_scope*np.conj(merge_df.J22_scope)
+    
+    #calculates the xx-channel intensity as per DreamBeam for both model and scope
+    merge_df['yy_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
+    merge_df['yy_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
     #calculates the difference between model and scope
     #merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
     
     #calculates the differences
-    for channel in ["p","q"]:
+    for channel in ["xx","xy","yy"]:
         calc_diff(merge_df, modes, channel)
     
     #creates a variable to hold the time since the start of the plot
@@ -972,9 +995,14 @@ def calc_stokes(merge_df,modes):
     '''
 
     for source in ["model","scope"]:
+        #Stokes U is the real component of the XY
         merge_df['U_'+source]=np.real(merge_df['xy_'+source])
+        #Stokes V is the imaginary component of the XY
         merge_df['V_'+source]=np.imag(merge_df['xy_'+source])
+        
+        #Stokes I is the sum of XX and UU
         merge_df['I_'+source]=merge_df['xx_'+source]+merge_df['yy_'+source]
+        #Stokes Q is the difference between XX and UU
         merge_df['Q_'+source]=merge_df['xx_'+source]-merge_df['yy_'+source]
 
     for channel in ["U","V","I","Q"]:
@@ -1053,11 +1081,12 @@ def crop_operation (in_df,modes):
                         col_limit = np.percentile(out_df[col],modes['crop'])
                     else:
                         print("WARNING: Percentile must be less than 100")
-                        col_limit = np.max(abs(out_df[col]))
+                        col_limit = np.max(plottable(out_df[col]))
                 else:
                     print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
+            out_df.reset_index(drop=True, inplace=True)
     return(out_df)
 
     
@@ -1089,10 +1118,12 @@ if __name__ == "__main__":
     if modes['freq'] !=[0.0]:
         #drops all frequencies which do not match the filter if applicable
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
+        merge_df.reset_index(drop=True, inplace=True)
     
     if modes['freq_file'] != "":
         freq_df=pd.read_csv(modes['freq_file'], header=None)
         merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
+        merge_df.reset_index(drop=True, inplace=True)
     
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
