@@ -24,7 +24,28 @@ def read_dreambeam_csv(in_file):
     out_df=pd.read_csv(in_file,\
                         converters={'J11':complex,'J12':complex,\
                                     'J21':complex,'J22':complex}, \
-                        parse_dates=['Time'], skipinitialspace=True)  
+                        parse_dates=['Time'], skipinitialspace=True)   
+    
+    
+    '''
+    calculates the xx, xy, yx and yy parameters for the model from the JNN 
+    values Using the formulae below
+     B = [[XX, XY] ,[YX, YY]]
+     J = [[J11,J12],[J21,J22]]
+     B = J * J'
+     XX= (J11 *  ̅J̅1̅1 )+ (J12 *  ̅J̅1̅2 )
+     XY= (J11 *  ̅J̅2̅1 )+ (J12 *  ̅J̅2̅2 )
+     YX= (J21 *  ̅J̅1̅1 )+ (J22 *  ̅J̅1̅2 )
+     YY= (J21 *  ̅J̅2̅1 )+ (J22 *  ̅J̅2̅2 )
+        
+    #yx_model not calculated for two reasons
+    # 1. xy equal to within floating point errors
+    # 2. yx not included in scope data (presumably because of 1.)
+    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
+    '''
+    out_df['xx']=out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12)
+    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
+    out_df['yy']=out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22)
     return out_df
 
 def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
@@ -659,13 +680,24 @@ Alternative way of specifying the file containing the observed data from the tel
                              ''')
     
     #adds an optional argument for normalisation method
-    parser.add_argument("--norm","-n", default="t",choices=("t","f"), 
+    parser.add_argument("--norm","-n", default="t",
+                        choices=("t","f","n"), 
                              help='''
-Method for normalising the scope data 
-t = trivial (divide by maximum for all scope data)
+Method for normalising the data 
+t = trivial (divide by maximum for all data)
 f = frequency (divide by maximum by frequency/subband)
+n = no normalisation.
                              ''')
-    
+    #adds an optional argument for normalisation target
+    parser.add_argument("--norm_data","-N", default="s",
+                        choices=("s","m","n","b"), 
+                             help='''
+Target data for applying the normalisation to
+s = scope
+m = model
+n = no cropping
+b = crop both
+                             ''')       
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
                         choices=("median","mean","percentile"),
@@ -687,14 +719,25 @@ multiple of the mean or median, or the percentile level to cut the scope values
                              ''')
     
 
-    #adds an optional argument for normalisation method
-    parser.add_argument("--crop_basis","-k", default="t",choices=("t","f"), 
+    #adds an optional argument for cropping method
+    parser.add_argument("--crop_basis","-k", default="t",choices=("t","f","n"), 
                              help='''
-Method for normalising the scope data
+Method for cropping the data
 t = trivial (crop equally for all data)
 f = frequency (crop by frequency/subband)
+n = no cropping
                              ''')
-    
+
+    #adds an optional argument for cropping method
+    parser.add_argument("--crop_data","-K", default="s",
+                        choices=("s","m","n","b"), 
+                             help='''
+Target data for applying the cropping to
+s = scope
+m = model
+n = no cropping
+b = crop both
+                             ''')    
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--diff","-d", default = "sub",
                         choices=("sub","div", "idiv"),
@@ -777,6 +820,8 @@ channels for.  The file must contain one float per line in text format.
     #creates and uses a dictionary to store the mode arguments
     modes={}    
     modes['norm']=args.norm
+    modes['norm_data']=args.norm_data
+    modes['crop_data']=args.crop_data
     modes['crop_type']=args.crop_type
     modes['crop_basis']=args.crop_basis
     modes['crop']=abs(args.crop)#abs value to prevent use of negative crops
@@ -867,12 +912,16 @@ def read_OSO_h5 (filename):
         time_index=time_index+1
     
     #creates the data frame by pasting the lists together    
-    scope_df=pd.DataFrame(data={'Time':time_list, 'd_Time':d_time, 
+    out_df=pd.DataFrame(data={'Time':time_list, 'd_Time':d_time, 
                                 'Freq':freq_list,
                                 'xx':xx_list,'xy':xy_list,'yy':yy_list})
+
+    for channel in ['xx','xy','yy']:
+        #normalises the dataframe
+        out_df=normalise_data(out_df,modes,channel)
         
     #returns the data frame
-    return(scope_df)
+    return(out_df)
 
 def read_var_file(file_name):
     '''
@@ -902,48 +951,17 @@ def merge_dfs(model_df,scope_df,modes):
     '''
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
-    if 'J11_scope' in merge_df:
-        merge_df=calc_pq(merge_df,modes)
-    elif 'xx' in merge_df:
-        merge_df=calc_xy(merge_df,modes)
-        merge_df=calc_stokes(merge_df,modes)
+    merge_df=calc_xy(merge_df,modes)
+    merge_df=calc_stokes(merge_df,modes)
+    
+    if 'd_Time' not in merge_df:
+        #creates a variable to hold the time since the start of the plot
+        #this is necessary for plots that are not compatible with Timestamp data
+        start_time=min(merge_df['Time'])
+        merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
     
     return(merge_df)        
 
-def calc_pq(merge_df,modes):
-    '''
-    Calculates the Linear channel intensities as per dreamBeam, and from there
-    calculates the differeces in each channel, as well as the time since start
-    '''
-    
-    #calculates the xx-channel intensity as per DreamBeam for both model and scope
-    merge_df['xx_model'] = np.abs(merge_df.J11_model)**2+np.abs(merge_df.J12_model)**2
-    merge_df['xx_scope'] = np.abs(merge_df.J11_scope)**2+np.abs(merge_df.J12_scope)**2
-    #calculates the difference between model and scope
-    #merge_df['p_diff'] = merge_df.p_model - merge_df.p_scope
-    
-    
-    merge_df['xy_model']=merge_df.J11_model*np.conj(merge_df.J21_model)+\
-                         merge_df.J12_model*np.conj(merge_df.J22_model)
-    merge_df['xy_scope']=merge_df.J11_scope*np.conj(merge_df.J21_scope)+\
-                         merge_df.J12_scope*np.conj(merge_df.J22_scope)
-    
-    #calculates the xx-channel intensity as per DreamBeam for both model and scope
-    merge_df['yy_model'] = np.abs(merge_df.J21_model)**2+np.abs(merge_df.J22_model)**2
-    merge_df['yy_scope'] = np.abs(merge_df.J21_scope)**2+np.abs(merge_df.J22_scope)**2
-    #calculates the difference between model and scope
-    #merge_df['q_diff'] = merge_df.q_model - merge_df.q_scope
-    
-    #calculates the differences
-    for channel in ["xx","xy","yy"]:
-        calc_diff(merge_df, modes, channel)
-    
-    #creates a variable to hold the time since the start of the plot
-    #this is necessary for plots that are not compatible with Timestamp data
-    start_time=min(merge_df['Time'])
-    merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
-    
-    return (merge_df)
 
 
 def calc_xy(merge_df,modes):
@@ -958,30 +976,6 @@ def calc_xy(merge_df,modes):
     '''
 
 
-   
-    #normalises the dataframe
-    merge_df=normalise_scope(merge_df,modes)
-
-    '''
-    calculates the xx, xy, yx and yy parameters for the model from the JNN 
-    values Using the formulae below
-     B = [[XX, XY] ,[YX, YY]]
-     J = [[J11,J12],[J21,J22]]
-     B = J * J'
-     XX= (J11 *  ̅J̅1̅1 )+ (J12 *  ̅J̅1̅2 )
-     XY= (J11 *  ̅J̅2̅1 )+ (J12 *  ̅J̅2̅2 )
-     YX= (J21 *  ̅J̅1̅1 )+ (J22 *  ̅J̅1̅2 )
-     YY= (J21 *  ̅J̅2̅1 )+ (J22 *  ̅J̅2̅2 )
-        
-    #yx_model not calculated for two reasons
-    # 1. xy equal to within floating point errors
-    # 2. yx not included in scope data (presumably because of 1.)
-    #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
-    '''
-    merge_df['xx_model']=merge_df.J11*np.conj(merge_df.J11)+merge_df.J12*np.conj(merge_df.J12)
-    merge_df['xy_model']=merge_df.J11*np.conj(merge_df.J21)+merge_df.J12*np.conj(merge_df.J22)
-    merge_df['yy_model']=merge_df.J21*np.conj(merge_df.J21)+merge_df.J22*np.conj(merge_df.J22)
-       
     #calculates the differences
     for channel in ["xx","xy","yy"]:
         calc_diff(merge_df, modes, channel)
@@ -1009,17 +1003,15 @@ def calc_stokes(merge_df,modes):
         calc_diff(merge_df, modes, channel)    
     return (merge_df)
 
-def normalise_scope(merge_df,modes):
+def normalise_data(merge_df,modes,channel,out_str=""):
     '''
     This function normalises the data for the scope according to the 
     normalisation mode specified.  These options are detailed belwo
     '''
-    if 't' == modes['norm'] :
+    if 't' in modes['norm'] :
         #normalises by dividing by the maximum
-        merge_df['xx_scope']=merge_df.xx/np.max(merge_df.xx)
-        merge_df['xy_scope']=merge_df.xy/np.max(abs(merge_df.xy))
-        merge_df['yy_scope']=merge_df.yy/np.max(merge_df.yy)   
-    elif 'f' == modes['norm']:
+        merge_df[channel+out_str]=merge_df[channel]/np.max((plottable(merge_df[channel])))
+    elif 'f' in modes['norm']:
         var_str='Freq'
         #normalises by dividing by the maximum for each frequency
 
@@ -1029,17 +1021,21 @@ def normalise_scope(merge_df,modes):
 
         #iterates over all unique values
         for unique_val in unique_vals:
-            for channel in ['xx','xy','yy']:
-                unique_max = np.max(abs(merge_df.loc[(merge_df.Freq==unique_val),channel]))
 
-                if unique_max !=0:
-                    merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=merge_df.loc[(merge_df.Freq==unique_val),channel]/unique_max
-                else:
-                    merge_df.loc[(merge_df.Freq==unique_val),(channel+'_scope')]=0
+            unique_max = np.max(plottable(merge_df.loc[(merge_df.Freq==unique_val),channel]))
+
+            if unique_max !=0:
+                merge_df.loc[(merge_df.Freq==unique_val),(channel+out_str)]=merge_df.loc[(merge_df.Freq==unique_val),channel]/unique_max
+            else:
+                merge_df.loc[(merge_df.Freq==unique_val),(channel+out_str)]=0
+    elif 'n' in modes ['norm']:
+        pass     #nothing to be done       
+    else:
+        print("WARNING: Normalisation mode not specified correctly!")
  
     return (merge_df)
 
-def crop_scope(scope_df,modes):
+def crop_data(in_df,modes):
     '''
     This function drops all rows where the value for the channel is greater 
     than the MEDIAN for that channel by thenumber of times specified by the 
@@ -1047,20 +1043,20 @@ def crop_scope(scope_df,modes):
     
     This function also removes all 0.0 values for the various channels.
     '''
-    if modes["crop_basis"] == 't':
-        scope_df=crop_operation (scope_df,modes)
-    elif modes["crop_basis"] == 'f':
+    if 't' in modes["crop_basis"]:
+        out_df=crop_operation (in_df,modes)
+    elif 'f' in modes["crop_basis"]:
         var_str='Freq'
-        unique_vals=scope_df[var_str].unique()
-        out_df= pd.DataFrame(columns=scope_df.columns)
+        unique_vals=in_df[var_str].unique()
+        out_df= pd.DataFrame(columns=in_df.columns)
         for unique_val in unique_vals:
-            in_df=scope_df.loc[(scope_df.Freq==unique_val),:].copy()
-            out_df=out_df.append(crop_operation (in_df,modes))
-        scope_df=out_df
+            unique_df=in_df.loc[(in_df.Freq==unique_val),:].copy()
+            out_df=out_df.append(crop_operation (unique_df,modes))
+        
     else:
-        scope_df=crop_operation (scope_df,modes)
+        out_df=crop_operation (in_df,modes)
     
-    return(scope_df)
+    return(out_df)
 
 def crop_operation (in_df,modes):
     out_df=in_df.copy()
@@ -1069,7 +1065,7 @@ def crop_operation (in_df,modes):
         #targets the dependent variables
         if col not in ['Time','Freq','d_Time']:
             #drops all zero values from the data
-            out_df.drop(out_df[scope_df[col] == 0.0].index, inplace=True)
+            out_df.drop(out_df[out_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data
             if 0.0 != modes['crop']:
                 if modes['crop_type']=="median":
@@ -1091,12 +1087,20 @@ def crop_operation (in_df,modes):
 
     
 def calc_diff(merge_df, modes, channel):
+    '''
+    Calculates the difference between the model and scope values for the 
+    '''
+    
     if modes['diff']=='sub':
         merge_df[channel+'_diff']=(merge_df[channel+"_model"])-(merge_df[channel+"_scope"])
     elif modes['diff']=='div':
         merge_df[channel+'_diff']=(merge_df[channel+"_model"])/((merge_df[channel+"_scope"])+0.0)
     elif modes['diff']=='idiv':
         merge_df[channel+'_diff']=(merge_df[channel+"_scope"])/((merge_df[channel+"_model"])+0.0)
+    else:
+        print("Difference mode "+str(modes['diff'])+" incorrectly specified.  "
+              "Defaulting to subtraction mode.")
+        merge_df[channel+'_diff']=(merge_df[channel+"_model"])-(merge_df[channel+"_scope"])
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
@@ -1105,11 +1109,16 @@ if __name__ == "__main__":
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(in_file_model)
     
+    if any (c in modes['crop_data'] for c in ["m", "b"]):
+        #always crops zero values, may crop high values depending on user input
+        model_df=crop_data(model_df,modes)
+    
     #read in the file from the scope using variable reader
     scope_df=read_var_file(in_file_scope)
     
-    #always crops zero values, may crop high values depending on user input
-    scope_df=crop_scope(scope_df,modes)
+    if any (c in modes['crop_data'] for c in ["s", "b"]):
+        #always crops zero values, may crop high values depending on user input
+        scope_df=crop_data(scope_df,modes)
         
     
     #merges the dataframes
