@@ -916,14 +916,12 @@ def read_OSO_h5 (filename):
                                 'Freq':freq_list,
                                 'xx':xx_list,'xy':xy_list,'yy':yy_list})
 
-    for channel in ['xx','xy','yy']:
-        #normalises the dataframe
-        out_df=normalise_data(out_df,modes,channel)
+
         
     #returns the data frame
     return(out_df)
 
-def read_var_file(file_name):
+def read_var_file(file_name,modes,source):
     '''
     This function reads in the filename and checks the suffix.  Depending on
     the suffix chosen, it calls different file reader functions
@@ -935,6 +933,19 @@ def read_var_file(file_name):
         out_df=read_OSO_h5(file_name)    
     else:
         print (file_name+" is not an appropriate file")
+        out_df=pd.DataFrame(data={"none":[]})
+    
+    source_options = ['b']
+    source_options.append(source)
+    
+    if any (c in modes['crop_data'] for c in source_options):
+        #always crops zero values, may crop high values depending on user input
+        out_df=crop_vals(out_df,modes)
+    if any (c in modes['norm_data'] for c in source_options):    
+        for channel in ['xx','xy','yy']:
+            #normalises the dataframe
+            out_df=normalise_data(out_df,modes,channel)    
+    
     return(out_df)
 
 
@@ -1035,7 +1046,7 @@ def normalise_data(merge_df,modes,channel,out_str=""):
  
     return (merge_df)
 
-def crop_data(in_df,modes):
+def crop_vals(in_df,modes):
     '''
     This function drops all rows where the value for the channel is greater 
     than the MEDIAN for that channel by thenumber of times specified by the 
@@ -1107,19 +1118,14 @@ if __name__ == "__main__":
     in_file_model,in_file_scope,modes=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
-    model_df=read_var_file(in_file_model)
+    model_df=read_var_file(in_file_model,modes,"m")
     
-    if any (c in modes['crop_data'] for c in ["m", "b"]):
-        #always crops zero values, may crop high values depending on user input
-        model_df=crop_data(model_df,modes)
-    
+
+
+
     #read in the file from the scope using variable reader
-    scope_df=read_var_file(in_file_scope)
-    
-    if any (c in modes['crop_data'] for c in ["s", "b"]):
-        #always crops zero values, may crop high values depending on user input
-        scope_df=crop_data(scope_df,modes)
-        
+    scope_df=read_var_file(in_file_scope,modes,"s")
+  
     
     #merges the dataframes
     merge_df=merge_dfs(model_df, scope_df, modes)
