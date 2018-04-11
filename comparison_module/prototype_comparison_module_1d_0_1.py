@@ -116,6 +116,7 @@ def plot_values_1f(merge_df, m_keys, modes):
             plt.show()
         else:
             plt_file=prep_out_file(modes,plot="vals",dims="1d",channel=key,
+                                   freq=min(merge_df.Freq),
                                    out_type="png")
             print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight')
@@ -975,6 +976,7 @@ def prep_out_dir(out_dir=None):
     return(out_dir)
     
 def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
+                  freq=0.0,
                   out_type=""):
     '''
     Prepares the output path for a variety of options given input parameters 
@@ -1000,7 +1002,8 @@ def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
     if ind_var != "":
         out_file_path= out_file_path + "_" + ind_var
 
-
+    if freq != 0.0:
+        out_file_path= out_file_path + "_" + str(freq).replace(".","-")+"Hz"
         
     #sets the file extension based on file type
     if out_type != "":
