@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr
 import argparse
 import h5py
+import os
 
 def read_dreambeam_csv(in_file):
     '''
@@ -676,8 +677,16 @@ The file containing the observed data from the telescope
                              ''')
     group_scope.add_argument("--scope","-s", 
                              help='''
-Alternative way of specifying the file containing the observed data from the telescope
+Alternative way of specifying the file containing the observed data from the 
+telescope
                              ''')
+
+    #adds an optional argument for output directory
+    parser.add_argument("--out_dir","-o", default=None,
+                             help='''
+path to a directory in which the output of the program is intended to be stored
+.  IF this argument is blank, output is to std.out and plots are to screen.
+                             ''')   
     
     #adds an optional argument for normalisation method
     parser.add_argument("--norm","-n", default="t",
@@ -796,26 +805,7 @@ channels for.  The file must contain one float per line in text format.
     #passes these arguments to a unified variable
     args = parser.parse_args()
     
-    
-    
-    #outputs the filename for the model to a returnable variable
-    if args.model_p != None:
-        in_file_model=args.model_p
-    elif args.model != None:
-        in_file_model=args.model
-    else:
-        in_file_model=raw_input("No model filename specified:\n"
-                                "Please enter the model filename:\n")
-    
-    
-    #outputs the filename for the scope to a returnable variable
-    if args.scope_p != None:
-        in_file_scope=args.scope_p
-    elif args.scope != None:
-        in_file_scope=args.scope
-    else:
-        in_file_scope=raw_input("No filename specified for observed data from the telescope:\n"
-                                "Please enter the telescope filename:\n")
+
     
     #creates and uses a dictionary to store the mode arguments
     modes={}    
@@ -831,9 +821,68 @@ channels for.  The file must contain one float per line in text format.
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
     
-    
-    return(in_file_model,in_file_scope,modes)
 
+    
+    
+    #outputs the filename for the model to a returnable variable
+    if args.model_p != None:
+        modes['in_file_model']=args.model_p
+    elif args.model != None:
+        modes['in_file_model']=args.model
+    else:
+        modes['in_file_model']=raw_input("No model filename specified:\n"
+                                "Please enter the model filename:\n")
+    
+    
+    #outputs the filename for the scope to a returnable variable
+    if args.scope_p != None:
+        modes['in_file_scope']=args.scope_p
+    elif args.scope != None:
+        modes['in_file_scope']=args.scope
+    else:
+        modes['in_file_scope']=raw_input("No filename specified for observed data from the telescope:\n"
+                                "Please enter the telescope filename:\n")
+    
+    #sets up the output directory based on the input
+    modes['out_dir']=prep_out_dir(args.out_dir)
+    
+    return(modes)
+
+def prep_out_dir(out_dir=None):
+    '''
+    Sets up the output directory based on the inputs.  If there are issues with
+    the output directory specified, warns the user and continues by printing 
+    the output instead
+    '''
+    
+    #if no directory was specified
+    if out_dir == None:
+        pass #do nothing - will return None as designed
+    
+    #if something has been passed in
+    else: 
+        #if the directory doesn't already exist
+        if not os.path.isdir(out_dir):
+            #try to make it and any parents needed
+            try:
+                os.mkdirs(out_dir)
+            
+            #if it's not possible to make that directory
+            except OSError:
+                #print a warning and ask the user for new input
+                os_dir = raw_input("WARNING: output directory not suitable, "
+                                   "please enter a new output directory:\n"
+                                   "Leave blank for output to screen\n\t")
+                
+                #if they leave the input blank, return a Null value
+                if os_dir == '':
+                    os_dir = None
+                
+                #otherwise try this function again
+                else:
+                    prep_out_dir(out_dir)
+    
+    return(out_dir)
 
 def read_OSO_h5 (filename):
     '''
@@ -1115,16 +1164,16 @@ def calc_diff(merge_df, modes, channel):
     
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
-    in_file_model,in_file_scope,modes=beam_arg_parser()
+    modes=beam_arg_parser()
     
     #read in the csv files from DreamBeam and format them correctly
-    model_df=read_var_file(in_file_model,modes,"m")
+    model_df=read_var_file(modes['in_file_model'],modes,"m")
     
 
 
 
     #read in the file from the scope using variable reader
-    scope_df=read_var_file(in_file_scope,modes,"s")
+    scope_df=read_var_file(modes['in_file_scope'],modes,"s")
   
     
     #merges the dataframes
