@@ -82,7 +82,7 @@ def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
     
     return(m_keys)
 
-def plot_values_1f(merge_df, m_keys):
+def plot_values_1f(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -96,8 +96,9 @@ def plot_values_1f(merge_df, m_keys):
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values per channel against time
         plt.figure()
-        plt.title("Plot of the values in "+key+"-channel over time"+
-                  "\nat %.0f MHz"%(min(merge_df.Freq)/1e6))
+        graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel over time"+
+                  "\nat %.0f MHz"%(min(merge_df.Freq)/1e6))])
+        plt.title(graph_title)
 
         #plots the model in one colour
         plt.plot(merge_df.Time,plottable(merge_df[key+'_model']),label='model',
@@ -110,8 +111,15 @@ def plot_values_1f(merge_df, m_keys):
         plt.xticks(rotation=90)
         plt.xlabel('Time')
         
-        #prints the plot
-        plt.show()
+        #prints or saves the plot
+        if modes['out_dir'] == None:
+            plt.show()
+        else:
+            plt_file=prep_out_file(modes,plot="vals",dims="1d",channel=key,
+                                   out_type="png")
+            print("plotting: "+plt_file)
+            plt.savefig(plt_file,bbox_inches='tight')
+            plt.close()
     return(0)
     
 def plottable(in_series):
@@ -128,7 +136,7 @@ def plottable(in_series):
     else:
         return in_series
     
-def plot_values_nf(merge_df, m_keys):
+def plot_values_nf(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -143,8 +151,9 @@ def plot_values_nf(merge_df, m_keys):
         #part one: plots the model and scope values for p-channel against time
         for source in ["model","scope"]:
             plt.figure()
-            plt.title("Plot of the values in "+key+"-channel \nover time "+
-                      "and frequency for "+source)
+            graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
+                      "and frequency for "+source)])
+            plt.title(graph_title)
     
             #plots the channel in a colour based on its name
             plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
@@ -154,12 +163,20 @@ def plot_values_nf(merge_df, m_keys):
             plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
             plt.ylabel("Frequency")
             plt.colorbar()
-            #prints the plot
-            plt.show()
+            #prints or saves the plot
+            if modes['out_dir'] == None:
+                plt.show()
+            else:
+                plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
+                                       channel=key,
+                                       out_type="png")
+                print("plotting: "+plt_file)
+                plt.savefig(plt_file,bbox_inches='tight')
+                plt.close()
     return(0)    
     
     
-def plot_diff_values_1f(merge_df, m_keys):
+def plot_diff_values_1f(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and 
     plots the differences in various channel values over time
@@ -170,7 +187,7 @@ def plot_diff_values_1f(merge_df, m_keys):
 
     plt.figure()
     
-    graph_title = "Plot of the differences in "
+    graph_title = "\n".join([modes['title'],"Plot of the differences in "])
     for key in m_keys:
         plt.plot(merge_df.Time,
                  plottable(merge_df[key+'_diff']), 
@@ -197,7 +214,16 @@ def plot_diff_values_1f(merge_df, m_keys):
     plt.title(graph_title)
     plt.legend(frameon=False)
     plt.xlabel('Time')
-    plt.show()
+    
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,plot="diff",dims="1d",
+                               out_type="png")
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
     return(0)
     
     
@@ -227,7 +253,7 @@ def calc_corr_1d(merge_df, m_keys):
     
     
     
-def calc_corr_nd(merge_df, var_str, m_keys):
+def calc_corr_nd(merge_df, var_str, m_keys, modes):
     '''
     This function calculates the correlation between the scope and model values
     for p- and q-channel as they are distributed against another column of the 
@@ -265,7 +291,7 @@ def calc_corr_nd(merge_df, var_str, m_keys):
     #varies for each of the channels against var_str
     plt.figure()
 
-    graph_title = "Plot of the correlation in "
+    graph_title = "\n".join([modes['title'],"Plot of the correlation in "])
     for key in m_keys:    
         plt.plot(unique_vals,n_corrs[m_keys.index(key)],
                 label=key+'_correlation',color=colour_models(key))
@@ -290,8 +316,16 @@ def calc_corr_nd(merge_df, var_str, m_keys):
     plt.legend(frameon=False)
     plt.xlabel(var_str)
     
-    #prints the plot
-    plt.show()
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,plot="corr",ind_var=var_str,
+                               channel=modes['values'],
+                               out_type="png")
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
     
     #returns the correlation lists if needed    
     return (n_corrs)    
@@ -314,7 +348,7 @@ def calc_rmse_1d(merge_df, m_keys):
     
     
     
-def calc_rmse_nd(merge_df, var_str, m_keys):
+def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     '''
     This function calculates the correlation between the scope and model values
     for p- and q-channel  as they are distributed against another column of the 
@@ -349,10 +383,10 @@ def calc_rmse_nd(merge_df, var_str, m_keys):
         for i in range(len(m_keys)):
             n_rmses[i].append(n_rmse[i])
     
-    #creates an overlaid plot of how the correlation of between model and scope
-    #varies for each of the p-and q-channels against var_str    
+    #creates an overlaid plot of how the RMSE  between model and scope
+    #varies for each of the channels against var_str    
     plt.figure()
-    graph_title = "Plot of the RMSE in "
+    graph_title = "\n".join([modes['title'],"Plot of the RMSE in "])
     for key in m_keys:    
         plt.plot(unique_vals,n_rmses[m_keys.index(key)],
                 label=key+'_RMSE',color=colour_models(key))
@@ -376,8 +410,16 @@ def calc_rmse_nd(merge_df, var_str, m_keys):
     plt.legend(frameon=False)
     plt.xlabel(var_str)
     
-    #prints the plot
-    plt.show()
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,plot="rmse",ind_var=var_str,
+                               channel=modes['values'],
+                               out_type="png")
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
     
     #returns the correlation lists if needed    
     return (n_rmses)
@@ -385,7 +427,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys):
 
 
 
-def plot_diff_values_nf(merge_df, m_keys):
+def plot_diff_values_nf(merge_df, m_keys, modes):
     '''
     This function creates 3d colour plots using time and frequency from a 
     merged data frame as the independent variables and the difference between
@@ -398,7 +440,9 @@ def plot_diff_values_nf(merge_df, m_keys):
         plt.figure()
         
         #display main title and subplot title together
-        plt.title("Plot of the differences in %s\n over time and frequency"%key)
+        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
+        plt.title(graph_title)
+        
         #plots p-channel difference
         plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
                       cmap=plt.get_cmap(colour_models(key+'s')))
@@ -406,7 +450,16 @@ def plot_diff_values_nf(merge_df, m_keys):
         #plots x-label for both using start time 
         plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
         plt.ylabel("Frequency")
-        plt.show()
+        #prints or saves the plot
+        if modes['out_dir'] == None:
+            plt.show()
+        else:
+            plt_file=prep_out_file(modes,plot="diff", dims="nd",
+                                   channel=key,
+                                   out_type="png")
+            print("plotting: "+plt_file)
+            plt.savefig(plt_file,bbox_inches='tight')
+            plt.close()
 
 def analysis_1d(merge_df,modes, m_keys):
     '''
@@ -419,11 +472,11 @@ def analysis_1d(merge_df,modes, m_keys):
   
     if "value" in modes["plots"]:
         #plots the values for each channel
-        plot_values_1f(merge_df, m_keys)
+        plot_values_1f(merge_df, m_keys, modes)
     
     if "diff" in modes["plots"]:    
         #plots the differences in the values
-        plot_diff_values_1f(merge_df, m_keys)
+        plot_diff_values_1f(merge_df, m_keys, modes)
     
 
     if "corr" in modes["plots"]:
@@ -431,16 +484,33 @@ def analysis_1d(merge_df,modes, m_keys):
         corrs=calc_corr_1d(merge_df, m_keys)
         
         for i in range(len(m_keys)):
-            print("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
-    
+            out_str=("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
+            if modes['out_dir'] == None:
+                print(out_str)
+            else:
+                plt_file=prep_out_file(modes,plot="corr", dims="1d",
+                                       channel=modes['values'],
+                                       out_type="txt")
+                out_file=open(plt_file,'a')
+                out_file.write(out_str)
+                out_file.close()
+                
         print("\n")
         
     if "rmse" in modes["plots"]:        
         #calculates the root mean squared error between scope and model
         rmses=calc_rmse_1d(merge_df, m_keys)
         for i in range(len(m_keys)):
-            print("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
-    
+            out_str=("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
+            if modes['out_dir'] == None:
+                print(out_str)
+            else:
+                plt_file=prep_out_file(modes,plot="rmse", dims="1d",
+                                       channel=modes['values'],
+                                       out_type="txt")
+                out_file=open(plt_file,'a')
+                out_file.write(out_str)
+                out_file.close()    
     
 def analysis_nd(merge_df,modes, m_keys):
     '''
@@ -457,7 +527,16 @@ def analysis_nd(merge_df,modes, m_keys):
         corrs=calc_corr_1d(merge_df, m_keys)
         #prints that coefficient for each key and correlation
         for i in range(len(m_keys)):
-            print("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
+            out_str=("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
+            if modes['out_dir'] == None:
+                print(out_str)
+            else:
+                plt_file=prep_out_file(modes,plot="corr", dims="1d",
+                                       channel=modes['values'],
+                                       out_type="txt")
+                out_file=open(plt_file,'a')
+                out_file.write(out_str)
+                out_file.close()
     
         #newline to separate outputs
         print("\n")  
@@ -466,15 +545,24 @@ def analysis_nd(merge_df,modes, m_keys):
         #calculates the root mean squared error between scope and model
         rmses=calc_rmse_1d(merge_df, m_keys)
         for i in range(len(m_keys)):
-            print("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
-    
+            out_str=("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
+            if modes['out_dir'] == None:
+                print(out_str)
+            else:
+                plt_file=prep_out_file(modes,plot="rmse", dims="1d",
+                                       channel=modes['values'],
+                                       out_type="txt")
+                out_file=open(plt_file,'a')
+                out_file.write(out_str)
+                out_file.close() 
+                
     if "value" in modes["plots"]:
         #plots the values of scope and model 
-        plot_values_nf(merge_df, m_keys)
+        plot_values_nf(merge_df, m_keys, modes)
     
     if "diff" in modes["plots"]:
         #plots the differences in values for the various channels
-        plot_diff_values_nf(merge_df, m_keys)
+        plot_diff_values_nf(merge_df, m_keys, modes)
     
     #calculates the correlations and rmse over time at each independent variable 
     #return values are stored as possible future outputs
@@ -488,7 +576,7 @@ def analysis_nd(merge_df,modes, m_keys):
 
         if "corr" in modes["plots"]:
             ind_df=pd.DataFrame(data={ind:n_ind})
-            n_corrs=calc_corr_nd(merge_df,ind, m_keys)
+            n_corrs=calc_corr_nd(merge_df,ind, m_keys, modes)
             for key in m_keys:
                 ind_df[key+'_corr']=n_corrs[m_keys.index(key)]
             ind_dfs[ind+"_corr"]=ind_df
@@ -496,22 +584,14 @@ def analysis_nd(merge_df,modes, m_keys):
         ind_df=pd.DataFrame(data={ind:n_ind})
         if "rmse" in modes["plots"]: 
             ind_df=pd.DataFrame(data={ind:n_ind})
-            n_rmses=calc_rmse_nd(merge_df,ind, m_keys)
+            n_rmses=calc_rmse_nd(merge_df,ind, m_keys, modes)
             for key in m_keys:
                 ind_df[key+'_RMSE']=n_rmses[m_keys.index(key)]
             ind_dfs[ind+"_RMSE"]=ind_df
         
 
     
-#    #calculates the correlations and rmse over frequency at each time 
-#    #return values are stored as possible future outputs
-#    n_corrs_time=calc_corr_nd(merge_df,"Time", m_keys)
-#    n_rmses_time=calc_rmse_nd(merge_df,"Time", m_keys)
-#    n_time=merge_df.Time.unique()
-#    time_df=pd.DataFrame(data={"Time":n_time})
-#    for key in m_keys:
-#        time_df[key+'_corr']=n_corrs_time[m_keys.index(key)]
-#        time_df[key+'_RMSE']=n_rmses_time[m_keys.index(key)]
+
     
     return (ind_dfs)
     
@@ -688,6 +768,13 @@ path to a directory in which the output of the program is intended to be stored
 .  IF this argument is blank, output is to std.out and plots are to screen.
                              ''')   
     
+    #adds an optional argument for the title of graphs and out_files
+    parser.add_argument("--title","-t", default=[""], nargs = '*',
+                             help='''
+The title for graphs and output files.  Spaces are permitted in title.  Output
+files will have spaces replaced with underscores
+                             ''')   
+    
     #adds an optional argument for normalisation method
     parser.add_argument("--norm","-n", default="t",
                         choices=("t","f","n"), 
@@ -821,8 +908,11 @@ channels for.  The file must contain one float per line in text format.
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
     
+    #combines the components of the title with spaces to create titles
+    modes['title']= " ".join(args.title)
 
-    
+    #combines the components of the title with spaces to create titles
+    modes['title_']= "_".join(args.title)    
     
     #outputs the filename for the model to a returnable variable
     if args.model_p != None:
@@ -865,7 +955,7 @@ def prep_out_dir(out_dir=None):
         if not os.path.isdir(out_dir):
             #try to make it and any parents needed
             try:
-                os.mkdirs(out_dir)
+                os.makedirs(out_dir)
             
             #if it's not possible to make that directory
             except OSError:
@@ -883,6 +973,36 @@ def prep_out_dir(out_dir=None):
                     prep_out_dir(out_dir)
     
     return(out_dir)
+    
+def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
+                  out_type=""):
+    '''
+    Prepares the output path for a variety of options given input parameters 
+    
+    '''
+    
+    #starts the file path by joining the out_dir and title
+    out_file_path = os.path.join(modes['out_dir'],modes['title_'])
+    
+    #adds any non-blank parameters to the end with an underscore
+    if source != "":
+        out_file_path= out_file_path + "_" + source
+    if ind_var != "":
+        out_file_path= out_file_path + "_" + ind_var
+    if plot != "":
+        out_file_path= out_file_path + "_" + plot
+    if dims != "":
+        out_file_path= out_file_path + "_" + dims
+    if channel != "":
+        out_file_path= out_file_path + "_" + channel
+        
+    #sets the file extension based on file type
+    if out_type != "":
+        if "." not in out_type:
+            out_file_path= out_file_path + "." + out_type   
+        else:
+            out_file_path= out_file_path + out_type 
+    return (out_file_path)
 
 def read_OSO_h5 (filename):
     '''
@@ -1199,3 +1319,12 @@ if __name__ == "__main__":
     else:
         #otherwise does multi-dimensional analysis
         analysis_nd(merge_df,modes, m_keys)
+    
+    #output the dataframe if requested
+    if modes['out_dir']!=None:
+        path_out_df = prep_out_file(modes,out_type=".csv")
+        try:
+            merge_df.to_csv(path_out_df)
+        except IOError:
+            print("WARNING: unable to output to file:\n\t"+path_out_df)
+    
