@@ -43,9 +43,9 @@ def read_dreambeam_csv(in_file):
     # 2. yx not included in scope data (presumably because of 1.)
     #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     '''
-    out_df['xx']=out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12)
+    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
     out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
-    out_df['yy']=out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22)
+    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
     return out_df
 
 def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
