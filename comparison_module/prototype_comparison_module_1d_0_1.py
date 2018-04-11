@@ -134,7 +134,7 @@ def plottable(in_series):
         else:
             return in_series
     else:
-        return in_series
+        return abs(in_series)
     
 def plot_values_nf(merge_df, m_keys, modes):
     '''
@@ -1229,10 +1229,12 @@ def crop_vals(in_df,modes):
         var_str='Freq'
         unique_vals=in_df[var_str].unique()
         out_df= pd.DataFrame(columns=in_df.columns)
+        for col in in_df:
+            out_df[col]=out_df[col].astype(in_df[col].dtypes.name)
         for unique_val in unique_vals:
             unique_df=in_df.loc[(in_df.Freq==unique_val),:].copy()
             out_df=out_df.append(crop_operation (unique_df,modes))
-        
+        out_df.reset_index(drop=True, inplace=True) 
     else:
         out_df=crop_operation (in_df,modes)
     
@@ -1262,7 +1264,7 @@ def crop_operation (in_df,modes):
                     print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
-            out_df.reset_index(drop=True, inplace=True)
+            
     return(out_df)
 
     
