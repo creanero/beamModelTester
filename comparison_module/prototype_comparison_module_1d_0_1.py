@@ -985,16 +985,22 @@ def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
     out_file_path = os.path.join(modes['out_dir'],modes['title_'])
     
     #adds any non-blank parameters to the end with an underscore
-    if source != "":
-        out_file_path= out_file_path + "_" + source
-    if ind_var != "":
-        out_file_path= out_file_path + "_" + ind_var
     if plot != "":
         out_file_path= out_file_path + "_" + plot
+
     if dims != "":
         out_file_path= out_file_path + "_" + dims
+
     if channel != "":
         out_file_path= out_file_path + "_" + channel
+        
+    if source != "":
+        out_file_path= out_file_path + "_" + source
+
+    if ind_var != "":
+        out_file_path= out_file_path + "_" + ind_var
+
+
         
     #sets the file extension based on file type
     if out_type != "":
