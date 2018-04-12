@@ -61,21 +61,21 @@ options: {all,linear,stokes,xx,xy,yy,U,V,I,Q}
 which graphs to show\
 options: {rmse,corr,value,diff}
 14.  Creates a mutually exclusive group for exclusion frequencies
-    1.  adds the optional argument -f or --freq which specifies 1 or more frequencies at the command lines
-    2.  adds the optional argument -F or --freq_file which specifies a file in which frequencies might be found
+     1.  adds the optional argument -f or --freq which specifies 1 or more frequencies at the command lines
+     2.  adds the optional argument -F or --freq_file which specifies a file in which frequencies might be found
 
 15.  Retrieves the model file name
-    1.  If the positional argument model_p was used, that is stored in the dictionary
-    2.  Otherwise, if the optional argument -m or --model was used, 
+     1.  If the positional argument model_p was used, that is stored in the dictionary
+     2.  Otherwise, if the optional argument -m or --model was used, 
     that is stored in a variable called in_file_model
-    3.  Otherwise, the user is prompted to enter the filename and
+     3.  Otherwise, the user is prompted to enter the filename and
     that is stored in a variable called in_file_model
 16.  Retrieves the scope file name
-    1.  If the positional argument scope_p was used, that is stored in a 
+     1.  If the positional argument scope_p was used, that is stored in a 
     variable called in_file_scope
-    2.  Otherwise, if the optional argument -s or --scope was used, 
+     2.  Otherwise, if the optional argument -s or --scope was used, 
     that is stored in a variable called in_file_scope
-    3.  Otherwise, the user is prompted to enter the filename and
+     3.  Otherwise, the user is prompted to enter the filename and
     that is stored in a variable called in_file_scope
 17.  Returns the dictionary mode
 
