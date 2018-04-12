@@ -30,7 +30,7 @@ a file containing the model data in [dreamBeam csv format](/DreamBeam_Source_dat
 
 Either:
 1.  a file containing model data in dreamBeam csv format to compare models
-2.  a file containing scope data in OSO HDF5 format\
+2.  a file containing scope data in OSO HDF5 format
 
 Command line arguments specifying the following.  
 Detailed inputs available at [this link](/comparison_module/readme.md)
