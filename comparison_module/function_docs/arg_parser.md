@@ -17,8 +17,11 @@ operation and the type of output generated*
 **Dependencies**\
 argparse
 
+**Outputs**\
+A dictionary called modes containing the arguments parsed by the function
+
 **Design Diagram**\
-![Design Diagram](/images/comparison_module_parse_args_fig1_v1.PNG)
+![Design Diagram](/images/comparison_module_parse_args_fig1_v2.PNG)
 
 
 **Operations**
@@ -28,41 +31,54 @@ argparse
 2.  Creates a mutually exclusive group for scope filenames
     1.  adds the positional argument scope_p to that group
     2.  adds the optional argument -s or --scope to that group
-3.  Retrieves the model file name
-    1.  If the positional argument model_p was used, that is stored in a 
-    variable called in_file_model
-    2.  Otherwise, if the optional argument -m or --model was used, 
+
+3.  adds the optional argument -o or --out_dir for the output
+4.  adds the optional argument -t or --title for the graph 
+(and output file) titles
+5.  adds the optional argument -n or --norm for which mode 
+to normalise the data in \
+options: {t,f,n}
+6.  adds the optional argument -N or --norm_data for which 
+data to normalise \
+options: {s,m,n,b}
+7.  adds the optional argument -C or --crop_type which specifies 
+what factor to crop upon\
+options: {median,mean,percentile}
+8.  adds the optional argument -c or --crop which specifies a 
+number by which to carry out the crop
+9.  adds the optional argument -k or --crop_basis which specifies 
+whether to crop by frequency or overall or not at all\
+options: {t,f,n}
+10.  adds the optional argument -K or --crop_data for which set of data to crop\
+options: {s,m,n,b}
+11.  adds the optional argument -d or --diff to identify 
+how to determine the difference between scope and model\
+options: {sub,div,idiv}]
+12.  adds the optional argument -v or --values to identify
+which values to plot\
+options: {all,linear,stokes,xx,xy,yy,U,V,I,Q}
+13.  adds the optional argument -p or --plots to determine 
+which graphs to show\
+options: {rmse,corr,value,diff}
+14.  Creates a mutually exclusive group for exclusion frequencies
+     1.  adds the optional argument -f or --freq which specifies 1 or more frequencies at the command lines
+     2.  adds the optional argument -F or --freq_file which specifies a file in which frequencies might be found
+
+15.  Retrieves the model file name
+     1.  If the positional argument model_p was used, that is stored in the dictionary
+     2.  Otherwise, if the optional argument -m or --model was used, 
     that is stored in a variable called in_file_model
-    3.  Otherwise, the user is prompted to enter the filename and
+     3.  Otherwise, the user is prompted to enter the filename and
     that is stored in a variable called in_file_model
-4.  Retrieves the scope file name
-    1.  If the positional argument scope_p was used, that is stored in a 
+16.  Retrieves the scope file name
+     1.  If the positional argument scope_p was used, that is stored in a 
     variable called in_file_scope
-    2.  Otherwise, if the optional argument -s or --scope was used, 
+     2.  Otherwise, if the optional argument -s or --scope was used, 
     that is stored in a variable called in_file_scope
-    3.  Otherwise, the user is prompted to enter the filename and
+     3.  Otherwise, the user is prompted to enter the filename and
     that is stored in a variable called in_file_scope
-5.  Returns in_file_model, in_file_scope
+17.  Returns the dictionary mode
 
 **Usage and arguments**\
-usage: prototype_comparison_module_1d_0_1.py [-h] [--model MODEL]
-                                             [--scope SCOPE]
-                                             [model_p] [scope_p]
+Detailed usage notes at [this link](beamModelTester/comparison_module/readme.md)
 
-positional arguments:\
-  model_p               The file containing the data from the model (Usually DreamBeam)\
-  scope_p               The file containing the observed data from the telescope
-
-optional arguments:\
-  -h, --help            show this help message and exit\
-  --model MODEL, -m MODEL Alternative way of specifying the file containing the
-                        data from the model\
-  --scope SCOPE, -s SCOPE
-                        Alternative way of specifying the file containing the
-                        observed data from the telescope
-                        
-**Sample Uses**\
-prototype_comparison_module_1d_0_1.py model_file_name.csv scope_file_name.hdf5
-prototype_comparison_module_1d_0_1.py -m model_file_name.csv -s scope_file_name.hdf5
-prototype_comparison_module_1d_0_1.py --model model_file_name.csv --scope scope_file_name.hdf5
-prototype_comparison_module_1d_0_1.py

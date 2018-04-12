@@ -13,7 +13,8 @@ numpy\
 matplotlib.pyplot\
 scipy.stats.stats.pearsonr\
 argparse\
-h5py
+h5py\
+os
 
 **Assumptions**
 
@@ -39,6 +40,7 @@ Detailed inputs available at [this link](/comparison_module/readme.md)
 4.  Values to plot (all, linear, stokes, xx, xy, yy, U, V, I, Q)
 5.  Options to plot (rmse,corr,value,diff)
 6.  Frequency options (single, multiple, file-based)
+7.  Output options: Title, directory for output files
 
 **Outputs**\
 Detailed outputs and links to samples available at [this link](/comparison_module/readme.md).
@@ -78,7 +80,7 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Design Diagram**
 
-![Design Diagram](../images/comparison_module_fig1_v4.PNG)
+![Design Diagram](../images/comparison_module_fig1_v5.PNG)
 
 **Figure 1: Outline of the Comparison Module**
 
@@ -93,8 +95,7 @@ and store the contents in a dataframe
 3.  Read in the data from the telescope file using the same variable reader function and store the contents in a
     dataframe
 
-4.  Crops the scope dataframe to eliminate outliers in accordance with the mode settings
-5.  Merge the dataframes using an inner join to ensure only data points
+4.  Merge the dataframes using an inner join to ensure only data points
     where a common value(s) for the independent variable(s) exists using 
     the flexible dataframe merger function, 
     [merge_dfs](/comparison_module/function_docs/merge_dfs.md)
@@ -103,13 +104,14 @@ and store the contents in a dataframe
     2.  As part of this process, the difference between the two sets of values for the dependent
         variable(s) (either p- and q-channels or xx, xy and yy channels) 
         is calculated and stored as a column in the merged dataframe
-6.  Depending on whether the user has specified a frequency filter
+5.  Depending on whether the user has specified a frequency filter (as a file or parameter)
     1.  Drop all frequencies from the dataframe except those specified.
-7.  Depending on whether there is a single value for frequency or multiple values, 
+6.  Depending on whether there is a single value for frequency or multiple values, 
     the program will perform slightly different analyses.  
     1.  [one-frequency mode](/comparison_module/function_docs/analysis_1d.md) 
     produces outputs suitable for single frequency operations 
     2.  [multi-frequency mode](/comparison_module/function_docs/analysis_nd.md)
         produces outputs suitable for multiple frequency operations 
+7.  If the user has specified an output directory, the merged data is written to an output file.
    
 
