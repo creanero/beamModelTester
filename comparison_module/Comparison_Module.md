@@ -13,7 +13,8 @@ numpy\
 matplotlib.pyplot\
 scipy.stats.stats.pearsonr\
 argparse\
-h5py
+h5py\
+os
 
 **Assumptions**
 
@@ -39,6 +40,7 @@ Detailed inputs available at [this link](/comparison_module/readme.md)
 4.  Values to plot (all, linear, stokes, xx, xy, yy, U, V, I, Q)
 5.  Options to plot (rmse,corr,value,diff)
 6.  Frequency options (single, multiple, file-based)
+7.  Output options: Title, directory for output files
 
 **Outputs**\
 Detailed outputs and links to samples available at [this link](/comparison_module/readme.md).
