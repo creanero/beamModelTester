@@ -22,15 +22,15 @@ to generate and produces 1 second's worth of data for each subband.
 These are processed by OSO **link to go here when available** into a series of observations 
 consisting of five datasets
 
-![File Description Diagram](/images/OSO_HDF5_Source_Fig1_v1.PNG)
+![File Description Diagram](/images/OSO_HDF5_Source_Fig1_v2.PNG)
 
 **Detailed Contents**
 1.  M Times (one per ACC file observed) which are stored as a list of 
     floats of the number of seconds since the epoch of 1970 Jan 01 00:00:00
 2.  N Frequencies (typically 512) which are stored as a list of floats
 3.  MxN XX values stored as a list (one for each time) of lists 
-    (one for each frequency) of values in complex number format
+    (one for each frequency) of values in float number format
 4.  MxN XY values stored as a list (one for each time) of lists 
     (one for each frequency) of values in complex number format
 5.  MxN YY values stored as a list (one for each time) of lists 
-    (one for each frequency) of values in complex number format
+    (one for each frequency) of values in float number format
