@@ -877,8 +877,8 @@ diff shows plots of the differences in values of the channels (per time and per 
     group_freq.add_argument("--freq","-f", default = [0.0], 
                             type=float, nargs="*",
                         help = '''
-set a single frequency filter to and display the channels for.  
-User must supply a float.
+set a frequency filter to and display the channels for.   
+Must supply a float or collection of floats separated by spaces.
                         ''')
     #adds an optional argument for a file containing a set of frequenciesy 
     #to filter to
