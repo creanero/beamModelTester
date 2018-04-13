@@ -24,7 +24,7 @@ Depending on the file type provided, the system uses one of several (currently t
 to read the file into memory as a dataframe suitable for futher processing.
 
 **Design Diagram**\
-![Design Diagram](/images/comparison_module_read_functions_fig1_v3.PNG)
+![Design Diagram](/images/comparison_module_read_functions_fig1_v2.PNG)
 
 **Operation**
 
