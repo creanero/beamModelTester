@@ -51,6 +51,10 @@ to read the file into memory as a dataframe suitable for futher processing.
             4.  Reads the XX, XY and YY values from the file by the indices and appends them to their respective lists
             5.  Increments the Frequency index
         3.  Increments the Time index
-    7.  Creates a dataframe from the lists
-    8.  Returns the Dataframe
+    7.  If the modes are set to crop this particular dataframe
+        1.  Crop the data using the crop_vals function
+    8.  If the modes are set to normalise this particular dataframe
+        1.  Crop the data using the normalise_data function
+    9.  Creates a dataframe from the lists
+    10. Returns the Dataframe
 4. Returns the Dataframe
