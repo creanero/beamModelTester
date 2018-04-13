@@ -9,7 +9,7 @@ This set of functions describes the file reading elements of the [comparison mod
 **Functions**\
 read_var_file\
 read_dreambeam_csv\
-read_OSO_h5\
+read_OSO_h5
 
 **Dependencies**\
 pandas\
@@ -24,7 +24,7 @@ Depending on the file type provided, the system uses one of several (currently t
 to read the file into memory as a dataframe suitable for futher processing.
 
 **Design Diagram**\
-![Design Diagram](/images/comparison_module_read_functions_fig1_v1.PNG)
+![Design Diagram](/images/comparison_module_read_functions_fig1_v2.PNG)
 
 **Operation**
 
@@ -42,18 +42,15 @@ to read the file into memory as a dataframe suitable for futher processing.
     3.  Creates lists to hold the data from the file
     4.  Creates a time index
     5.  Calculate the minimum (start) time
-    6.  *Temporary for calibration mismatch:* Calculate the minimum Frequency
-    7.  Iterates over the time values in the file
+    6.  Iterates over the time values in the file
         1.  Creates a Frequency index
         2.  Iterates over the frequency values in the file
             1.  Converts the time to a pandas timestamp and appends the time to the time list
             2.  Calculates the time since the start time and appends the time to the d_time list
-            3.  *Temporary for calibration mismatch:* Calculates the frequency 
-            based on the minimum frequency and frequency index and appends it to the freq_list
-                1.  *when calibration is fixed, this should be:* the frequency is read from the file data and appended to the list
+            3.  the frequency is read from the file data and appended to the list
             4.  Reads the XX, XY and YY values from the file by the indices and appends them to their respective lists
             5.  Increments the Frequency index
         3.  Increments the Time index
-    8.  Creates a dataframe from the lists
-    9.  Returns the Dataframe
+    7.  Creates a dataframe from the lists
+    8.  Returns the Dataframe
 4. Returns the Dataframe
