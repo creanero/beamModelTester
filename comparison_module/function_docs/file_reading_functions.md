@@ -35,7 +35,8 @@ to read the file into memory as a dataframe suitable for futher processing.
         1.  converters to read in the Jones matrix elements as complex numbers
         2.  A date parser for the Time column
         3.  An argument to specify to skip initial spaces if needed.
-    3.  This function returns the dataframe containing the output from dreamBeam
+    3.  Each of the linear polarisation channels are calculated.
+    4.  This function returns the dataframe containing the output from dreamBeam
 3.  If the suffix is "hdf5", execute read_OSO_h5:
     1.  This means the data must be of [OSO HDF5 format](/data_descriptions/OSO_HDF5.md)
     2.  Call the h5py File method in read mode
