@@ -125,7 +125,7 @@ The file must contain one float per line in text format.*
 *Single Frequency Mode*\
 A plot of the Channel values over time for the model and the scope\
 (Samples: 
-[xx](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_xx_vals_1f.png_,
+[xx](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_xx_vals_1f.png),
 [xy](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_xy_vals_1f.png),
 [yy](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_yy_vals_1f.png),
 [U](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_U_vals_1f.png),
