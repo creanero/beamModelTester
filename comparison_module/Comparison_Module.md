@@ -26,11 +26,11 @@ os
 4.  Inputs will only be provided in the correct format.
 
 **Inputs**\
-a file containing the model data in [dreamBeam csv format](/DreamBeam_Source_data_description.md)
+Two files each containing 
 
 Either:
-1.  a file containing model data in dreamBeam csv format to compare models
-2.  a file containing scope data in OSO HDF5 format\
+1.  model data in [dreamBeam csv format](beamModelTester/data_descriptions/DreamBeam_Source_data_description.md)  
+2.  scope data in [OSO HDF5 format](beamModelTester/data_descriptions/OSO_HDF5.md)
 
 Command line arguments specifying the following.  
 Detailed inputs available at [this link](/comparison_module/readme.md)
