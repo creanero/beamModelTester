@@ -54,29 +54,36 @@ def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
     Calculates the keys from a given dataframe or based on the input modes.
     '''
     m_keys=[]
-    if "stokes"==modes["values"]:
-        m_keys = ["U","V","I","Q"]
-    elif "linear"==modes["values"]:
-        m_keys = ["xx","xy","yy"]
-    elif "all"==modes["values"]:
+    
+    #if key groups have been supplied, extend the keylist with their components
+    if "stokes" in modes["values"]:
+        m_keys.extend(["U","V","I","Q"])
+    if "linear" in modes["values"]:
+        m_keys.extend(["xx","xy","yy"])
+    if "all" in modes["values"]:
         for m_key in merge_df.keys():
             if key_str in m_key:
                 m_keys.append(m_key.split(key_str)[0])
-    elif "xx"==modes["values"]:
-        m_keys = ["xx"]
-    elif "xy"==modes["values"]:
-        m_keys = ["xy"]
-    elif "yy"==modes["values"]:
-        m_keys = ["yy"]
-    elif "U"==modes["values"]:
-        m_keys = ["U"]
-    elif "V"==modes["values"]:
-        m_keys = ["V"]
-    elif "I"==modes["values"]:
-        m_keys = ["I"]
-    elif "Q"==modes["values"]:
-        m_keys = ["Q"]
-    else:
+                
+    #if keys have been supplied individually                
+    if "xx" in modes["values"]:
+        m_keys.append("xx")
+    if "xy" in modes["values"]:
+        m_keys.append("xy")
+    if "yy" in modes["values"]:
+        m_keys.append("yy")
+    if "U" in modes["values"]:
+        m_keys.append("U")
+    if "V" in modes["values"]:
+        m_keys.append("V")
+    if "I" in modes["values"]:
+        m_keys.append("I")
+    if "Q" in modes["values"]:
+        m_keys.append("Q")
+    
+    
+    #if the keys are still blank
+    if m_keys == []:
         print ("Warning, no appropriate keys found!")
     
     
@@ -321,13 +328,17 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
     if modes['out_dir'] == None:
         plt.show()
     else:
+        #creates an output-friendly string for the channel
+        str_channel = channel_maker(m_keys,modes)
+        
+        
         plt_file=prep_out_file(modes,plot="corr",ind_var=var_str,
-                               channel=modes['values'],
+                               channel=str_channel,
                                out_type="png")
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
-    
+        
     #returns the correlation lists if needed    
     return (n_corrs)    
     
@@ -415,8 +426,12 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     if modes['out_dir'] == None:
         plt.show()
     else:
+        #creates an output-friendly string for the channel
+        str_channel = channel_maker(m_keys,modes)
+        
+        
         plt_file=prep_out_file(modes,plot="rmse",ind_var=var_str,
-                               channel=modes['values'],
+                               channel=str_channel,
                                out_type="png")
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
@@ -425,8 +440,26 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #returns the correlation lists if needed    
     return (n_rmses)
 
-
-
+def channel_maker(m_keys,modes):
+    str_channel = ""
+    if "each" not in modes ['values']:
+        if "all" in modes ['values']:
+            str_channel = "all"
+        
+        elif "stokes" in modes['values']:
+            str_channel = "stokes"
+        
+        elif "linear" in modes['values']:
+            str_channel = "linear"
+        return(str_channel)
+    
+    #creates an output-friendly string for the channel
+    str_channel = str(m_keys)
+    for ch in (["[","]","'"]):
+        str_channel = str_channel.replace(ch,'',)
+    str_channel.replace(", ","_")
+                
+    return (str_channel)
 
 def plot_diff_values_nf(merge_df, m_keys, modes):
     '''
@@ -489,8 +522,13 @@ def analysis_1d(merge_df,modes, m_keys):
             if modes['out_dir'] == None:
                 print(out_str)
             else:
+
+                #creates an output-friendly string for the channel
+                str_channel = channel_maker(m_keys,modes)
+        
+                        
                 plt_file=prep_out_file(modes,plot="corr", dims="1d",
-                                       channel=modes['values'],
+                                       channel=str_channel,
                                        out_type="txt")
                 out_file=open(plt_file,'a')
                 out_file.write(out_str)
@@ -506,8 +544,12 @@ def analysis_1d(merge_df,modes, m_keys):
             if modes['out_dir'] == None:
                 print(out_str)
             else:
+                #creates an output-friendly string for the channel
+                str_channel = channel_maker(m_keys,modes)
+        
+        
                 plt_file=prep_out_file(modes,plot="rmse", dims="1d",
-                                       channel=modes['values'],
+                                       channel=str_channel,
                                        out_type="txt")
                 out_file=open(plt_file,'a')
                 out_file.write(out_str)
@@ -533,7 +575,7 @@ def analysis_nd(merge_df,modes, m_keys):
                 print(out_str)
             else:
                 plt_file=prep_out_file(modes,plot="corr", dims="1d",
-                                       channel=modes['values'],
+                                       channel=m_keys[i],
                                        out_type="txt")
                 out_file=open(plt_file,'a')
                 out_file.write(out_str)
@@ -551,7 +593,7 @@ def analysis_nd(merge_df,modes, m_keys):
                 print(out_str)
             else:
                 plt_file=prep_out_file(modes,plot="rmse", dims="1d",
-                                       channel=modes['values'],
+                                       channel=m_keys[i],
                                        out_type="txt")
                 out_file=open(plt_file,'a')
                 out_file.write(out_str)
@@ -589,8 +631,18 @@ def analysis_nd(merge_df,modes, m_keys):
             for key in m_keys:
                 ind_df[key+'_RMSE']=n_rmses[m_keys.index(key)]
             ind_dfs[ind+"_RMSE"]=ind_df
-        
-
+    
+    str_channel=channel_maker(m_keys,modes)
+    
+    if modes['out_dir']!=None:
+        for plot_item in ind_dfs:
+            #prints the correlations to a file
+            path_out_df = prep_out_file(modes,plot=plot_item,
+                                   channel=str_channel,out_type=".csv")
+            try:
+                ind_dfs[plot_item].to_csv(path_out_df)
+            except IOError:
+                print("WARNING: unable to output to file:\n\t"+path_out_df)
     
 
     
@@ -847,15 +899,17 @@ the difference between the scope and the model.  Default is subtract
                         ''')
     
     #adds an optional argument for the set of values to analyse and plot
-    parser.add_argument("--values","-v", default="all",
+    parser.add_argument("--values","-v", default=["all"], nargs="*",
                         choices=("all","linear","stokes",
-                                 "xx","xy","yy","U","V","I","Q"),
+                                 "xx","xy","yy","U","V","I","Q",
+                                 "each"),
                         help = '''
 Sets the parameters that will be plotted on the value and difference graphs.
   linear implies xx, xy and yy-channel values will be plotted. 
   stokes implies that Stokes U- V- I- and Q-channels will be plotted.
   all implies that all seven channels will be plotted.
-  An individual channel name means to plot that channel alone
+  An individual channel name means to plot that channel alone. 
+  each means that the channels will be plotted separately rather than overlaid.
                         ''')     
     
     #adds an optional argument for the plots to show
@@ -1327,9 +1381,12 @@ if __name__ == "__main__":
     if merge_df.Freq.nunique()==1:
         #if only one frequency, does one-dimensional analysis
         analysis_1d(merge_df,modes, m_keys)
-    else:
-        #otherwise does multi-dimensional analysis
-        analysis_nd(merge_df,modes, m_keys)
+    else: #otherwise does multi-dimensional analysis
+        if "each" in modes['values']: #if the plots are to be separate
+            for key in m_keys: #analyses them one at a time
+                ind_dfs=analysis_nd(merge_df,modes, [key])
+        else: #allows plots to be overlaid 
+            ind_dfs=analysis_nd(merge_df,modes, m_keys)
     
     #output the dataframe if requested
     if modes['out_dir']!=None:
