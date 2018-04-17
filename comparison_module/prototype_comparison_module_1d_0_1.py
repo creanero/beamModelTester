@@ -829,12 +829,13 @@ files will have spaces replaced with underscores
                              ''')   
     
     #adds an optional argument for normalisation method
-    parser.add_argument("--norm","-n", default="t",
-                        choices=("t","f","n"), 
+    parser.add_argument("--norm","-n", default='o',
+                        choices=('o',"f","n",'t'), 
                              help='''
 Method for normalising the data 
-t = trivial (divide by maximum for all data)
+o = overall (divide by maximum for all data)
 f = frequency (divide by maximum by frequency/subband)
+t = time (divide by maximum by time/observation)
 n = no normalisation.
                              ''')
     #adds an optional argument for normalisation target
@@ -845,7 +846,7 @@ Target data for applying the normalisation to
 s = scope
 m = model
 n = no cropping
-b = crop both
+b = normalise both
                              ''')       
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
@@ -869,10 +870,10 @@ multiple of the mean or median, or the percentile level to cut the scope values
     
 
     #adds an optional argument for cropping method
-    parser.add_argument("--crop_basis","-k", default="t",choices=("t","f","n"), 
+    parser.add_argument("--crop_basis","-k", default='o',choices=('o',"f","n"), 
                              help='''
 Method for cropping the data
-t = trivial (crop equally for all data)
+o = overall (crop equally for all data)
 f = frequency (crop by frequency/subband)
 n = no cropping
                              ''')
@@ -1251,32 +1252,43 @@ def normalise_data(merge_df,modes,channel,out_str=""):
     This function normalises the data for the scope according to the 
     normalisation mode specified.  These options are detailed belwo
     '''
-    if 't' in modes['norm'] :
+    if 'o' in modes['norm'] :
         #normalises by dividing by the maximum
         merge_df[channel+out_str]=merge_df[channel]/np.max((plottable(merge_df[channel])))
     elif 'f' in modes['norm']:
-        var_str='Freq'
         #normalises by dividing by the maximum for each frequency
-
-        #identifies allthe unique values of the variable in the column
-        unique_vals=merge_df[var_str].unique()
-        
-
-        #iterates over all unique values
-        for unique_val in unique_vals:
-
-            unique_max = np.max(plottable(merge_df.loc[(merge_df.Freq==unique_val),channel]))
-
-            if unique_max !=0:
-                merge_df.loc[(merge_df.Freq==unique_val),(channel+out_str)]=merge_df.loc[(merge_df.Freq==unique_val),channel]/unique_max
-            else:
-                merge_df.loc[(merge_df.Freq==unique_val),(channel+out_str)]=0
+        var_str='Freq'
+        norm_operation(merge_df, var_str,channel,out_str)
+    elif 't' in modes['norm']:
+        #normalises by dividing by the maximum for each frequency
+        var_str='Time'
+        norm_operation(merge_df, var_str,channel,out_str)
     elif 'n' in modes ['norm']:
         pass     #nothing to be done       
     else:
         print("WARNING: Normalisation mode not specified correctly!")
  
     return (merge_df)
+
+def norm_operation(in_df, var_str,channel,out_str=""):
+    '''
+    This function carries out the normalisation operation based on the input 
+    which specifies which variable to normalise over.  
+    '''
+
+    #identifies allthe unique values of the variable in the column
+    unique_vals=in_df[var_str].unique()
+    
+
+    #iterates over all unique values
+    for unique_val in unique_vals:
+
+        unique_max = np.max(plottable(in_df.loc[(in_df[var_str]==unique_val),channel]))
+
+        if unique_max !=0:
+            in_df.loc[(in_df[var_str]==unique_val),(channel+out_str)]=in_df.loc[(in_df[var_str]==unique_val),channel]/unique_max
+        else:
+            in_df.loc[(in_df[var_str]==unique_val),(channel+out_str)]=0
 
 def crop_vals(in_df,modes):
     '''
@@ -1286,7 +1298,7 @@ def crop_vals(in_df,modes):
     
     This function also removes all 0.0 values for the various channels.
     '''
-    if 't' in modes["crop_basis"]:
+    if 'o' in modes["crop_basis"]:
         out_df=crop_operation (in_df,modes)
     elif 'f' in modes["crop_basis"]:
         var_str='Freq'
