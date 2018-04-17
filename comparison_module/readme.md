@@ -63,7 +63,7 @@ replaced with underscores
 **s** = scope \
 **m** = model \
 **n** = no cropping \
-**b** = crop both *
+**b** = crop both*
                         
   --crop_type {median,mean,percentile}, -C {median,mean,percentile}\
   *Sets what style of cropping will be applied to the scope data to remove 
@@ -101,10 +101,11 @@ multiple of the mean or median, or the percentile level to cut the scope values
   
   --values {all,linear,stokes,xx,xy,yy,U,V,I,Q}, -v {all,linear,stokes,xx,xy,yy,U,V,I,Q}\
   *Sets the parameters that will be plotted on the value and difference graphs.\
-  **linear** implies xx, xy and yy-channel values will be plotted.\ 
+  **linear** implies xx, xy and yy-channel values will be plotted.\
   **stokes** implies that Stokes U- V- I- and Q-channels will be plotted.\
   **all** implies that all seven channels will be plotted.\
-  An individual channel name means to plot that channel alone.*
+  An individual channel name means to plot that channel alone.\
+  **each** is a modifier that requires that appropriate plots are plotted separately instead of overlaid*
   
   --plots [{rmse,corr,value,diff} [{rmse,corr,value,diff} ...]], \
   -p [{rmse,corr,value,diff} [{rmse,corr,value,diff} ...]]\
