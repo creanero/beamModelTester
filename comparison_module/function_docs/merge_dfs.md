@@ -31,7 +31,7 @@ to process the data from two existing dataframes suitable for futher processing.
 
 **Design Diagram**\
 ![Design diagram](/images/comparison_module_merge_dfs_fig1_v4.PNG) \
-**Figure 1: Schematic representation of merge software. **
+**Figure 1: Schematic representation of merge software.**
 
 **Operations**
 1.  Calls the pandas merge method on the model and scope dataframes with the following arguments
