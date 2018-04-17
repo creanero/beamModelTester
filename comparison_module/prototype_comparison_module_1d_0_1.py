@@ -1237,9 +1237,9 @@ def calc_stokes(merge_df,modes):
         #Stokes V is the imaginary component of the XY
         merge_df['V_'+source]=np.imag(merge_df['xy_'+source])
         
-        #Stokes I is the sum of XX and UU
+        #Stokes I is the sum of XX and YY
         merge_df['I_'+source]=merge_df['xx_'+source]+merge_df['yy_'+source]
-        #Stokes Q is the difference between XX and UU
+        #Stokes Q is the difference between XX and YY
         merge_df['Q_'+source]=merge_df['xx_'+source]-merge_df['yy_'+source]
 
     for channel in ["U","V","I","Q"]:
