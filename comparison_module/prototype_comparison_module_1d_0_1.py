@@ -147,10 +147,10 @@ def plottable(in_series):
 def plot_values_nf(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
-    each of the various values for the model and the scope against time.
+    each of the various values for the model and the scope against time and 
+    frequency.
     
-    This plot is only usable and valid if the data is ordered in time and has 
-    only a single frequency
+
     '''
 
     
