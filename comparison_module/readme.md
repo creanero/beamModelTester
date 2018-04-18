@@ -7,6 +7,10 @@ This module takes input from a model of telescope performance and
 compares it with calibration data from real telescopes to generate
 metrics for the deviation of the model from reality.
 
+
+**Software design**
+Software design diagrams and descriptions are available at [this link](/comparison_module/Comparison_Module.md)
+
 **Outline**\
 This (Python) module reads in input from a modelling system and input 
 from a real telescope and compares the two against one another. In its
@@ -237,10 +241,4 @@ A plot of the Root Mean Square Error between model and scope each of the Channel
 [V](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_V.png),
 [I](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_I.png),
 [Q](https://zenodo.org/record/1212471/files/se_607_HBA_24h_1d_rmse_time_Q.png))
-
-
-
-**Software design**
-Software design diagrams and descriptions are available at [this link](/comparison_module/Comparison_Module.md)
-    
-
+ 
