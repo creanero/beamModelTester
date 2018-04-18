@@ -58,12 +58,14 @@ Detailed outputs and links to samples available at [this link](/comparison_modul
         and the scope data for each channel
     2.  A calculation of the Root Mean Square Error between the model
         and the scope data for each channel
-    3.  A 3-d colour plot of the differences between the model and scope
+    3.  A 3-d colour plot of the values for the model and scope
         for each channel over time and frequency.  
-    4.  A plot of the correlations over time between the model and scope for each channel at each frequency
-    5.  A plot of the root mean square error over time between the model and scope for each channel at each frequency        
-    6.  A plot of the correlations over time between the model and scope for each channel at each time
-    7.  A plot of the root mean square error over time between the model and scope for each channel at each time     
+    4.  A 3-d colour plot of the differences between the model and scope
+        for each channel over time and frequency.  
+    5.  A plot of the correlations over time between the model and scope for each channel at each frequency
+    6.  A plot of the root mean square error over time between the model and scope for each channel at each frequency        
+    7.  A plot of the correlations over time between the model and scope for each channel at each time
+    8.  A plot of the root mean square error over time between the model and scope for each channel at each time     
 
 **Outline**
 
