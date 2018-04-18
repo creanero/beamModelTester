@@ -103,8 +103,10 @@ def plot_values_1f(merge_df, m_keys, modes):
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values per channel against time
         plt.figure()
-        graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel over time"+
-                  "\nat %.0f MHz"%(min(merge_df.Freq)/1e6))])
+        graph_title="\n".join([modes['title'],
+                        ("Plot of the values in "+key+"-channel over time"+
+                         "\nat %.2f MHz"%(min(merge_df.Freq)/1e6))])
+        
         plt.title(graph_title)
 
         #plots the model in one colour
@@ -127,7 +129,7 @@ def plot_values_1f(merge_df, m_keys, modes):
                                    out_type="png")
             print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight')
-            plt.close()
+        plt.close()
     return(0)
     
 def plottable(in_series):
@@ -180,7 +182,7 @@ def plot_values_nf(merge_df, m_keys, modes):
                                        out_type="png")
                 print("plotting: "+plt_file)
                 plt.savefig(plt_file,bbox_inches='tight')
-                plt.close()
+            plt.close()
     return(0)    
     
     
@@ -210,7 +212,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     
     #calculates and adds title with frequency in MHz
     
-    graph_title=graph_title+"-channels over time at %.0f MHz"%(min(merge_df.Freq)/1e6)    
+    graph_title=graph_title+"-channels over time at %.2f MHz"%(min(merge_df.Freq)/1e6)    
     
     
 
@@ -231,7 +233,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
                                out_type="png")
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+    plt.close()
     return(0)
     
     
@@ -337,7 +339,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
                                out_type="png")
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+    plt.close()
         
     #returns the correlation lists if needed    
     return (n_corrs)    
@@ -435,7 +437,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
                                out_type="png")
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+    plt.close()
     
     #returns the correlation lists if needed    
     return (n_rmses)
@@ -493,7 +495,7 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
                                    out_type="png")
             print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight')
-            plt.close()
+        plt.close()
 
 def analysis_1d(merge_df,modes, m_keys):
     '''
