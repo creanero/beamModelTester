@@ -158,33 +158,66 @@ def plot_values_nf(merge_df, m_keys, modes):
     
     for key in m_keys:
         #creates a plot each of the values of model and scope
-        #part one: plots the model and scope values for p-channel against time
+        
         for source in ["model","scope"]:
-            plt.figure()
-            graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
-                      "and frequency for "+source)])
-            plt.title(graph_title)
-    
-            #plots the channel in a colour based on its name
-            plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
-                          cmap=plt.get_cmap(colour_models(key+'s')))
-            plt.legend(frameon=False)
-            #plots x-label for both using start time 
-            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
-            plt.ylabel("Frequency")
-            plt.colorbar()
-            #prints or saves the plot
-            if modes['out_dir'] == None:
-                plt.show()
-            else:
-                plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
-                                       channel=key,
-                                       out_type="png")
-                print("plotting: "+plt_file)
-                plt.savefig(plt_file,bbox_inches='tight')
-            plt.close()
+            plot_against_freq_time(merge_df, key, modes, source)
+#            plt.figure()
+#            graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
+#                      "and frequency for "+source)])
+#            plt.title(graph_title)
+#    
+#            #plots the channel in a colour based on its name
+#            plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
+#                          cmap=plt.get_cmap(colour_models(key+'s')))
+#            plt.legend(frameon=False)
+#            #plots x-label for both using start time 
+#            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+#            plt.ylabel("Frequency")
+#            plt.colorbar()
+#            #prints or saves the plot
+#            if modes['out_dir'] == None:
+#                plt.show()
+#            else:
+#                plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
+#                                       channel=key,
+#                                       out_type="png")
+#                print("plotting: "+plt_file)
+#                plt.savefig(plt_file,bbox_inches='tight')
+#            plt.close()
     return(0)    
-    
+
+
+def plot_against_freq_time(merge_df, key, modes, source):
+    '''
+    This function generates 3d colour plots against frequency and time for the 
+    given value for a given channel
+    '''
+    plt.figure()
+    if source == "diff":
+        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
+    else:
+        graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
+                  "and frequency for "+source)])
+    plt.title(graph_title)
+
+    #plots the channel in a colour based on its name
+    plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
+                  cmap=plt.get_cmap(colour_models(key+'s')))
+    plt.legend(frameon=False)
+    #plots x-label for both using start time 
+    plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+    plt.ylabel("Frequency")
+    plt.colorbar()
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
+                               channel=key,
+                               out_type="png")
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
     '''
@@ -473,29 +506,30 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     
     for key in m_keys:
         #create a plot 
-        plt.figure()
-        
-        #display main title and subplot title together
-        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
-        plt.title(graph_title)
-        
-        #plots p-channel difference
-        plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
-                      cmap=plt.get_cmap(colour_models(key+'s')))
-        plt.colorbar()
-        #plots x-label for both using start time 
-        plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
-        plt.ylabel("Frequency")
-        #prints or saves the plot
-        if modes['out_dir'] == None:
-            plt.show()
-        else:
-            plt_file=prep_out_file(modes,plot="diff", dims="nd",
-                                   channel=key,
-                                   out_type="png")
-            print("plotting: "+plt_file)
-            plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+        plot_against_freq_time(merge_df, key, modes, source='diff')
+#        plt.figure()
+#        
+#        #display main title and subplot title together
+#        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
+#        plt.title(graph_title)
+#        
+#        #plots p-channel difference
+#        plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
+#                      cmap=plt.get_cmap(colour_models(key+'s')))
+#        plt.colorbar()
+#        #plots x-label for both using start time 
+#        plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
+#        plt.ylabel("Frequency")
+#        #prints or saves the plot
+#        if modes['out_dir'] == None:
+#            plt.show()
+#        else:
+#            plt_file=prep_out_file(modes,plot="diff", dims="nd",
+#                                   channel=key,
+#                                   out_type="png")
+#            print("plotting: "+plt_file)
+#            plt.savefig(plt_file,bbox_inches='tight')
+#        plt.close()
 
 def analysis_1d(merge_df,modes, m_keys):
     '''
