@@ -17,7 +17,7 @@ var_t="Freq"
 #var_y2="yy"
 var_ys=["xx","xy","yy","Q","I"]
 source="scope"
-time_delay=20 #time in milliseconds
+time_delay=40 #time in milliseconds
 
 min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
 max_y=merge_df[(var_y+"_"+source)].mean()
@@ -68,15 +68,53 @@ def update(i):
     #line, = ax.plot(var_x_vals, var_y_vals, color=colour_models(var_y))
     #line, = ax.plot(var_x_vals, var_y_vals, 'ro')
     plt.title(label)
-    return line, ax
+    #return line, ax
+
+def update_anim(i,merge_df, modes, var_x, var_ys, var_t, source,lines):
+    var_t_vals = np.sort(merge_df[var_t].unique())
+    var_t_val=var_t_vals[i]
+    label = "Plot of "+str(var_ys)+" against "+var_x+ " at\n"+var_t+" of "+str(var_t_val)
+#    print(label)
+    # Update the line and the axes (with a new xlabel). Return a tuple of
+    # "artists" that have to be redrawn for this frame.
+    
+    var_x_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,var_x]).reset_index(drop=True))
+    
+    for i in range(len(var_ys)):
+        var_y = var_ys[i]
+        var_y_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True))
+    #var_y2_vals = merge_df.loc[merge_df[var_t]==var_t_val,(var_y2+"_"+source)].reset_index(drop=True)
+    #line.set_xdata(var_x_vals)
+    #line.set_ydata(var_y_vals)
+    
+        lines[i].set_data(var_x_vals, var_y_vals)
+    
+    #line2.set_data(var_x_vals, var_y2_vals)
+    #line, = ax.plot(var_x_vals, var_y_vals, color=colour_models(var_y))
+    #line, = ax.plot(var_x_vals, var_y_vals, 'ro')
+    plt.title(label)
+    #return line, ax
 
 if __name__ == '__main__':
     # FuncAnimation will call the 'update' function for each frame; here
     # animating over 10 frames, with an interval of 200ms between frames.
     #anim = FuncAnimation(fig, update, frames=np.arange(10, var_t_vals), interval=time_delay)
-    anim = FuncAnimation(fig, update, frames=range(0, len(var_t_vals)), interval=time_delay)
-    if len(sys.argv) > 1 and sys.argv[1] == 'save':
-        anim.save('line.gif', dpi=80, writer='imagemagick')
-    else:
-        # plt.show() will just loop the animation forever.
-        plt.show()
+#    anim = FuncAnimation(fig, update, frames=range(0, len(var_t_vals)), interval=time_delay)
+#    if len(sys.argv) > 1 and sys.argv[1] == 'save':
+#        anim.save('line.gif', dpi=80, writer='imagemagick')
+#    else:
+#        # plt.show() will just loop the animation forever.
+#        plt.show()
+        
+    anim = FuncAnimation(fig, update_anim, frames=len(var_t_vals), 
+                         interval=time_delay,
+                         fargs=(merge_df, modes, var_x, var_ys, var_t, source,lines))
+#    if modes['out_dir']!=None:
+#        plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
+#                               channel=key,out_type="gif")
+#        anim.save(plt_file, dpi=80, writer='imagemagick')
+#    else:
+#        # plt.show() will just loop the animation forever.
+    plt.show()
+#    anim = FuncAnimation(fig, update, frames=range(0, len(var_t_vals)), interval=time_delay)
+#    plt.show()
