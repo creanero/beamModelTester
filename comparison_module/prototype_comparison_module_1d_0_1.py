@@ -155,7 +155,8 @@ def plot_values_nf(merge_df, m_keys, modes):
     
 
     '''
-
+    time_delay = 1000.0/modes['frame_rate']
+    
     if modes['threed']=="colour":
         for key in m_keys:
             #creates a plot each of the values of model and scope
@@ -165,7 +166,8 @@ def plot_values_nf(merge_df, m_keys, modes):
 
     elif modes['threed']=="anim":
         for source in ["model","scope"]:
-            animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+            
+            animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
 #        if "each" in modes['values']:
 ##            print("WARNING: Each mode not supported by animations at this time")
 #            for key in m_keys: #analyses them one at a time
@@ -177,7 +179,7 @@ def plot_values_nf(merge_df, m_keys, modes):
                 
     elif modes['threed']=="animf":
         for source in ["model","scope"]:
-            animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+            animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 #        if "each" in modes['values']:
 ##            print("WARNING: Each mode not supported by animations at this time")
 #            for key in m_keys: #analyses them one at a time
@@ -269,6 +271,13 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     # Plot a scatter that persists (isn't redrawn) and the initial line.
     var_t_vals = np.sort(merge_df[var_t].unique())
     var_t_val=var_t_vals[0]
+    
+    str_channel = list_to_string(var_ys,", ")
+    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    label = "\n".join([modes["title"],anim_title])
+    plt.title(label)
+    
     var_x_vals =merge_df.loc[merge_df[var_t]==var_t_val,var_x].reset_index(drop=True)
     
     lines = []
@@ -331,19 +340,21 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
     var_t_vals = np.sort(merge_df[var_t].unique())
     var_t_val=var_t_vals[i]
     str_channel = list_to_string(var_ys,", ")
-    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+str(var_t_val)
+    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
     label = "\n".join([modes["title"],anim_title])
-
+    plt.title(label)
+    
     var_x_vals = (merge_df.loc[merge_df[var_t]==var_t_val,var_x]).reset_index(drop=True)
     
-    for i in range(len(var_ys)):
-        var_y = var_ys[i]
+    for y_index in range(len(var_ys)):
+        var_y = var_ys[y_index]
         var_y_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True))
 
-        lines[i].set_data(var_x_vals, var_y_vals)
+        lines[y_index].set_data(var_x_vals, var_y_vals)
     
 
-    plt.title(label)
+    
 
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
@@ -638,18 +649,20 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     source and model as the dependent (colour) variable 
     '''
     source = "diff"
-     
+    
+    time_delay = 1000.0/modes['frame_rate']
+    
     if modes['threed']=="colour":
         for key in m_keys:
             #create a plot 
             plot_against_freq_time(merge_df, key, modes, source)
     elif modes['threed']=="anim":
 
-        animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+        animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
                 
     elif modes['threed']=="animf":
 
-        animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+        animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 
     else:
         print("WARNING: No valid value for 3d plots")
@@ -1115,6 +1128,15 @@ Sets how to show three dimensional plots.  If colour is chosen, then they are
 plotted as colours.  If anim is chosen, plots the data animated over time.  If 
 animf is chosen, plots the data animated over frequency 
                         ''')     
+    
+    #adds an optional argument for the cropping level for noise on the scope
+    parser.add_argument("--frame_rate","-r", default = 60.0, type=float,
+                        help = '''
+Set the numeric value for the number of frames per second to attempt to plot 
+animated graphs at.  If no animated plots are used, or animations are plotted 
+to files on a per-frame basis, this variable is ignored.  
+                             ''')
+    
     #adds an optional argument for the file types for image plots
     parser.add_argument("--image_type","-i", default="png",
                         choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 'raw', 'rgba'),
@@ -1161,6 +1183,7 @@ channels for.  The file must contain one float per line in text format.
     modes['freq_file']=args.freq_file
     modes['threed']=args.threed
     modes['image_type']=args.image_type
+    modes['frame_rate']=args.frame_rate
     
     #fixes issues with spelling of colour
     if modes['threed'] == "color":
