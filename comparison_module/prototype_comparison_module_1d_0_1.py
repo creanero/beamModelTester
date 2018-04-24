@@ -257,6 +257,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     fig, ax = plt.subplots()
     fig.set_tight_layout(True)
     
+    #hard coded for now, need to parameterise
     percentile_gap = 5
     multiplier = 1.5
     
@@ -1129,20 +1130,29 @@ plotted as colours.  If anim is chosen, plots the data animated over time.  If
 animf is chosen, plots the data animated over frequency 
                         ''')     
     
-    #adds an optional argument for the cropping level for noise on the scope
+    #adds an optional argument for the framerate of animations
     parser.add_argument("--frame_rate","-r", default = 60.0, type=float,
                         help = '''
 Set the numeric value for the number of frames per second to attempt to plot 
 animated graphs at.  If no animated plots are used, or animations are plotted 
-to files on a per-frame basis, this variable is ignored.  
+to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
                              ''')
-    
+     
+    #adds an optional argument for a time offset between model and scoep
+    parser.add_argument("--offset","-O", default = 0, type=int,
+                        help = '''
+Sets an offset for the scope.  This is the amount of time (in seconds) that the
+scope is believed to be ahead of the model.  This will be subtracted from the 
+time of the scope data.  Default is no offset.  Offsets may only be given in
+whole seconds
+                             ''')
+       
     #adds an optional argument for the file types for image plots
     parser.add_argument("--image_type","-i", default="png",
                         choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 'raw', 'rgba'),
                         help = '''
 Sets the file type for image files to be saved as.  If using amimations, some
-file types will save animations, and others will save frames.
+file types will save animations, and others will save frames.  Default is png.
                         ''')     
     #creates a group for the scope filename
     group_freq = parser.add_mutually_exclusive_group()
@@ -1184,6 +1194,7 @@ channels for.  The file must contain one float per line in text format.
     modes['threed']=args.threed
     modes['image_type']=args.image_type
     modes['frame_rate']=args.frame_rate
+    modes['offset']=args.offset
     
     #fixes issues with spelling of colour
     if modes['threed'] == "color":
@@ -1420,15 +1431,17 @@ def merge_dfs(model_df,scope_df,modes):
     '''
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
-    merge_df=calc_xy(merge_df,modes)
-    merge_df=calc_stokes(merge_df,modes)
-    
-    if 'd_Time' not in merge_df:
-        #creates a variable to hold the time since the start of the plot
-        #this is necessary for plots that are not compatible with Timestamp data
-        start_time=min(merge_df['Time'])
-        merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
-    
+    if len(merge_df) > 0:
+        merge_df=calc_xy(merge_df,modes)
+        merge_df=calc_stokes(merge_df,modes)
+        
+        if 'd_Time' not in merge_df:
+            #creates a variable to hold the time since the start of the plot
+            #this is necessary for plots that are not compatible with Timestamp data
+            start_time=min(merge_df['Time'])
+            merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
+    else:
+        print("ERROR: NO MATCHING DATA: CLOSING")
     return(merge_df)        
 
 
@@ -1598,6 +1611,10 @@ if __name__ == "__main__":
 
     #read in the file from the scope using variable reader
     scope_df=read_var_file(modes['in_file_scope'],modes,"s")
+    
+    #adjusts for the offset if needed (e.g. comparing two observations)
+    offset=np.timedelta64(modes['offset'],'s')
+    scope_df.Time=scope_df.Time-offset
   
     
     #merges the dataframes
@@ -1616,22 +1633,27 @@ if __name__ == "__main__":
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
     
-    #runs different functions if there are one or multiple frequencies
-    if merge_df.Freq.nunique()==1:
-        #if only one frequency, does one-dimensional analysis
-        analysis_1d(merge_df,modes, m_keys)
-    else: #otherwise does multi-dimensional analysis
-        if "each" in modes['values']: #if the plots are to be separate
-            for key in m_keys: #analyses them one at a time
-                ind_dfs=analysis_nd(merge_df,modes, [key])
-        else: #allows plots to be overlaid 
-            ind_dfs=analysis_nd(merge_df,modes, m_keys)
     
-    #output the dataframe if requested
-    if modes['out_dir']!=None:
-        path_out_df = prep_out_file(modes,out_type=".csv")
-        try:
-            merge_df.to_csv(path_out_df)
-        except IOError:
-            print("WARNING: unable to output to file:\n\t"+path_out_df)
+    if  len(merge_df)>0:
+        #runs different functions if there are one or multiple frequencies
+        if merge_df.Freq.nunique()==1:
+            #if only one frequency, does one-dimensional analysis
+            analysis_1d(merge_df,modes, m_keys)
+        else: #otherwise does multi-dimensional analysis
+            if "each" in modes['values']: #if the plots are to be separate
+                for key in m_keys: #analyses them one at a time
+                    ind_dfs=analysis_nd(merge_df,modes, [key])
+            else: #allows plots to be overlaid 
+                ind_dfs=analysis_nd(merge_df,modes, m_keys)
+    
+        #output the dataframe if requested
+        if modes['out_dir']!=None:
+            path_out_df = prep_out_file(modes,out_type=".csv")
+            try:
+                merge_df.to_csv(path_out_df)
+            except IOError:
+                print("WARNING: unable to output to file:\n\t"+path_out_df)
+                
+    else:
+        print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
     
