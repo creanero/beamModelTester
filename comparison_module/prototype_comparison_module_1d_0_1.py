@@ -165,20 +165,20 @@ def plot_values_nf(merge_df, m_keys, modes):
 
     elif modes['threed']=="anim":
         if "each" in modes['values']:
-            print("WARNING: Each mode not supported by animations at this time")
-#            for key in m_keys: #analyses them one at a time
-#                for source in ["model","scope"]:
-#                    animated_plot(merge_df, modes, 'Freq', [key], "Time", source, time_delay=20)
+#            print("WARNING: Each mode not supported by animations at this time")
+            for key in m_keys: #analyses them one at a time
+                for source in ["model","scope"]:
+                    animated_plot(merge_df, modes, 'Freq', [key], "Time", source, time_delay=20)
         else: #allows plots to be overlaid 
             for source in ["model","scope"]:
                 animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
                 
     elif modes['threed']=="animf":
         if "each" in modes['values']:
-            print("WARNING: Each mode not supported by animations at this time")
-#            for key in m_keys: #analyses them one at a time
-#                for source in ["model","scope"]:
-#                    animated_plot(merge_df, modes, "d_Time", [key], 'Freq', source, time_delay=20)
+#            print("WARNING: Each mode not supported by animations at this time")
+            for key in m_keys: #analyses them one at a time
+                for source in ["model","scope"]:
+                    animated_plot(merge_df, modes, "d_Time", [key], 'Freq', source, time_delay=20)
         else: #allows plots to be overlaid 
             for source in ["model","scope"]:
                 animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
@@ -238,21 +238,26 @@ def plot_against_freq_time(merge_df, key, modes, source):
     else:
         plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
                                channel=key,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
 def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
+    '''
+    Produces an animated linegraph(s) with the X, Y and T variables specified
+    '''
+    
     fig, ax = plt.subplots()
     fig.set_tight_layout(True)
     
 
 
-    
-    min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
-    max_y=merge_df[(var_ys[0]+"_"+source)].mean()
-    ax.set_ylim(min_y,max_y)
+    #commented code to set x and y limits.  Defaults appear to be working ok
+    #Really want to get a sensible way of doing this
+#    min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
+#    max_y=merge_df[(var_ys[0]+"_"+source)].mean()
+#    ax.set_ylim(min_y,max_y)
     
     
     
@@ -292,7 +297,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
         plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
-                               channel=str_channel,out_type="htm")
+                               channel=str_channel,out_type=modes['image_type'])
         anim.save(plt_file, dpi=80, writer='imagemagick')
     else:
         plt.show()# will just loop the animation forever.
@@ -305,14 +310,15 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
     
     var_t_vals = np.sort(merge_df[var_t].unique())
     var_t_val=var_t_vals[i]
-    str_channel = channel_maker(var_ys,modes,", ")
-    label = "Plot of "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+str(var_t_val)
+    str_channel = list_to_string(var_ys,", ")
+    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+str(var_t_val)
+    label = "\n".join([modes["title"],anim_title])
 
     var_x_vals = (merge_df.loc[merge_df[var_t]==var_t_val,var_x]).reset_index(drop=True)
     
     for i in range(len(var_ys)):
         var_y = var_ys[i]
-        var_y_vals = (merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True)
+        var_y_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True))
 
         lines[i].set_data(var_x_vals, var_y_vals)
     
@@ -364,7 +370,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
         plt.show()
     else:
         plt_file=prep_out_file(modes,plot="diff",dims="1d",
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -470,7 +476,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
         
         plt_file=prep_out_file(modes,plot="corr",ind_var=var_str,
                                channel=str_channel,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -568,7 +574,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
         
         plt_file=prep_out_file(modes,plot="rmse",ind_var=var_str,
                                channel=str_channel,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -576,7 +582,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #returns the correlation lists if needed    
     return (n_rmses)
 
-def channel_maker(m_keys,modes,sep="_"):
+def channel_maker(m_keys,modes,sep_str="_"):
     str_channel = ""
     if "each" not in modes ['values']:
         if "all" in modes ['values']:
@@ -587,14 +593,22 @@ def channel_maker(m_keys,modes,sep="_"):
         
         elif "linear" in modes['values']:
             str_channel = "linear"
+        else:
+            list_to_string (m_keys, sep_str)
         return(str_channel)
+    else:
+        list_to_string (m_keys, sep_str)
+                
+    return (str_channel)
+
+def list_to_string (m_keys, sep_str="_"):
     
     #creates an output-friendly string for the channel
     str_channel = str(m_keys)
-    for ch in (["[","]","'"]):
-        str_channel = str_channel.replace(ch,'',)
-    str_channel.replace(", ",sep)
-                
+    for char in (["[","]","'"]):
+        str_channel = str_channel.replace(char,'',)
+    str_channel.replace(", ",sep_str)    
+    
     return (str_channel)
 
 def plot_diff_values_nf(merge_df, m_keys, modes):
@@ -1070,6 +1084,13 @@ Sets how to show three dimensional plots.  If colour is chosen, then they are
 plotted as colours.  If anim is chosen, plots the data animated over time.  If 
 animf is chosen, plots the data animated over frequency 
                         ''')     
+    #adds an optional argument for the file types for image plots
+    parser.add_argument("--image_type","-i", default="png",
+                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 'raw', 'rgba'),
+                        help = '''
+Sets the file type for image files to be saved as.  If using amimations, some
+file types will save animations, and others will save frames.
+                        ''')     
     #creates a group for the scope filename
     group_freq = parser.add_mutually_exclusive_group()
     #adds an optional argument for the frequency to filter to
@@ -1108,6 +1129,7 @@ channels for.  The file must contain one float per line in text format.
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
     modes['threed']=args.threed
+    modes['image_type']=args.image_type
     
     #fixes issues with spelling of colour
     if modes['threed'] == "color":
