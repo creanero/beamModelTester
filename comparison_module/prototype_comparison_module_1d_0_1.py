@@ -13,6 +13,7 @@ from scipy.stats.stats import pearsonr
 import argparse
 import h5py
 import os
+from matplotlib.animation import FuncAnimation
 
 def read_dreambeam_csv(in_file):
     '''
@@ -154,13 +155,42 @@ def plot_values_nf(merge_df, m_keys, modes):
     
 
     '''
-
+    time_delay = 1000.0/modes['frame_rate']
     
-    for key in m_keys:
-        #creates a plot each of the values of model and scope
-        
+    if modes['threed']=="colour":
+        for key in m_keys:
+            #creates a plot each of the values of model and scope
+            
+            for source in ["model","scope"]:
+                plot_against_freq_time(merge_df, key, modes, source)
+
+    elif modes['threed']=="anim":
         for source in ["model","scope"]:
-            plot_against_freq_time(merge_df, key, modes, source)
+            
+            animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
+#        if "each" in modes['values']:
+##            print("WARNING: Each mode not supported by animations at this time")
+#            for key in m_keys: #analyses them one at a time
+#                for source in ["model","scope"]:
+#                    animated_plot(merge_df, modes, 'Freq', [key], "Time", source, time_delay=20)
+#        else: #allows plots to be overlaid 
+#            for source in ["model","scope"]:
+#                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+                
+    elif modes['threed']=="animf":
+        for source in ["model","scope"]:
+            animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
+#        if "each" in modes['values']:
+##            print("WARNING: Each mode not supported by animations at this time")
+#            for key in m_keys: #analyses them one at a time
+#                for source in ["model","scope"]:
+#                    animated_plot(merge_df, modes, "d_Time", [key], 'Freq', source, time_delay=20)
+#        else: #allows plots to be overlaid 
+#            for source in ["model","scope"]:
+#                animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+                
+    else:
+        print("WARNING: No valid value for 3d plots")
 #            plt.figure()
 #            graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
 #                      "and frequency for "+source)])
@@ -214,10 +244,118 @@ def plot_against_freq_time(merge_df, key, modes, source):
     else:
         plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
                                channel=key,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
+
+def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
+    '''
+    Produces an animated linegraph(s) with the X, Y and T variables specified
+    '''
+    
+    fig, ax = plt.subplots()
+    fig.set_tight_layout(True)
+    
+    percentile_gap = 5
+    multiplier = 1.5
+    
+    
+    #sets default values for max_ and min_y
+    max_y= 0
+    min_y = 0
+    
+
+    
+    
+    # Plot a scatter that persists (isn't redrawn) and the initial line.
+    var_t_vals = np.sort(merge_df[var_t].unique())
+    var_t_val=var_t_vals[0]
+    
+    str_channel = list_to_string(var_ys,", ")
+    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    label = "\n".join([modes["title"],anim_title])
+    plt.title(label)
+    
+    var_x_vals =merge_df.loc[merge_df[var_t]==var_t_val,var_x].reset_index(drop=True)
+    
+    lines = []
+    
+    for i in range(len(var_ys)):
+        var_y = var_ys[i]
+        
+        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val,
+                                (var_y+"_"+source)].reset_index(drop=True))
+    
+
+        line, = ax.plot(var_x_vals, var_y_vals, color=colour_models(var_y))
+        lines.append(line)
+            #code to set x and y limits.  
+        #Really want to get a sensible way of doing this
+        if plottable(merge_df[(var_ys[i]+"_"+source)]).min() < 0:
+            local_min_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),percentile_gap)*multiplier
+        else:
+            local_min_y = 0
+        min_y=min(min_y,local_min_y)
+        #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
+        local_max_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),100-percentile_gap)*multiplier
+        max_y=max(max_y,local_max_y)
+    
+    ax.set_ylim(min_y,max_y)
+    
+
+    ax.set_xlabel(var_x)
+    ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)")    
+ 
+    ax.legend(frameon=False)
+    
+    if modes['out_dir']==None:
+        repeat_option = True
+    else:
+        repeat_option = False
+        
+    global anim
+    anim = FuncAnimation(fig, update_a, frames=range(len(var_t_vals)), 
+                                 interval=time_delay,
+                                 fargs=(merge_df, modes, var_x, var_ys, var_t, 
+                                        source,lines,ax),
+                                 repeat=repeat_option)
+
+    if modes['out_dir']!=None:
+        str_channel = channel_maker(var_ys,modes)
+        #str_channel = list_to_string(var_ys,", ")
+        plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
+                               channel=str_channel,out_type=modes['image_type'])
+        anim.save(plt_file, dpi=80, writer='imagemagick')
+    else:
+        plt.show()# will just loop the animation forever.
+
+    
+
+
+
+def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
+    
+    var_t_vals = np.sort(merge_df[var_t].unique())
+    var_t_val=var_t_vals[i]
+    str_channel = list_to_string(var_ys,", ")
+    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    label = "\n".join([modes["title"],anim_title])
+    plt.title(label)
+    
+    var_x_vals = (merge_df.loc[merge_df[var_t]==var_t_val,var_x]).reset_index(drop=True)
+    
+    for y_index in range(len(var_ys)):
+        var_y = var_ys[y_index]
+        var_y_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True))
+
+        lines[y_index].set_data(var_x_vals, var_y_vals)
+    
+
+    
+
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
     '''
@@ -263,7 +401,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
         plt.show()
     else:
         plt_file=prep_out_file(modes,plot="diff",dims="1d",
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -369,7 +507,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
         
         plt_file=prep_out_file(modes,plot="corr",ind_var=var_str,
                                channel=str_channel,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -467,7 +605,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
         
         plt_file=prep_out_file(modes,plot="rmse",ind_var=var_str,
                                channel=str_channel,
-                               out_type="png")
+                               out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
     plt.close()
@@ -475,7 +613,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #returns the correlation lists if needed    
     return (n_rmses)
 
-def channel_maker(m_keys,modes):
+def channel_maker(channels,modes,sep_str="_"):
     str_channel = ""
     if "each" not in modes ['values']:
         if "all" in modes ['values']:
@@ -486,14 +624,22 @@ def channel_maker(m_keys,modes):
         
         elif "linear" in modes['values']:
             str_channel = "linear"
+        else:
+            str_channel=list_to_string (channels, sep_str)
         return(str_channel)
+    else:
+        str_channel=list_to_string (channels, sep_str)
+                
+    return (str_channel)
+
+def list_to_string (m_keys, sep_str="_"):
     
     #creates an output-friendly string for the channel
     str_channel = str(m_keys)
-    for ch in (["[","]","'"]):
-        str_channel = str_channel.replace(ch,'',)
-    str_channel.replace(", ","_")
-                
+    for char in (["[","]","'"]):
+        str_channel = str_channel.replace(char,'',)
+    str_channel.replace(", ",sep_str)    
+    
     return (str_channel)
 
 def plot_diff_values_nf(merge_df, m_keys, modes):
@@ -502,11 +648,24 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     merged data frame as the independent variables and the difference between
     source and model as the dependent (colour) variable 
     '''
-     
+    source = "diff"
     
-    for key in m_keys:
-        #create a plot 
-        plot_against_freq_time(merge_df, key, modes, source='diff')
+    time_delay = 1000.0/modes['frame_rate']
+    
+    if modes['threed']=="colour":
+        for key in m_keys:
+            #create a plot 
+            plot_against_freq_time(merge_df, key, modes, source)
+    elif modes['threed']=="anim":
+
+        animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
+                
+    elif modes['threed']=="animf":
+
+        animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
+
+    else:
+        print("WARNING: No valid value for 3d plots")
 #        plt.figure()
 #        
 #        #display main title and subplot title together
@@ -961,7 +1120,30 @@ value shows plots of the values of the channels (per time and per freq as approp
 diff shows plots of the differences in values of the channels (per time and per freq as appropriate)
  
                         ''') 
+    #adds an optional argument for the way to show 3d data
+    parser.add_argument("--threed","-3", default="colour",
+                        choices=("colour","color", "anim", "animf"),
+                        help = '''
+Sets how to show three dimensional plots.  If colour is chosen, then they are 
+plotted as colours.  If anim is chosen, plots the data animated over time.  If 
+animf is chosen, plots the data animated over frequency 
+                        ''')     
     
+    #adds an optional argument for the cropping level for noise on the scope
+    parser.add_argument("--frame_rate","-r", default = 60.0, type=float,
+                        help = '''
+Set the numeric value for the number of frames per second to attempt to plot 
+animated graphs at.  If no animated plots are used, or animations are plotted 
+to files on a per-frame basis, this variable is ignored.  
+                             ''')
+    
+    #adds an optional argument for the file types for image plots
+    parser.add_argument("--image_type","-i", default="png",
+                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 'raw', 'rgba'),
+                        help = '''
+Sets the file type for image files to be saved as.  If using amimations, some
+file types will save animations, and others will save frames.
+                        ''')     
     #creates a group for the scope filename
     group_freq = parser.add_mutually_exclusive_group()
     #adds an optional argument for the frequency to filter to
@@ -999,6 +1181,13 @@ channels for.  The file must contain one float per line in text format.
     modes['plots']=args.plots
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
+    modes['threed']=args.threed
+    modes['image_type']=args.image_type
+    modes['frame_rate']=args.frame_rate
+    
+    #fixes issues with spelling of colour
+    if modes['threed'] == "color":
+        modes['threed'] = "colour"
     
     #combines the components of the title with spaces to create titles
     modes['title']= " ".join(args.title)
@@ -1398,6 +1587,8 @@ def calc_diff(merge_df, modes, channel):
 if __name__ == "__main__":
     #gets the command line arguments for the scope and model filename
     modes=beam_arg_parser()
+    
+
     
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(modes['in_file_model'],modes,"m")
