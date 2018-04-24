@@ -637,11 +637,22 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     merged data frame as the independent variables and the difference between
     source and model as the dependent (colour) variable 
     '''
+    source = "diff"
      
-    
-    for key in m_keys:
-        #create a plot 
-        plot_against_freq_time(merge_df, key, modes, source='diff')
+    if modes['threed']=="colour":
+        for key in m_keys:
+            #create a plot 
+            plot_against_freq_time(merge_df, key, modes, source)
+    elif modes['threed']=="anim":
+
+        animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+                
+    elif modes['threed']=="animf":
+
+        animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+
+    else:
+        print("WARNING: No valid value for 3d plots")
 #        plt.figure()
 #        
 #        #display main title and subplot title together
