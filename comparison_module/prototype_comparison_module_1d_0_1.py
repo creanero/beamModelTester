@@ -164,24 +164,28 @@ def plot_values_nf(merge_df, m_keys, modes):
                 plot_against_freq_time(merge_df, key, modes, source)
 
     elif modes['threed']=="anim":
-        if "each" in modes['values']:
-#            print("WARNING: Each mode not supported by animations at this time")
-            for key in m_keys: #analyses them one at a time
-                for source in ["model","scope"]:
-                    animated_plot(merge_df, modes, 'Freq', [key], "Time", source, time_delay=20)
-        else: #allows plots to be overlaid 
-            for source in ["model","scope"]:
-                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+        for source in ["model","scope"]:
+            animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
+#        if "each" in modes['values']:
+##            print("WARNING: Each mode not supported by animations at this time")
+#            for key in m_keys: #analyses them one at a time
+#                for source in ["model","scope"]:
+#                    animated_plot(merge_df, modes, 'Freq', [key], "Time", source, time_delay=20)
+#        else: #allows plots to be overlaid 
+#            for source in ["model","scope"]:
+#                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
                 
     elif modes['threed']=="animf":
-        if "each" in modes['values']:
-#            print("WARNING: Each mode not supported by animations at this time")
-            for key in m_keys: #analyses them one at a time
-                for source in ["model","scope"]:
-                    animated_plot(merge_df, modes, "d_Time", [key], 'Freq', source, time_delay=20)
-        else: #allows plots to be overlaid 
-            for source in ["model","scope"]:
-                animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+        for source in ["model","scope"]:
+            animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
+#        if "each" in modes['values']:
+##            print("WARNING: Each mode not supported by animations at this time")
+#            for key in m_keys: #analyses them one at a time
+#                for source in ["model","scope"]:
+#                    animated_plot(merge_df, modes, "d_Time", [key], 'Freq', source, time_delay=20)
+#        else: #allows plots to be overlaid 
+#            for source in ["model","scope"]:
+#                animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
                 
     else:
         print("WARNING: No valid value for 3d plots")
@@ -251,14 +255,15 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     fig, ax = plt.subplots()
     fig.set_tight_layout(True)
     
-
-
-    #commented code to set x and y limits.  Defaults appear to be working ok
-    #Really want to get a sensible way of doing this
-#    min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
-#    max_y=merge_df[(var_ys[0]+"_"+source)].mean()
-#    ax.set_ylim(min_y,max_y)
+    percentile_gap = 5
+    multiplier = 1.5
     
+    
+    #sets default values for max_ and min_y
+    max_y= 0
+    min_y = 0
+    
+
     
     
     # Plot a scatter that persists (isn't redrawn) and the initial line.
@@ -277,10 +282,24 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
 
         line, = ax.plot(var_x_vals, var_y_vals, color=colour_models(var_y))
         lines.append(line)
+            #code to set x and y limits.  
+        #Really want to get a sensible way of doing this
+        if plottable(merge_df[(var_ys[i]+"_"+source)]).min() < 0:
+            local_min_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),percentile_gap)*multiplier
+        else:
+            local_min_y = 0
+        min_y=min(min_y,local_min_y)
+        #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
+        local_max_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),100-percentile_gap)*multiplier
+        max_y=max(max_y,local_max_y)
+    
+    ax.set_ylim(min_y,max_y)
+    
 
     ax.set_xlabel(var_x)
-    ax.set_ylabel(channel_maker(var_ys,modes," "))    
+    ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)")    
  
+    ax.legend(frameon=False)
     
     if modes['out_dir']==None:
         repeat_option = True
@@ -296,6 +315,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
 
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
+        #str_channel = list_to_string(var_ys,", ")
         plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
                                channel=str_channel,out_type=modes['image_type'])
         anim.save(plt_file, dpi=80, writer='imagemagick')
@@ -582,7 +602,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #returns the correlation lists if needed    
     return (n_rmses)
 
-def channel_maker(m_keys,modes,sep_str="_"):
+def channel_maker(channels,modes,sep_str="_"):
     str_channel = ""
     if "each" not in modes ['values']:
         if "all" in modes ['values']:
@@ -594,10 +614,10 @@ def channel_maker(m_keys,modes,sep_str="_"):
         elif "linear" in modes['values']:
             str_channel = "linear"
         else:
-            list_to_string (m_keys, sep_str)
+            str_channel=list_to_string (channels, sep_str)
         return(str_channel)
     else:
-        list_to_string (m_keys, sep_str)
+        str_channel=list_to_string (channels, sep_str)
                 
     return (str_channel)
 
