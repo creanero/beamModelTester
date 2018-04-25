@@ -635,7 +635,9 @@ def channel_maker(channels,modes,sep_str="_"):
 
 def list_to_string (m_keys, sep_str="_"):
     
-    #creates an output-friendly string for the channel
+    '''
+    creates an output-friendly string for the channel
+    '''
     str_channel = str(m_keys)
     for char in (["[","]","'"]):
         str_channel = str_channel.replace(char,'',)
@@ -906,7 +908,7 @@ def colour_models(colour_id):
         
     #sets golds/yellows for various applications of stokes U
     if 'U'==colour_id:
-        return('yellow')
+        return('gold')
     if 'U_light'==colour_id:
         return('goldenrod')
     if 'U_dark'==colour_id:
@@ -926,7 +928,7 @@ def colour_models(colour_id):
 
     #sets cyans for various applications for the Stokes I
     if 'I'==colour_id:
-        return('cyan')
+        return('c')
     if 'I_light'==colour_id:
         return('aquamarine')
     if 'I_dark'==colour_id:
@@ -1111,8 +1113,8 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "value", "diff"],
-                        choices=("rmse", "corr", "value", "diff"),
+                        default=["rmse", "corr", "value", "diff", "file"],
+                        choices=("rmse", "corr", "value", "diff", "file"),
                         help = '''
 Sets which plots will be shown.  Default is to show all plots and calculations
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
@@ -1647,7 +1649,7 @@ if __name__ == "__main__":
                 ind_dfs=analysis_nd(merge_df,modes, m_keys)
     
         #output the dataframe if requested
-        if modes['out_dir']!=None:
+        if (modes['out_dir'] != None) & ('file' in modes['plots']):
             path_out_df = prep_out_file(modes,out_type=".csv")
             try:
                 merge_df.to_csv(path_out_df)
