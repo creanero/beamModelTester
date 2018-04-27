@@ -1151,7 +1151,8 @@ whole seconds
        
     #adds an optional argument for the file types for image plots
     parser.add_argument("--image_type","-i", default="png",
-                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 'raw', 'rgba'),
+                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 
+                                 'raw', 'rgba', 'html'),
                         help = '''
 Sets the file type for image files to be saved as.  If using amimations, some
 file types will save animations, and others will save frames.  Default is png.
