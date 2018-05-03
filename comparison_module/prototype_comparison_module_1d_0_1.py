@@ -315,7 +315,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
         repeat_option = True
     else:
         repeat_option = False
-        
+    
+    #creates a global variable as animations only work with     
     global anim
     anim = FuncAnimation(fig, update_a, frames=range(len(var_t_vals)), 
                                  interval=time_delay,
