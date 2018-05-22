@@ -15,6 +15,12 @@ import h5py
 import os
 from matplotlib.animation import FuncAnimation
 
+from astropy.coordinates import EarthLocation,SkyCoord
+from astropy.time import Time
+from astropy import units as u
+from astropy.coordinates import AltAz
+
+
 def read_dreambeam_csv(in_file):
     '''
     This function reads in csv files output by dreambeam into a formatted 
@@ -157,14 +163,14 @@ def plot_values_nf(merge_df, m_keys, modes):
     '''
     time_delay = 1000.0/modes['frame_rate']
     
-    if modes['threed']=="colour":
+    if modes['three_d']=="colour":
         for key in m_keys:
             #creates a plot each of the values of model and scope
             
             for source in ["model","scope"]:
                 plot_against_freq_time(merge_df, key, modes, source)
 
-    elif modes['threed']=="anim":
+    elif modes['three_d']=="anim":
         for source in ["model","scope"]:
             
             animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
@@ -177,7 +183,7 @@ def plot_values_nf(merge_df, m_keys, modes):
 #            for source in ["model","scope"]:
 #                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
                 
-    elif modes['threed']=="animf":
+    elif modes['three_d']=="animf":
         for source in ["model","scope"]:
             animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 #        if "each" in modes['values']:
@@ -656,15 +662,15 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     
     time_delay = 1000.0/modes['frame_rate']
     
-    if modes['threed']=="colour":
+    if modes['three_d']=="colour":
         for key in m_keys:
             #create a plot 
             plot_against_freq_time(merge_df, key, modes, source)
-    elif modes['threed']=="anim":
+    elif modes['three_d']=="anim":
 
         animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
                 
-    elif modes['threed']=="animf":
+    elif modes['three_d']=="animf":
 
         animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 
@@ -848,7 +854,11 @@ def analysis_nd(merge_df,modes, m_keys):
     return (ind_dfs)
     
     
-    
+###############################################################################
+#
+#colour setting functions
+#    
+###############################################################################    
 
  
 def colour_models(colour_id):
@@ -971,6 +981,16 @@ def colour_models(colour_id):
               "\n\nDefaulting to black\n")
         return ('black')    
 
+
+
+
+
+###############################################################################
+#
+#argument setting functions
+#    
+###############################################################################
+
 def beam_arg_parser():
     '''
     This function parses the arguments from the command line and returns the 
@@ -985,6 +1005,10 @@ def beam_arg_parser():
     
     parser = argparse.ArgumentParser()
     
+###############################################################################
+#Model filenames
+###############################################################################
+    
     #creates a group for the model filename
     group_model = parser.add_mutually_exclusive_group()
     
@@ -998,6 +1022,9 @@ The file containing the data from the model (Usually DreamBeam)
 Alternative way of specifying the file containing the data from the model
                              ''')
     
+###############################################################################
+#Scope filenames
+###############################################################################
     
     #creates a group for the scope filename
     group_scope = parser.add_mutually_exclusive_group()
@@ -1013,6 +1040,10 @@ Alternative way of specifying the file containing the observed data from the
 telescope
                              ''')
 
+###############################################################################
+#Output filename, file type and plot titles
+###############################################################################
+
     #adds an optional argument for output directory
     parser.add_argument("--out_dir","-o", default=None,
                              help='''
@@ -1020,12 +1051,27 @@ path to a directory in which the output of the program is intended to be stored
 .  IF this argument is blank, output is to std.out and plots are to screen.
                              ''')   
     
+    
     #adds an optional argument for the title of graphs and out_files
     parser.add_argument("--title","-t", default=[""], nargs = '*',
                              help='''
 The title for graphs and output files.  Spaces are permitted in title.  Output
 files will have spaces replaced with underscores
                              ''')   
+    
+    
+    #adds an optional argument for the file types for image plots
+    parser.add_argument("--image_type","-i", default="png",
+                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 
+                                 'raw', 'rgba', 'html'),
+                        help = '''
+Sets the file type for image files to be saved as.  If using amimations, some
+file types will save animations, and others will save frames.  Default is png.
+                        ''')     
+                        
+###############################################################################
+#Normalisation options
+###############################################################################    
     
     #adds an optional argument for normalisation method
     parser.add_argument("--norm","-n", default='o',
@@ -1047,16 +1093,20 @@ m = model
 n = no cropping
 b = normalise both
                              ''')       
+###############################################################################
+#Cropping options
+###############################################################################    
+    
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
                         choices=("median","mean","percentile"),
                         help = '''
 Sets what style of cropping will be applied to the scope data to remove 
 outliers. A value for --crop must also be specified or this argument is ignored.  
-        median implies drop all values over a given multiple of the median value.
-        mean implies drop all values over a given multiple of the median value.
-        percentile implies drop all values over a given percentile value.
-        percentiles over 100 are ignored''')     
+    median implies drop all values over a given multiple of the median value.
+    mean implies drop all values over a given multiple of the median value.
+    percentile implies drop all values over a given percentile value.
+    percentiles over 100 are ignored''')     
 
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop","-c", default = 0.0, type=float,
@@ -1087,7 +1137,12 @@ m = model
 n = no cropping
 b = crop both
                              ''')    
-    #adds an optional argument for the cropping level for noise on the scope
+
+###############################################################################
+#Difference options
+###############################################################################    
+    
+    #adds an optional argument for the mechanism for comparing scope with model
     parser.add_argument("--diff","-d", default = "sub",
                         choices=("sub","div", "idiv"),
                         help = '''
@@ -1097,6 +1152,9 @@ the difference between the scope and the model.  Default is subtract
   div = model / scope
   idiv = scope/model
                         ''')
+###############################################################################
+#Plotting options
+###############################################################################    
     
     #adds an optional argument for the set of values to analyse and plot
     parser.add_argument("--values","-v", default=["all"], nargs="*",
@@ -1120,12 +1178,18 @@ Sets the parameters that will be plotted on the value and difference graphs.
 Sets which plots will be shown.  Default is to show all plots and calculations
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
 corr shows plots of corrlation (overall, per time and per freq as appropriate)
-value shows plots of the values of the channels (per time and per freq as appropriate)
-diff shows plots of the differences in values of the channels (per time and per freq as appropriate)
+value shows plots of the values of the channels (per time and per freq as 
+appropriate) diff shows plots of the differences in values of the channels (per
+ time and per freq as appropriate)
  
                         ''') 
+
+###############################################################################
+#Three D/Animation options
+###############################################################################    
+    
     #adds an optional argument for the way to show 3d data
-    parser.add_argument("--threed","-3", default="colour",
+    parser.add_argument("--three_d","-3", default="colour",
                         choices=("colour","color", "anim", "animf"),
                         help = '''
 Sets how to show three dimensional plots.  If colour is chosen, then they are 
@@ -1141,6 +1205,9 @@ animated graphs at.  If no animated plots are used, or animations are plotted
 to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
                              ''')
      
+###############################################################################
+#Timing options
+###############################################################################
     #adds an optional argument for a time offset between model and scoep
     parser.add_argument("--offset","-O", default = 0, type=int,
                         help = '''
@@ -1150,15 +1217,12 @@ time of the scope data.  Default is no offset.  Offsets may only be given in
 whole seconds
                              ''')
        
-    #adds an optional argument for the file types for image plots
-    parser.add_argument("--image_type","-i", default="png",
-                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 
-                                 'raw', 'rgba', 'html'),
-                        help = '''
-Sets the file type for image files to be saved as.  If using amimations, some
-file types will save animations, and others will save frames.  Default is png.
-                        ''')     
-    #creates a group for the scope filename
+
+
+###############################################################################
+#Frequencies
+###############################################################################
+    #creates a group for the chosen frequency or frequencies
     group_freq = parser.add_mutually_exclusive_group()
     #adds an optional argument for the frequency to filter to
     group_freq.add_argument("--freq","-f", default = [0.0], 
@@ -1167,16 +1231,66 @@ file types will save animations, and others will save frames.  Default is png.
 set a frequency filter to and display the channels for.   
 Must supply a float or collection of floats separated by spaces.
                         ''')
-    #adds an optional argument for a file containing a set of frequenciesy 
+    #adds an optional argument for a file containing a set of frequencies 
     #to filter to
     group_freq.add_argument("--freq_file","-F", default = "", 
                             help = '''
 set a file containing multiple frequencies to filter to and display the 
 channels for.  The file must contain one float per line in text format.
                             ''')    
+
+###############################################################################
+#Target object
+###############################################################################
     
+    #creates a group for the target object
+    group_object = parser.add_mutually_exclusive_group()
+    #adds an optional argument for target object
+    group_object.add_argument("--object_name","-X", default = None,
+                        choices=("","CasA", "CygA"), 
+                            help = '''
+set a variable for the name of the target object.  This is used to generate sky
+coordinates.  At present this is enabled only for CasA and CygA
+                            ''')        
+    #adds an optional argument for target object
+    group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
+                            type=float, nargs=2,
+                            help = '''
+set a variable for the coordinates of the target object.  Coordinates should 
+be 2 floats: RA and Dec (decimal degrees)
+                            ''')   
+    #TODO: deak with restricted units
+    #may later add functionality to parse non-decimal degree values or add a 
+    #unit functionality
     
+###############################################################################
+#Observing Location
+###############################################################################
     
+    #creates a group for the target object
+    group_location = parser.add_mutually_exclusive_group()
+    #adds an optional argument for target object
+    group_location.add_argument("--location_name","-L", default = None,
+                        choices=("","IE613", "SE607"), 
+                            help = '''
+Set the name of the observing location.  This is used to generate ground 
+coordinates for the oberving location.  From this and target coordinates, 
+Alt-Az coordinates can be generated.  At present this is only defined for LOFAR
+stations IE613 and SE607
+                            ''')        
+    #adds an optional argument for target object
+    group_location.add_argument("--location_coords","-l", 
+                                default = [0.0,0.0,0.0], 
+                            type=float, nargs='*',
+                            help = '''
+set a variable for the coordinates of the observing site.  Coordinates should 
+be 3 floats: Latitude, longitude (degrees) and height above sea level (metres).
+If two coordinates are specified, height will be assumed to be 0 (sea level)
+                            ''')   
+    
+###############################################################################
+#Using the arguments
+###############################################################################
     #passes these arguments to a unified variable
     args = parser.parse_args()
     
@@ -1195,19 +1309,20 @@ channels for.  The file must contain one float per line in text format.
     modes['plots']=args.plots
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
-    modes['threed']=args.threed
+    modes['three_d']=args.three_d
     modes['image_type']=args.image_type
     modes['frame_rate']=args.frame_rate
     modes['offset']=args.offset
     
-    #fixes issues with spelling of colour
-    if modes['threed'] == "color":
-        modes['threed'] = "colour"
+    #ensures that whichever spelling of colour is input by the user, only one 
+    #needs to be used in the rest of the code.
+    if modes['three_d'] == "color":
+        modes['three_d'] = "colour"
     
     #combines the components of the title with spaces to create titles
     modes['title']= " ".join(args.title)
 
-    #combines the components of the title with spaces to create titles
+    #combines the components of the title with underscores to create titles
     modes['title_']= "_".join(args.title)    
     
     #outputs the filename for the model to a returnable variable
@@ -1226,13 +1341,86 @@ channels for.  The file must contain one float per line in text format.
     elif args.scope != None:
         modes['in_file_scope']=args.scope
     else:
-        modes['in_file_scope']=raw_input("No filename specified for observed data from the telescope:\n"
-                                "Please enter the telescope filename:\n")
+        modes['in_file_scope']=raw_input("No filename specified for observed"+
+                                     " data from the telescope:\n"
+                                     "Please enter the telescope filename:\n")
     
     #sets up the output directory based on the input
     modes['out_dir']=prep_out_dir(args.out_dir)
     
+    
+    #sets up the object coordinates
+    if args.object_name != None:
+        modes['object_coords']=set_object_coords(args.object_name)
+    else:
+        modes['object_coords']=args.object_coords
+    
+    #sets up the location coordinates
+    if args.location_name != None:
+        modes['location_coords']=set_location_coords(args.location_name)
+    elif len(args.location_coords) == 3:
+        modes['location_coords']=args.location_coords
+    elif len(args.location_coords) == 2:
+        #appends a height of zero (sea level) for the observing site
+        print("Warning, no height above sea level specified, defaulting to 0m")
+        modes['location_coords']=args.location_coords+[0.0]
+    else:
+        print("Warning: Site: "+ str(args.location_coords)+" incorrectly "+
+              "specified.  Setting site coordinates to 0,0,0 which will"+
+              " disable object tracking./n/n")    
+        modes['location_coords']=[0.0, 0.0, 0.0]
+    
     return(modes)
+
+
+
+
+###############################################################################
+#
+#coordinate setting functions
+#    
+###############################################################################
+
+
+    
+def set_object_coords(name_str=""):
+    '''
+    returns a 2-long list of the coordinates of an object identified by name
+    Want to replace this with something better at a later point, but this is 
+    designed as a module to be replaced.
+    '''
+    coords=[0.0,0.0]
+    if name_str == "CasA":
+        coords=[350.85,  58.815]
+    elif name_str == "CygA":
+        coords=[299.86791667,  40.73388889]
+    else:
+        print("Warning: Object: "+name_str+" not found.  Setting object "+
+              "coordinates to 0,0 which will disable object tracking./n/n" + 
+              "for an object at exactly 0,0 set one coordinate to 1e-308")
+    #minimum float increment coordinates will not affect the actual results
+    #due to precision limits but will pass a =!0 test later in the program
+    
+    return(coords)
+    
+def set_location_coords(name_str=""):
+    '''
+    returns a 2-long list of the coordinates of an observing location 
+    identified by name.
+    Want to replace this with something better at a later point, but this is 
+    designed as a module to be replaced.
+    '''
+    coords=[0.0,0.0,0.0]
+    if name_str == "IE613": 
+        coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
+    elif name_str == "SE607":
+        coords=[57.398743, 11.929636, 20.0]
+    else:
+        print("Warning: Site: "+name_str+" not found.  Setting site "+
+              "coordinates to 0,0,0 which will disable object tracking./n/n" )    
+        #there is no land at lat/long (0,0), so it should be ok to assume no
+        #observations at this location
+    return(coords)
 
 def prep_out_dir(out_dir=None):
     '''
@@ -1584,6 +1772,27 @@ def crop_operation (in_df,modes):
             
     return(out_df)
 
+
+def calc_alt_az(merge_df,modes):
+    '''
+    This function uses astropy to calculate a set of altitude and azimuth coordinates for 
+    the target object at each time in the the dataset
+    '''
+    observing_location = EarthLocation(modes['location_coords'][0],
+                                       modes['location_coords'][1],
+                                       modes['location_coords'][2])
+    
+    coord = SkyCoord(modes['object_coords'][0],
+                     modes['object_coords'][1], 
+                     unit='deg')
+    
+    time_set = Time(list(merge_df.Time))
+    aa_set= AltAz(location=observing_location, obstime=time_set)
+    coord_set=coord.transform_to(aa_set)
+    
+    merge_df['alt'] = coord_set.alt
+    merge_df['az'] = coord_set.az
+    return (merge_df)
     
 def calc_diff(merge_df, modes, channel):
     '''
@@ -1637,6 +1846,9 @@ if __name__ == "__main__":
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
     
+    #calculates Alt-Az coordinates if possible
+    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+        merge_df = calc_alt_az(merge_df,modes)
     
     if  len(merge_df)>0:
         #runs different functions if there are one or multiple frequencies
