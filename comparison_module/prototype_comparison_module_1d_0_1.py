@@ -339,11 +339,60 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     else:
         plt.show()# will just loop the animation forever.
 
+def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
+    '''
+    Plots a two part plot of four variables from merge_df as controlled by 
+    modes.
     
+    Plot 1 is a 3-d colour plot with x, y and z variables controlled by 
+    arguments.
+    
+    Plot 2 is a 2-d scatter plot with the same x parameter and another y 
+    variable
+    
+    var_z must be one of the dependent variables
+    '''
+    plt.figure()
+    plt.subplot(211)
+    upper_title=("Plot of "+source+" for "+var_z+" against "+var_x+ " and "+\
+                 var_y)
+    label = "\n".join([modes["title"],upper_title])
+    plt.title(label)
+    
+    plt.tripcolor(plottable(merge_df[var_x]),
+                  plottable(merge_df[var_y]),
+                  plottable(merge_df[var_z+'_'+source]), 
+                  cmap=plt.get_cmap(colour_models(var_z+'s')))
+    
+    #TODO: fix percentile plotting limits
+    plt.clim(np.percentile(plottable(merge_df[var_z+'_'+source]),5),
+             np.percentile(plottable(merge_df[var_z+'_'+source]),95))
+    
+    #plots axes
+    plt.xticks([])
+    plt.ylabel(var_y)
+    #plt.colorbar()
+    
+    plt.subplot(212)
+
+    lower_title=("Plot of "+var_y2+" against "+var_x)
+    plt.title(lower_title)
+    
+    #plots the scattergraph
+    plt.plot(merge_df[var_x],merge_df[var_y2],
+             color=colour_models(var_y2), marker=".", linestyle="None")
+    
+    plt.xlabel(var_x)
+    plt.ylabel(var_y2)
+    plt.legend(frameon=False)
+    plt.show()    
 
 
 
 def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
+    '''
+    Update function for animated plots
+    '''
     
     var_t_vals = np.sort(merge_df[var_t].unique())
     var_t_val=var_t_vals[i]
@@ -812,6 +861,13 @@ def analysis_nd(merge_df,modes, m_keys):
         #plots the differences in values for the various channels
         plot_diff_values_nf(merge_df, m_keys, modes)
     
+    if "altaz" in modes["plots"]:
+        if "alt" in merge_df:
+            plot_altaz_values_nf(merge_df, m_keys, modes)
+            
+        else:
+            print("Warning: Alt-Azimuth plotting selected, but not available!")
+    
     #calculates the correlations and rmse over time at each independent variable 
     #return values are stored as possible future outputs
     ind_var = ["Freq", "Time"]
@@ -852,7 +908,22 @@ def analysis_nd(merge_df,modes, m_keys):
 
     
     return (ind_dfs)
+
+def plot_altaz_values_nf(merge_df, m_keys, modes):
+    '''
+    plots a series of altitude and azimuth based graphs 
+    '''
+#    directions=['alt','az_ew']
+#    len_dir=len(directions)
     
+    for key in m_keys:
+        for source in ['model','scope']:
+             four_var_plot(merge_df,modes,"az_ew","Freq",key,
+                              "alt",source)
+#            for i in range(len_dir):
+#                four_var_plot(merge_df,modes,directions[i],"Freq",key,
+#                              directions[len_dir-i-1],source)
+#    
     
 ###############################################################################
 #
@@ -1173,7 +1244,8 @@ Sets the parameters that will be plotted on the value and difference graphs.
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
                         default=["rmse", "corr", "value", "diff", "file"],
-                        choices=("rmse", "corr", "value", "diff", "file"),
+                        choices=("rmse", "corr", "value", "diff", "file",
+                                 "altaz"),
                         help = '''
 Sets which plots will be shown.  Default is to show all plots and calculations
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
@@ -1775,12 +1847,12 @@ def crop_operation (in_df,modes):
 
 def calc_alt_az(merge_df,modes):
     '''
-    This function uses astropy to calculate a set of altitude and azimuth coordinates for 
-    the target object at each time in the the dataset
+    This function uses astropy to calculate a set of altitude and azimuth 
+    coordinates for the target object at each time in the the dataset
     '''
-    observing_location = EarthLocation(modes['location_coords'][0],
-                                       modes['location_coords'][1],
-                                       modes['location_coords'][2])
+    observing_location = EarthLocation(lat= modes['location_coords'][0],
+                                       lon= modes['location_coords'][1],
+                                       height =modes['location_coords'][2]*u.m)
     
     coord = SkyCoord(modes['object_coords'][0],
                      modes['object_coords'][1], 
@@ -1792,11 +1864,15 @@ def calc_alt_az(merge_df,modes):
     
     merge_df['alt'] = coord_set.alt
     merge_df['az'] = coord_set.az
+    
+    merge_df['az_ew'] = coord_set.az
+    (merge_df.loc[merge_df['az']>180,'az_ew'])=(merge_df.loc[merge_df['az']>180,'az'])-360
     return (merge_df)
     
 def calc_diff(merge_df, modes, channel):
     '''
-    Calculates the difference between the model and scope values for the 
+    Calculates the difference between the model and scope values for the given 
+    channel
     '''
     
     if modes['diff']=='sub':
