@@ -352,6 +352,8 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     
     var_z must be one of the dependent variables
     '''
+    print("Plotting "+source+" for "+var_z+" against "+var_x+ " and "+\
+                 var_y+" and "+var_y2+" against "+var_x)
     plt.figure()
     plt.subplot(211)
     upper_title=("Plot of "+source+" for "+var_z+" against "+var_x+ " and "+\
@@ -385,7 +387,18 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     plt.xlabel(var_x)
     plt.ylabel(var_y2)
     plt.legend(frameon=False)
-    plt.show()    
+
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,source=source,plot=var_x,dims="nd",
+                               channel=var_z,
+                               out_type=modes['image_type'])
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
+
 
 
 
@@ -920,28 +933,21 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
         for source in ['model','scope']:
             if "alt" in modes['plots']:
                 if "ew" in modes['plots']: 
-                    print("Plotting against Altitude (East/West)")
                     four_var_plot(merge_df,modes,"alt","Freq",key,
                                   "az_ew",source)
                 else:
-                    print("Plotting against Altitude")
                     four_var_plot(merge_df,modes,"alt","Freq",key,
                                   "az",source)
-            else:
-                print("Not plotting against Altitude")
                 
                 
             if "az" in modes['plots']:
                 if "ew" in modes['plots']: 
-                    print("Plotting against Azimuth  (East/West)")
                     four_var_plot(merge_df,modes,"az_ew","Freq",key,
                                   "alt",source)
                 else:
-                    print("Plotting against Azimuth")
                     four_var_plot(merge_df,modes,"az","Freq",key,
                                   "alt",source)
-            else:
-                print("Not plotting against Azimuth")
+
 #            for i in range(len_dir):
 #                four_var_plot(merge_df,modes,directions[i],"Freq",key,
 #                              directions[len_dir-i-1],source)
