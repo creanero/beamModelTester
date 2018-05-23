@@ -861,8 +861,8 @@ def analysis_nd(merge_df,modes, m_keys):
         #plots the differences in values for the various channels
         plot_diff_values_nf(merge_df, m_keys, modes)
     
-    if "altaz" in modes["plots"]:
-        if "alt" in merge_df:
+    if any (plot in modes["plots"] for plot in ["alt","az","ew"]):
+        if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
             plot_altaz_values_nf(merge_df, m_keys, modes)
             
         else:
@@ -918,8 +918,30 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
     
     for key in m_keys:
         for source in ['model','scope']:
-             four_var_plot(merge_df,modes,"az_ew","Freq",key,
-                              "alt",source)
+            if "alt" in modes['plots']:
+                if "ew" in modes['plots']: 
+                    print("Plotting against Altitude (East/West)")
+                    four_var_plot(merge_df,modes,"alt","Freq",key,
+                                  "az_ew",source)
+                else:
+                    print("Plotting against Altitude")
+                    four_var_plot(merge_df,modes,"alt","Freq",key,
+                                  "az",source)
+            else:
+                print("Not plotting against Altitude")
+                
+                
+            if "az" in modes['plots']:
+                if "ew" in modes['plots']: 
+                    print("Plotting against Azimuth  (East/West)")
+                    four_var_plot(merge_df,modes,"az_ew","Freq",key,
+                                  "alt",source)
+                else:
+                    print("Plotting against Azimuth")
+                    four_var_plot(merge_df,modes,"az","Freq",key,
+                                  "alt",source)
+            else:
+                print("Not plotting against Azimuth")
 #            for i in range(len_dir):
 #                four_var_plot(merge_df,modes,directions[i],"Freq",key,
 #                              directions[len_dir-i-1],source)
@@ -1028,6 +1050,26 @@ def colour_models(colour_id):
         return('darkgreen')
     if 'Qs'==colour_id:
         return('Greens')           
+
+    #sets black/grey for various applications for altitude
+    if 'alt'==colour_id:
+        return('black')
+    if 'alt_light'==colour_id:
+        return('grey')
+    if 'alt_dark'==colour_id:
+        return('darkslategrey')
+    if 'alts'==colour_id:
+        return('Greys')     
+    
+    #sets browns for various applications for azimuth
+    if colour_id in ['az','az_ew']:
+        return('brown')
+    if colour_id in ['az_light','az_ew_light']:
+        return('chocolatebrown')
+    if colour_id in ['az_dark','az_ew_dark']:
+        return('saddlebrown')
+    if colour_id in ['azs','az_ews']:
+        return('Copper')     
     
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
@@ -1124,7 +1166,7 @@ path to a directory in which the output of the program is intended to be stored
     
     
     #adds an optional argument for the title of graphs and out_files
-    parser.add_argument("--title","-t", default=[""], nargs = '*',
+    parser.add_argument("--title","-t", default=[], nargs = '*',
                              help='''
 The title for graphs and output files.  Spaces are permitted in title.  Output
 files will have spaces replaced with underscores
@@ -1243,17 +1285,21 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "value", "diff", "file"],
+                        default=["rmse", "corr", "value", "diff"],
                         choices=("rmse", "corr", "value", "diff", "file",
-                                 "altaz"),
+                                 "alt","az","ew"),
                         help = '''
-Sets which plots will be shown.  Default is to show all plots and calculations
+Sets which plots will be shown.  Default is to show rmse, corr, value and diff
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
 corr shows plots of corrlation (overall, per time and per freq as appropriate)
 value shows plots of the values of the channels (per time and per freq as 
-appropriate) diff shows plots of the differences in values of the channels (per
- time and per freq as appropriate)
- 
+appropriate) 
+diff shows plots of the differences in values of the channels (per time and per
+ freq as appropriate)
+file determines whether to output the dataframe to a file for later analyses
+alt shows plots of value against altitude
+az shows plots of value against azimuth
+ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360) 
                         ''') 
 
 ###############################################################################
