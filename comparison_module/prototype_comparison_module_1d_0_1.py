@@ -255,7 +255,8 @@ def plot_against_freq_time(merge_df, key, modes, source):
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
-def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
+def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
+                  plot_name=""):
     '''
     Produces an animated linegraph(s) with the X, Y and T variables specified
     '''
@@ -333,7 +334,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
         #str_channel = list_to_string(var_ys,", ")
-        plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
+        plt_file = prep_out_file(modes,source=source,plot=plot_name,dims="nd",
                                channel=str_channel,out_type=modes['image_type'])
         anim.save(plt_file, dpi=80, writer='imagemagick')
     else:
@@ -928,25 +929,58 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
     '''
 #    directions=['alt','az_ew']
 #    len_dir=len(directions)
+    time_delay = 1000.0/modes['frame_rate']
+
+    source_list = ['model','scope']
     
-    for key in m_keys:
-        for source in ['model','scope']:
+    if modes["three_d"] == 'colour':
+        #plots a 3-d plot against alt or az
+        for key in m_keys:
+            for source in source_list:
+                if "alt" in modes['plots']:
+                    if "ew" in modes['plots']: 
+                        four_var_plot(merge_df,modes,"alt","Freq",key,
+                                      "az_ew",source)
+                    else:
+                        four_var_plot(merge_df,modes,"alt","Freq",key,
+                                      "az",source)
+                    
+                    
+                if "az" in modes['plots']:
+                    if "ew" in modes['plots']: 
+                        four_var_plot(merge_df,modes,"az_ew","Freq",key,
+                                      "alt",source)
+                    else:
+                        four_var_plot(merge_df,modes,"az","Freq",key,
+                                      "alt",source)
+
+
+    elif modes['three_d']=="anim":
+        for source in source_list:
             if "alt" in modes['plots']:
-                if "ew" in modes['plots']: 
-                    four_var_plot(merge_df,modes,"alt","Freq",key,
-                                  "az_ew",source)
-                else:
-                    four_var_plot(merge_df,modes,"alt","Freq",key,
-                                  "az",source)
-                
-                
+                animated_plot(merge_df, modes, 'Freq', m_keys, "alt", source, 
+                              time_delay, plot_name = "alt")
             if "az" in modes['plots']:
                 if "ew" in modes['plots']: 
-                    four_var_plot(merge_df,modes,"az_ew","Freq",key,
-                                  "alt",source)
+                    animated_plot(merge_df, modes, 'Freq', m_keys, "az_ew", source, 
+                              time_delay, plot_name = "az_ew")
                 else:
-                    four_var_plot(merge_df,modes,"az","Freq",key,
-                                  "alt",source)
+                    animated_plot(merge_df, modes, 'Freq', m_keys, "az", source, 
+                              time_delay, plot_name = "az")
+
+    elif modes['three_d']=="animf":
+        for source in source_list:
+            if "alt" in modes['plots']:
+                animated_plot(merge_df, modes, 'alt', m_keys, "Freq", source, 
+                              time_delay, plot_name = "alt")
+            if "az" in modes['plots']:
+                if "ew" in modes['plots']: 
+                    animated_plot(merge_df, modes, 'az_ew', m_keys, "Freq", source, 
+                              time_delay, plot_name = "az_ew")
+                else:
+                    animated_plot(merge_df, modes, 'az_ew', m_keys, "Freq", source, 
+                              time_delay, plot_name = "az")
+
 
 #            for i in range(len_dir):
 #                four_var_plot(merge_df,modes,directions[i],"Freq",key,
@@ -1583,7 +1617,7 @@ def prep_out_dir(out_dir=None):
     return(out_dir)
     
 def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
-                  freq=0.0,
+                  freq=0.0, plot_name = "",
                   out_type=""):
     '''
     Prepares the output path for a variety of options given input parameters 
@@ -1608,6 +1642,9 @@ def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
 
     if ind_var != "":
         out_file_path= out_file_path + "_" + ind_var
+
+    if plot_name != "":
+        out_file_path= out_file_path + "_" + plot_name
 
     if freq != 0.0:
         out_file_path= out_file_path + "_" + str(freq).replace(".","-")+"Hz"
