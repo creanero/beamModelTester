@@ -204,7 +204,7 @@ def plot_values_nf(merge_df, m_keys, modes):
 #    
 #            #plots the channel in a colour based on its name
 #            plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
-#                          cmap=plt.get_cmap(colour_models(key+'s')))
+#                          cmap=plt.get_cmap(colour_models(key+'_s')))
 #            plt.legend(frameon=False)
 #            #plots x-label for both using start time 
 #            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -238,7 +238,7 @@ def plot_against_freq_time(merge_df, key, modes, source):
 
     #plots the channel in a colour based on its name
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
-                  cmap=plt.get_cmap(colour_models(key+'s')))
+                  cmap=plt.get_cmap(colour_models(key+'_s')))
     plt.legend(frameon=False)
     #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -365,7 +365,7 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     plt.tripcolor(plottable(merge_df[var_x]),
                   plottable(merge_df[var_y]),
                   plottable(merge_df[var_z+'_'+source]), 
-                  cmap=plt.get_cmap(colour_models(var_z+'s')))
+                  cmap=plt.get_cmap(colour_models(var_z+'_s')))
     
     #TODO: fix percentile plotting limits
     plt.clim(np.percentile(plottable(merge_df[var_z+'_'+source]),5),
@@ -747,7 +747,7 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
 #        
 #        #plots p-channel difference
 #        plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
-#                      cmap=plt.get_cmap(colour_models(key+'s')))
+#                      cmap=plt.get_cmap(colour_models(key+'_s')))
 #        plt.colorbar()
 #        #plots x-label for both using start time 
 #        plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -978,7 +978,7 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
                     animated_plot(merge_df, modes, 'az_ew', m_keys, "Freq", source, 
                               time_delay, plot_name = "az_ew")
                 else:
-                    animated_plot(merge_df, modes, 'az_ew', m_keys, "Freq", source, 
+                    animated_plot(merge_df, modes, 'az', m_keys, "Freq", source, 
                               time_delay, plot_name = "az")
 
 
@@ -1005,7 +1005,7 @@ def colour_models(colour_id):
         return('sandybrown')
     if 'p_dark'==colour_id:
         return('darkorange')
-    if 'ps'==colour_id:
+    if 'p_s'==colour_id:
         return('Oranges')
         
     #sets greens for various applications of the q channel    
@@ -1015,7 +1015,7 @@ def colour_models(colour_id):
         return('limegreen')
     if 'q_dark'==colour_id:
         return('darkgreen')
-    if 'qs'==colour_id:
+    if 'q_s'==colour_id:
         return('Greens')
     
     #sets reds for various applications of the XX channel 
@@ -1025,7 +1025,7 @@ def colour_models(colour_id):
         return('orangered')
     if 'xx_dark'==colour_id:
         return('darkred')
-    if 'xxs'==colour_id:
+    if 'xx_s'==colour_id:
         return('Reds')
     
     
@@ -1036,7 +1036,7 @@ def colour_models(colour_id):
         return('mediumorchid')
     if 'xy_dark'==colour_id:
         return('purple')
-    if 'xys'==colour_id:
+    if 'xy_s'==colour_id:
         return('Purples')
     
     
@@ -1047,7 +1047,7 @@ def colour_models(colour_id):
         return('deepskyblue')
     if 'yy_dark'==colour_id:
         return('darkblue')
-    if 'yys'==colour_id:
+    if 'yy_s'==colour_id:
         return('Blues')
         
     #sets golds/yellows for various applications of stokes U
@@ -1057,7 +1057,7 @@ def colour_models(colour_id):
         return('goldenrod')
     if 'U_dark'==colour_id:
         return('darkgoldenrod')
-    if 'Us'==colour_id:
+    if 'U_s'==colour_id:
         return('YlOrBr')
         
     #sets oranges for various applications for the Stokes V
@@ -1067,7 +1067,7 @@ def colour_models(colour_id):
         return('sandybrown')
     if 'V_dark'==colour_id:
         return('chocolate')
-    if 'Vs'==colour_id:
+    if 'V_s'==colour_id:
         return('Oranges')        
 
     #sets cyans for various applications for the Stokes I
@@ -1077,7 +1077,7 @@ def colour_models(colour_id):
         return('aquamarine')
     if 'I_dark'==colour_id:
         return('teal')
-    if 'Is'==colour_id:
+    if 'I_s'==colour_id:
         return('winter')   
 
     #sets greens for various applications for the Stokes Q
@@ -1088,27 +1088,27 @@ def colour_models(colour_id):
         return('limegreen')
     if 'Q_dark'==colour_id:
         return('darkgreen')
-    if 'Qs'==colour_id:
+    if 'Q_s'==colour_id:
         return('Greens')           
 
     #sets black/grey for various applications for altitude
-    if 'alt'==colour_id:
+    if colour_id in ['alt','stn_alt']:
         return('black')
-    if 'alt_light'==colour_id:
+    if colour_id in ['alt_light','stn_alt_light']:
         return('grey')
-    if 'alt_dark'==colour_id:
+    if colour_id in ['alt_dark','stn_alt_dark']:
         return('darkslategrey')
-    if 'alts'==colour_id:
+    if colour_id in ['alt_s','stn_alt_s']:
         return('Greys')     
     
     #sets browns for various applications for azimuth
-    if colour_id in ['az','az_ew']:
+    if colour_id in ['az','az_ew','stn_az','stn_az_ew']:
         return('brown')
-    if colour_id in ['az_light','az_ew_light']:
+    if colour_id in ['az_light','az_ew_light','stn_az_light','stn_az_ew_light']:
         return('chocolatebrown')
-    if colour_id in ['az_dark','az_ew_dark']:
+    if colour_id in ['az_dark','az_ew_dark','stn_az_dark','stn_az_ew_dark']:
         return('saddlebrown')
-    if colour_id in ['azs','az_ews']:
+    if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
         return('Copper')     
     
     #sets grey values for other plots, where there are partial matches.
@@ -1122,9 +1122,9 @@ def colour_models(colour_id):
               "\n\n'dark' found in colourstring.\n"
               "Defaulting to darkeslategrey\n")
         return ('darkslategrey')  
-    if 's' in colour_id:    
+    if '_s' in colour_id:    
         print("Warning: Colour incompletely or inaccurately specified as:\n\n\t"+colour_id+              
-              "\n\n's' found in colourstring.\n"
+              "\n\n'_s' found in colourstring.\n"
               "Defaulting to Greys\n")
         return ('Greys')      
     
@@ -1957,6 +1957,13 @@ def calc_alt_az(merge_df,modes):
     merge_df['az_ew'] = coord_set.az
     (merge_df.loc[merge_df['az']>180,'az_ew'])=(merge_df.loc[merge_df['az']>180,'az'])-360
     return (merge_df)
+
+def calc_alt_az_lofar(merge_df,modes):
+    '''
+    This function is not currently defined.  This placeholder will be used to 
+    define the function to calculate LOFAR specific coordinates
+    '''
+    pass
     
 def calc_diff(merge_df, modes, channel):
     '''
