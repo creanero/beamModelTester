@@ -21,7 +21,13 @@ def break_str(test_str,length_limit=80):
     return(out_str)
         
 test_str="""
-Whether or not Republican Spain joins the Comintern or the Allies, war with the Axis is a necessity (otherwise choose Nationalist Spain!). Joining the Comintern will provide Spain nearly two additional years of preparation for war. Spain will not be able to make significant gains against Germany at the outset of war, thus the focus on the German border should be defensive. Meanwhile, an assault of Italy can be quite fruitful, resulting in a relatively quick annexation. Since it is possible for Vichy France to join the Axis as early as 1942, Spain should be prepared with border guards. Generally, holding out until 1943 is necessary, as that is when the Soviet Union will begin to push back the German military. It is possible for a well-played Spain to make significant gains in the West: including the capture of all France and Western Germany through to Austria, Czechoslovakia and Yugoslavia in the South.
+Now sits the wind fair, and we will aboard.
+My Lord of Cambridge, and my kind Lord of Masham,
+And you, my gentle knight, give me your thoughts:
+Think you not that the powers we bear with us
+Will cut their passage through the force of France,
+Doing the execution and the act
+For which we have in head assembled them?
 """
 
 print_str=break_str(test_str)
