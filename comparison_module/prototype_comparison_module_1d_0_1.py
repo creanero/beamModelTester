@@ -353,12 +353,14 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     
     var_z must be one of the dependent variables
     '''
-    print("Plotting "+source+" for "+var_z+" against "+var_x+ " and "+\
-                 var_y+" and "+var_y2+" against "+var_x)
+    print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
+          " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
+          " and "+ gen_pretty_name(var_y2)+" against "+gen_pretty_name(var_x))
     plt.figure()
     plt.subplot(211)
-    upper_title=("Plot of "+source+" for "+var_z+" against "+var_x+ " and "+\
-                 var_y)
+    upper_title=("Plot of "+gen_pretty_name(source)+\
+                 " for "+gen_pretty_name(var_z)+" against "+\
+                 gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y))
     label = "\n".join([modes["title"],upper_title])
     plt.title(label)
     
@@ -373,20 +375,21 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     
     #plots axes
     plt.xticks([])
-    plt.ylabel(var_y)
+    plt.ylabel(gen_pretty_name(var_y))
     #plt.colorbar()
     
     plt.subplot(212)
 
-    lower_title=("Plot of "+var_y2+" against "+var_x)
+    lower_title=("Plot of "+gen_pretty_name(var_y2)+" against "+\
+                 gen_pretty_name(var_x))
     plt.title(lower_title)
     
     #plots the scattergraph
     plt.plot(merge_df[var_x],merge_df[var_y2],
              color=colour_models(var_y2), marker=".", linestyle="None")
     
-    plt.xlabel(var_x)
-    plt.ylabel(var_y2)
+    plt.xlabel(gen_pretty_name(var_x))
+    plt.ylabel(gen_pretty_name(var_y2))
     plt.legend(frameon=False)
 
     #prints or saves the plot
@@ -425,24 +428,52 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
         lines[y_index].set_data(var_x_vals, var_y_vals)
     
 
-def gen_pretty_name(key,units=False):
+def gen_pretty_name(key,units=''):
     '''
     This function generates suitable names for graph titles and axes from the 
     keys used to access elements of the dataframe in the system. 
     
     e.g. Freq => Frequency
     '''
+    pretty_name = key
     if key =='Freq':
-        if units==True:
-            return('Frequency (Hz)')
-        return('Frequency')
+        pretty_name = 'Frequency'
+    if key =='d_Time':
+        pretty_name = 'Time since start'
+
     
-    if key =='alt':
-        if units==True:
-            return('Altitude ')
-        return('Frequency')
+    elif key =='alt':
+        pretty_name = 'Altitude'
+    elif key =='az':
+        pretty_name = 'Azimuth (0-360)'
+    elif key =='az_ew':
+        pretty_name = 'Azimuth (-180 - +180)'        
+
+    elif key =='stn_alt':
+        pretty_name = 'LOFAR Station Altitude'
+    elif key =='stn_az':
+        pretty_name = 'LOFAR Station Azimuth (0-360)'
+    elif key =='stn_az_ew':
+        pretty_name = 'LOFAR Station Azimuth (-180 - +180)'        
+
+    elif key =='scope':
+        pretty_name = 'Observed value'
+    elif key =='model':
+        pretty_name = 'Model value'
+    elif key =='scope':
+        pretty_name = 'Difference between Observed and Model values'            
+        
+    if units!="":
+        pretty_name=add_units (pretty_name,units)
     
-    return(key)
+    return(pretty_name)
+    
+def add_units(key,units):
+    '''
+    minor function that adds units in brackets after the key provided
+    '''
+    new_key = key+' ('+units+')'
+    return(new_key)
 
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
