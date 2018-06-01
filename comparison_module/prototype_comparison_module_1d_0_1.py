@@ -425,7 +425,24 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
         lines[y_index].set_data(var_x_vals, var_y_vals)
     
 
+def gen_pretty_name(key,units=False):
+    '''
+    This function generates suitable names for graph titles and axes from the 
+    keys used to access elements of the dataframe in the system. 
     
+    e.g. Freq => Frequency
+    '''
+    if key =='Freq':
+        if units==True:
+            return('Frequency (Hz)')
+        return('Frequency')
+    
+    if key =='alt':
+        if units==True:
+            return('Altitude ')
+        return('Frequency')
+    
+    return(key)
 
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
