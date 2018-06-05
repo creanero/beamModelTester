@@ -35,7 +35,7 @@ def horizon_to_station(stnid, refAz, refEl):
                          antennafieldlib.getArrayBandParams(stnid, 'HBA')
 
     # Convert from ITRF to LOFAR station coordsys
-    arrcfgpos_stncrd = stnRot.T * arrcfgpos_ITRF.T
+    #arrcfgpos_stncrd = stnRot.T * arrcfgpos_ITRF.T
     pos_ITRF_X = str(stnPos[0,0])+'m'
     pos_ITRF_Y = str(stnPos[1,0])+'m'
     pos_ITRF_Z = str(stnPos[2,0])+'m'
