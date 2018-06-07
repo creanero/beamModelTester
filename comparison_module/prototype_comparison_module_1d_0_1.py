@@ -20,6 +20,18 @@ from astropy.time import Time
 from astropy import units as u
 from astropy.coordinates import AltAz
 
+try:
+    import casacore.measures
+    import casacore.quanta.quantity
+
+except ImportError:
+    print("WARNING: Unable to import casacore")
+    
+try:    
+    import ilisa.antennameta.antennafieldlib as antennafieldlib
+
+except ImportError:
+    print("WARNING: unable to import ilisa")
 
 def read_dreambeam_csv(in_file):
     '''
@@ -981,53 +993,51 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
 
     source_list = ['model','scope']
     
-    if modes["three_d"] == 'colour':
-        #plots a 3-d plot against alt or az
-        for key in m_keys:
-            for source in source_list:
+    alt_var ="alt"
+    if 'ew' in modes['plots']:
+        az_var = "az_ew"
+    else:
+        az_var = "az"
+        
+    if 'stn_alt' in merge_df and 'stn_az' in merge_df:
+        az_var = "stn_"+az_var
+        alt_var = "stn_"+alt_var
+    
+    for source in source_list:
+        if modes["three_d"] == 'colour':
+            #plots a 3-d plot against alt or az
+            for key in m_keys:
+                
                 if "alt" in modes['plots']:
-                    if "ew" in modes['plots']: 
-                        four_var_plot(merge_df,modes,"alt","Freq",key,
-                                      "az_ew",source)
-                    else:
-                        four_var_plot(merge_df,modes,"alt","Freq",key,
-                                      "az",source)
-                    
+                    four_var_plot(merge_df,modes,alt_var,"Freq",key, az_var,
+                                  source)
+
                     
                 if "az" in modes['plots']:
-                    if "ew" in modes['plots']: 
-                        four_var_plot(merge_df,modes,"az_ew","Freq",key,
-                                      "alt",source)
-                    else:
-                        four_var_plot(merge_df,modes,"az","Freq",key,
-                                      "alt",source)
+                    four_var_plot(merge_df,modes,az_var,"Freq",key, alt_var,
+                                  source)
 
-
-    elif modes['three_d']=="anim":
-        for source in source_list:
+    
+    
+        elif modes['three_d']=="anim":
+    
             if "alt" in modes['plots']:
-                animated_plot(merge_df, modes, 'Freq', m_keys, "alt", source, 
-                              time_delay, plot_name = "alt")
+                animated_plot(merge_df, modes, 'Freq', m_keys, alt_var, source, 
+                              time_delay, plot_name = alt_var)
             if "az" in modes['plots']:
-                if "ew" in modes['plots']: 
-                    animated_plot(merge_df, modes, 'Freq', m_keys, "az_ew", source, 
-                              time_delay, plot_name = "az_ew")
-                else:
-                    animated_plot(merge_df, modes, 'Freq', m_keys, "az", source, 
-                              time_delay, plot_name = "az")
+                animated_plot(merge_df, modes, 'Freq', m_keys, az_var, source, 
+                              time_delay, plot_name = az_var)
 
-    elif modes['three_d']=="animf":
-        for source in source_list:
+    
+        elif modes['three_d']=="animf":
+    
             if "alt" in modes['plots']:
-                animated_plot(merge_df, modes, 'alt', m_keys, "Freq", source, 
-                              time_delay, plot_name = "alt")
+                animated_plot(merge_df, modes, alt_var, m_keys, "Freq", source, 
+                              time_delay, plot_name = alt_var)
             if "az" in modes['plots']:
-                if "ew" in modes['plots']: 
-                    animated_plot(merge_df, modes, 'az_ew', m_keys, "Freq", source, 
-                              time_delay, plot_name = "az_ew")
-                else:
-                    animated_plot(merge_df, modes, 'az', m_keys, "Freq", source, 
-                              time_delay, plot_name = "az")
+                animated_plot(merge_df, modes, az_var, m_keys, "Freq", source, 
+                              time_delay, plot_name = az_var)
+
 
 
 #            for i in range(len_dir):
@@ -1375,7 +1385,7 @@ Sets the parameters that will be plotted on the value and difference graphs.
     parser.add_argument("--plots","-p", nargs="*",
                         default=["rmse", "corr", "value", "diff"],
                         choices=("rmse", "corr", "value", "diff", "file",
-                                 "alt","az","ew"),
+                                 "alt","az","ew", "stn"),
                         help = '''
 Sets which plots will be shown.  Default is to show rmse, corr, value and diff
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
@@ -1387,7 +1397,8 @@ diff shows plots of the differences in values of the channels (per time and per
 file determines whether to output the dataframe to a file for later analyses
 alt shows plots of value against altitude
 az shows plots of value against azimuth
-ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360) 
+ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)
+stn means alt/az coordinates are calculated in the station reference frame
                         ''') 
 
 ###############################################################################
@@ -1564,6 +1575,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     #sets up the location coordinates
     if args.location_name != None:
         modes['location_coords']=set_location_coords(args.location_name)
+        modes['location_name']=args.location_name
     elif len(args.location_coords) == 3:
         modes['location_coords']=args.location_coords
     elif len(args.location_coords) == 2:
@@ -2011,8 +2023,71 @@ def calc_alt_az_lofar(merge_df,modes):
     This function is not currently defined.  This placeholder will be used to 
     define the function to calculate LOFAR specific coordinates
     '''
-    pass
+    stn_id=modes['location_name']
+    stn_alt_az=horizon_to_station(stn_id, merge_df.az, merge_df.alt)
     
+    merge_df['stn_alt']=np.array(stn_alt_az[1])
+    merge_df['stn_az']=np.array(stn_alt_az[0])
+    return (merge_df)
+
+def horizon_to_station(stnid, refAz, refEl):
+    # Algorithm does not depend on time but need it for casacore call.
+    obstimestamp = "2000-01-01T12:00:00" 
+
+
+    obsstate = casacore.measures.measures()
+    when = obsstate.epoch("UTC", obstimestamp)
+    # Use antennafieldlib to get station position and rotation
+    # (using HBA here but it shouldn't matter much if it were LBA)
+    stnPos, stnRot, arrcfgpos_ITRF, stnIntilePos = \
+                         antennafieldlib.getArrayBandParams(stnid, 'HBA')
+
+    # Convert from ITRF to LOFAR station coordsys
+    #arrcfgpos_stncrd = stnRot.T * arrcfgpos_ITRF.T
+    pos_ITRF_X = str(stnPos[0,0])+'m'
+    pos_ITRF_Y = str(stnPos[1,0])+'m'
+    pos_ITRF_Z = str(stnPos[2,0])+'m'
+    where = obsstate.position("ITRF", pos_ITRF_X, pos_ITRF_Y, pos_ITRF_Z)
+    
+    
+    
+    obsstate.doframe(where)
+    obsstate.doframe(when)
+    
+    # Set Horizontal AZEL (not really necessary since request is already in
+    # coordinate system, but acts as a check)
+#    whatconv=obsstate.measure(what,'AZEL')
+#    az = whatconv['m0']['value']
+#    el = whatconv['m1']['value']
+#    print "Horizontal coord. AZ, EL: {}deg, {}deg".format(numpy.rad2deg(az),
+#                                                          numpy.rad2deg(el))
+    az_stn=[]
+    el_stn=[]
+    for i in range(len(refAz)):
+        refAz_i = np.deg2rad(float(refAz[i]))
+        refEl_i = np.deg2rad(float(refEl[i]))
+        what = obsstate.direction("AZEL", str(refAz_i)+"rad", str(refEl_i)+"rad")
+        # Convert to Station Coordinate system.
+        # First convert to ITRF
+        whatconvITRF=obsstate.measure(what,'ITRF')
+        lonITRF = whatconvITRF['m0']['value']
+        latITRF = whatconvITRF['m1']['value']
+        # then turn it into a vector
+        xITRF = np.cos(lonITRF)*np.cos(latITRF)
+        yITRF = np.sin(lonITRF)*np.cos(latITRF)
+        zITRF = np.sin(latITRF)
+        xyzITRF = np.matrix([[xITRF],[yITRF],[zITRF]])
+        # then rotate it using station's rotation matrix
+        what_stn = stnRot.T * xyzITRF
+        l_stn=what_stn[0,0]
+        m_stn=what_stn[1,0]
+        n_stn=what_stn[2,0]
+        # now convert vector in station local coordinate system to az/el
+        az_stn.append(np.rad2deg(np.arctan2(l_stn,m_stn)))
+        el_stn.append(np.rad2deg(np.arcsin(n_stn)))
+    
+    return(az_stn, el_stn)
+
 def calc_diff(merge_df, modes, channel):
     '''
     Calculates the difference between the model and scope values for the given 
@@ -2069,6 +2144,15 @@ if __name__ == "__main__":
     #calculates Alt-Az coordinates if possible
     if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
         merge_df = calc_alt_az(merge_df,modes)
+    
+    #calculates station Alt-Az if possible and requested
+    if modes['location_name']!=None and "stn" in modes["plots"]:
+        try:
+            merge_df=calc_alt_az_lofar(merge_df,modes)
+        except NameError:
+            print ("ERROR: Unable to calculate Station coordintates\n"\
+                   "\tKnown issue: Casacore is not compatible with Windows\n"\
+                   "\tProceeding without station coordinates.")
     
     if  len(merge_df)>0:
         #runs different functions if there are one or multiple frequencies
