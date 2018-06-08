@@ -15,6 +15,24 @@ import h5py
 import os
 from matplotlib.animation import FuncAnimation
 
+from astropy.coordinates import EarthLocation,SkyCoord
+from astropy.time import Time
+from astropy import units as u
+from astropy.coordinates import AltAz
+
+try:
+    import casacore.measures
+    import casacore.quanta.quantity
+
+except ImportError:
+    print("WARNING: Unable to import casacore")
+    
+try:    
+    import ilisa.antennameta.antennafieldlib as antennafieldlib
+
+except ImportError:
+    print("WARNING: unable to import ilisa")
+
 def read_dreambeam_csv(in_file):
     '''
     This function reads in csv files output by dreambeam into a formatted 
@@ -157,14 +175,14 @@ def plot_values_nf(merge_df, m_keys, modes):
     '''
     time_delay = 1000.0/modes['frame_rate']
     
-    if modes['threed']=="colour":
+    if modes['three_d']=="colour":
         for key in m_keys:
             #creates a plot each of the values of model and scope
             
             for source in ["model","scope"]:
                 plot_against_freq_time(merge_df, key, modes, source)
 
-    elif modes['threed']=="anim":
+    elif modes['three_d']=="anim":
         for source in ["model","scope"]:
             
             animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
@@ -177,7 +195,7 @@ def plot_values_nf(merge_df, m_keys, modes):
 #            for source in ["model","scope"]:
 #                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
                 
-    elif modes['threed']=="animf":
+    elif modes['three_d']=="animf":
         for source in ["model","scope"]:
             animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 #        if "each" in modes['values']:
@@ -198,7 +216,7 @@ def plot_values_nf(merge_df, m_keys, modes):
 #    
 #            #plots the channel in a colour based on its name
 #            plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
-#                          cmap=plt.get_cmap(colour_models(key+'s')))
+#                          cmap=plt.get_cmap(colour_models(key+'_s')))
 #            plt.legend(frameon=False)
 #            #plots x-label for both using start time 
 #            plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -232,7 +250,7 @@ def plot_against_freq_time(merge_df, key, modes, source):
 
     #plots the channel in a colour based on its name
     plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
-                  cmap=plt.get_cmap(colour_models(key+'s')))
+                  cmap=plt.get_cmap(colour_models(key+'_s')))
     plt.legend(frameon=False)
     #plots x-label for both using start time 
     plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -249,7 +267,8 @@ def plot_against_freq_time(merge_df, key, modes, source):
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
-def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
+def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
+                  plot_name=""):
     '''
     Produces an animated linegraph(s) with the X, Y and T variables specified
     '''
@@ -327,17 +346,82 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20):
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
         #str_channel = list_to_string(var_ys,", ")
-        plt_file = prep_out_file(modes,source=source,plot="vals",dims="nd",
+        plt_file = prep_out_file(modes,source=source,plot=plot_name,dims="nd",
                                channel=str_channel,out_type=modes['image_type'])
         anim.save(plt_file, dpi=80, writer='imagemagick')
     else:
         plt.show()# will just loop the animation forever.
 
+def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
+    '''
+    Plots a two part plot of four variables from merge_df as controlled by 
+    modes.
     
+    Plot 1 is a 3-d colour plot with x, y and z variables controlled by 
+    arguments.
+    
+    Plot 2 is a 2-d scatter plot with the same x parameter and another y 
+    variable
+    
+    var_z must be one of the dependent variables
+    '''
+    print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
+          " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
+          " and "+ gen_pretty_name(var_y2)+" against "+gen_pretty_name(var_x))
+    plt.figure()
+    plt.subplot(211)
+    upper_title=("Plot of "+gen_pretty_name(source)+\
+                 " for "+gen_pretty_name(var_z)+" against "+\
+                 gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y))
+    label = "\n".join([modes["title"],upper_title])
+    plt.title(label)
+    
+    plt.tripcolor(plottable(merge_df[var_x]),
+                  plottable(merge_df[var_y]),
+                  plottable(merge_df[var_z+'_'+source]), 
+                  cmap=plt.get_cmap(colour_models(var_z+'_s')))
+    
+    #TODO: fix percentile plotting limits
+    plt.clim(np.percentile(plottable(merge_df[var_z+'_'+source]),5),
+             np.percentile(plottable(merge_df[var_z+'_'+source]),95))
+    
+    #plots axes
+    plt.xticks([])
+    plt.ylabel(gen_pretty_name(var_y))
+    #plt.colorbar()
+    
+    plt.subplot(212)
+
+    lower_title=("Plot of "+gen_pretty_name(var_y2)+" against "+\
+                 gen_pretty_name(var_x))
+    plt.title(lower_title)
+    
+    #plots the scattergraph
+    plt.plot(merge_df[var_x],merge_df[var_y2],
+             color=colour_models(var_y2), marker=".", linestyle="None")
+    
+    plt.xlabel(gen_pretty_name(var_x))
+    plt.ylabel(gen_pretty_name(var_y2))
+    plt.legend(frameon=False)
+
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,source=source,plot=var_x,dims="nd",
+                               channel=var_z,
+                               out_type=modes['image_type'])
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
+
 
 
 
 def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
+    '''
+    Update function for animated plots
+    '''
     
     var_t_vals = np.sort(merge_df[var_t].unique())
     var_t_val=var_t_vals[i]
@@ -356,7 +440,52 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
         lines[y_index].set_data(var_x_vals, var_y_vals)
     
 
+def gen_pretty_name(key,units=''):
+    '''
+    This function generates suitable names for graph titles and axes from the 
+    keys used to access elements of the dataframe in the system. 
     
+    e.g. Freq => Frequency
+    '''
+    pretty_name = key
+    if key =='Freq':
+        pretty_name = 'Frequency'
+    if key =='d_Time':
+        pretty_name = 'Time since start'
+
+    
+    elif key =='alt':
+        pretty_name = 'Altitude'
+    elif key =='az':
+        pretty_name = 'Azimuth (0-360)'
+    elif key =='az_ew':
+        pretty_name = 'Azimuth (-180 - +180)'        
+
+    elif key =='stn_alt':
+        pretty_name = 'LOFAR Station Altitude'
+    elif key =='stn_az':
+        pretty_name = 'LOFAR Station Azimuth (0-360)'
+    elif key =='stn_az_ew':
+        pretty_name = 'LOFAR Station Azimuth (-180 - +180)'        
+
+    elif key =='scope':
+        pretty_name = 'Observed value'
+    elif key =='model':
+        pretty_name = 'Model value'
+    elif key =='scope':
+        pretty_name = 'Difference between Observed and Model values'            
+        
+    if units!="":
+        pretty_name=add_units (pretty_name,units)
+    
+    return(pretty_name)
+    
+def add_units(key,units):
+    '''
+    minor function that adds units in brackets after the key provided
+    '''
+    new_key = key+' ('+units+')'
+    return(new_key)
 
     
 def plot_diff_values_1f(merge_df, m_keys, modes):
@@ -656,15 +785,15 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
     
     time_delay = 1000.0/modes['frame_rate']
     
-    if modes['threed']=="colour":
+    if modes['three_d']=="colour":
         for key in m_keys:
             #create a plot 
             plot_against_freq_time(merge_df, key, modes, source)
-    elif modes['threed']=="anim":
+    elif modes['three_d']=="anim":
 
         animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
                 
-    elif modes['threed']=="animf":
+    elif modes['three_d']=="animf":
 
         animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 
@@ -678,7 +807,7 @@ def plot_diff_values_nf(merge_df, m_keys, modes):
 #        
 #        #plots p-channel difference
 #        plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_diff']),
-#                      cmap=plt.get_cmap(colour_models(key+'s')))
+#                      cmap=plt.get_cmap(colour_models(key+'_s')))
 #        plt.colorbar()
 #        #plots x-label for both using start time 
 #        plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
@@ -806,6 +935,13 @@ def analysis_nd(merge_df,modes, m_keys):
         #plots the differences in values for the various channels
         plot_diff_values_nf(merge_df, m_keys, modes)
     
+    if any (plot in modes["plots"] for plot in ["alt","az","ew"]):
+        if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
+            plot_altaz_values_nf(merge_df, m_keys, modes)
+            
+        else:
+            print("Warning: Alt-Azimuth plotting selected, but not available!")
+    
     #calculates the correlations and rmse over time at each independent variable 
     #return values are stored as possible future outputs
     ind_var = ["Freq", "Time"]
@@ -846,9 +982,74 @@ def analysis_nd(merge_df,modes, m_keys):
 
     
     return (ind_dfs)
+
+def plot_altaz_values_nf(merge_df, m_keys, modes):
+    '''
+    plots a series of altitude and azimuth based graphs 
+    '''
+#    directions=['alt','az_ew']
+#    len_dir=len(directions)
+    time_delay = 1000.0/modes['frame_rate']
+
+    source_list = ['model','scope']
+    
+    alt_var ="alt"
+    if 'ew' in modes['plots']:
+        az_var = "az_ew"
+    else:
+        az_var = "az"
+        
+    if 'stn_alt' in merge_df and 'stn_az' in merge_df:
+        az_var = "stn_"+az_var
+        alt_var = "stn_"+alt_var
+    
+    for source in source_list:
+        if modes["three_d"] == 'colour':
+            #plots a 3-d plot against alt or az
+            for key in m_keys:
+                
+                if "alt" in modes['plots']:
+                    four_var_plot(merge_df,modes,alt_var,"Freq",key, az_var,
+                                  source)
+
+                    
+                if "az" in modes['plots']:
+                    four_var_plot(merge_df,modes,az_var,"Freq",key, alt_var,
+                                  source)
+
     
     
+        elif modes['three_d']=="anim":
     
+            if "alt" in modes['plots']:
+                animated_plot(merge_df, modes, 'Freq', m_keys, alt_var, source, 
+                              time_delay, plot_name = alt_var)
+            if "az" in modes['plots']:
+                animated_plot(merge_df, modes, 'Freq', m_keys, az_var, source, 
+                              time_delay, plot_name = az_var)
+
+    
+        elif modes['three_d']=="animf":
+    
+            if "alt" in modes['plots']:
+                animated_plot(merge_df, modes, alt_var, m_keys, "Freq", source, 
+                              time_delay, plot_name = alt_var)
+            if "az" in modes['plots']:
+                animated_plot(merge_df, modes, az_var, m_keys, "Freq", source, 
+                              time_delay, plot_name = az_var)
+
+
+
+#            for i in range(len_dir):
+#                four_var_plot(merge_df,modes,directions[i],"Freq",key,
+#                              directions[len_dir-i-1],source)
+#    
+    
+###############################################################################
+#
+#colour setting functions
+#    
+###############################################################################    
 
  
 def colour_models(colour_id):
@@ -862,7 +1063,7 @@ def colour_models(colour_id):
         return('sandybrown')
     if 'p_dark'==colour_id:
         return('darkorange')
-    if 'ps'==colour_id:
+    if 'p_s'==colour_id:
         return('Oranges')
         
     #sets greens for various applications of the q channel    
@@ -872,7 +1073,7 @@ def colour_models(colour_id):
         return('limegreen')
     if 'q_dark'==colour_id:
         return('darkgreen')
-    if 'qs'==colour_id:
+    if 'q_s'==colour_id:
         return('Greens')
     
     #sets reds for various applications of the XX channel 
@@ -882,7 +1083,7 @@ def colour_models(colour_id):
         return('orangered')
     if 'xx_dark'==colour_id:
         return('darkred')
-    if 'xxs'==colour_id:
+    if 'xx_s'==colour_id:
         return('Reds')
     
     
@@ -893,7 +1094,7 @@ def colour_models(colour_id):
         return('mediumorchid')
     if 'xy_dark'==colour_id:
         return('purple')
-    if 'xys'==colour_id:
+    if 'xy_s'==colour_id:
         return('Purples')
     
     
@@ -904,7 +1105,7 @@ def colour_models(colour_id):
         return('deepskyblue')
     if 'yy_dark'==colour_id:
         return('darkblue')
-    if 'yys'==colour_id:
+    if 'yy_s'==colour_id:
         return('Blues')
         
     #sets golds/yellows for various applications of stokes U
@@ -914,7 +1115,7 @@ def colour_models(colour_id):
         return('goldenrod')
     if 'U_dark'==colour_id:
         return('darkgoldenrod')
-    if 'Us'==colour_id:
+    if 'U_s'==colour_id:
         return('YlOrBr')
         
     #sets oranges for various applications for the Stokes V
@@ -924,7 +1125,7 @@ def colour_models(colour_id):
         return('sandybrown')
     if 'V_dark'==colour_id:
         return('chocolate')
-    if 'Vs'==colour_id:
+    if 'V_s'==colour_id:
         return('Oranges')        
 
     #sets cyans for various applications for the Stokes I
@@ -934,7 +1135,7 @@ def colour_models(colour_id):
         return('aquamarine')
     if 'I_dark'==colour_id:
         return('teal')
-    if 'Is'==colour_id:
+    if 'I_s'==colour_id:
         return('winter')   
 
     #sets greens for various applications for the Stokes Q
@@ -945,8 +1146,28 @@ def colour_models(colour_id):
         return('limegreen')
     if 'Q_dark'==colour_id:
         return('darkgreen')
-    if 'Qs'==colour_id:
+    if 'Q_s'==colour_id:
         return('Greens')           
+
+    #sets black/grey for various applications for altitude
+    if colour_id in ['alt','stn_alt']:
+        return('black')
+    if colour_id in ['alt_light','stn_alt_light']:
+        return('grey')
+    if colour_id in ['alt_dark','stn_alt_dark']:
+        return('darkslategrey')
+    if colour_id in ['alt_s','stn_alt_s']:
+        return('Greys')     
+    
+    #sets browns for various applications for azimuth
+    if colour_id in ['az','az_ew','stn_az','stn_az_ew']:
+        return('brown')
+    if colour_id in ['az_light','az_ew_light','stn_az_light','stn_az_ew_light']:
+        return('chocolatebrown')
+    if colour_id in ['az_dark','az_ew_dark','stn_az_dark','stn_az_ew_dark']:
+        return('saddlebrown')
+    if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
+        return('Copper')     
     
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
@@ -959,9 +1180,9 @@ def colour_models(colour_id):
               "\n\n'dark' found in colourstring.\n"
               "Defaulting to darkeslategrey\n")
         return ('darkslategrey')  
-    if 's' in colour_id:    
+    if '_s' in colour_id:    
         print("Warning: Colour incompletely or inaccurately specified as:\n\n\t"+colour_id+              
-              "\n\n's' found in colourstring.\n"
+              "\n\n'_s' found in colourstring.\n"
               "Defaulting to Greys\n")
         return ('Greys')      
     
@@ -970,6 +1191,16 @@ def colour_models(colour_id):
         print("Warning: Colour incorrectly specified as:\n\n\t"+colour_id+              
               "\n\nDefaulting to black\n")
         return ('black')    
+
+
+
+
+
+###############################################################################
+#
+#argument setting functions
+#    
+###############################################################################
 
 def beam_arg_parser():
     '''
@@ -985,6 +1216,10 @@ def beam_arg_parser():
     
     parser = argparse.ArgumentParser()
     
+###############################################################################
+#Model filenames
+###############################################################################
+    
     #creates a group for the model filename
     group_model = parser.add_mutually_exclusive_group()
     
@@ -998,6 +1233,9 @@ The file containing the data from the model (Usually DreamBeam)
 Alternative way of specifying the file containing the data from the model
                              ''')
     
+###############################################################################
+#Scope filenames
+###############################################################################
     
     #creates a group for the scope filename
     group_scope = parser.add_mutually_exclusive_group()
@@ -1013,6 +1251,10 @@ Alternative way of specifying the file containing the observed data from the
 telescope
                              ''')
 
+###############################################################################
+#Output filename, file type and plot titles
+###############################################################################
+
     #adds an optional argument for output directory
     parser.add_argument("--out_dir","-o", default=None,
                              help='''
@@ -1020,12 +1262,27 @@ path to a directory in which the output of the program is intended to be stored
 .  IF this argument is blank, output is to std.out and plots are to screen.
                              ''')   
     
+    
     #adds an optional argument for the title of graphs and out_files
-    parser.add_argument("--title","-t", default=[""], nargs = '*',
+    parser.add_argument("--title","-t", default=[], nargs = '*',
                              help='''
 The title for graphs and output files.  Spaces are permitted in title.  Output
 files will have spaces replaced with underscores
                              ''')   
+    
+    
+    #adds an optional argument for the file types for image plots
+    parser.add_argument("--image_type","-i", default="png",
+                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 
+                                 'raw', 'rgba', 'html'),
+                        help = '''
+Sets the file type for image files to be saved as.  If using amimations, some
+file types will save animations, and others will save frames.  Default is png.
+                        ''')     
+                        
+###############################################################################
+#Normalisation options
+###############################################################################    
     
     #adds an optional argument for normalisation method
     parser.add_argument("--norm","-n", default='o',
@@ -1047,16 +1304,20 @@ m = model
 n = no cropping
 b = normalise both
                              ''')       
+###############################################################################
+#Cropping options
+###############################################################################    
+    
     #adds an optional argument for the cropping type for noise on the scope
     parser.add_argument("--crop_type","-C", default="median",
                         choices=("median","mean","percentile"),
                         help = '''
 Sets what style of cropping will be applied to the scope data to remove 
 outliers. A value for --crop must also be specified or this argument is ignored.  
-        median implies drop all values over a given multiple of the median value.
-        mean implies drop all values over a given multiple of the median value.
-        percentile implies drop all values over a given percentile value.
-        percentiles over 100 are ignored''')     
+    median implies drop all values over a given multiple of the median value.
+    mean implies drop all values over a given multiple of the median value.
+    percentile implies drop all values over a given percentile value.
+    percentiles over 100 are ignored''')     
 
     #adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop","-c", default = 0.0, type=float,
@@ -1087,7 +1348,12 @@ m = model
 n = no cropping
 b = crop both
                              ''')    
-    #adds an optional argument for the cropping level for noise on the scope
+
+###############################################################################
+#Difference options
+###############################################################################    
+    
+    #adds an optional argument for the mechanism for comparing scope with model
     parser.add_argument("--diff","-d", default = "sub",
                         choices=("sub","div", "idiv"),
                         help = '''
@@ -1097,6 +1363,9 @@ the difference between the scope and the model.  Default is subtract
   div = model / scope
   idiv = scope/model
                         ''')
+###############################################################################
+#Plotting options
+###############################################################################    
     
     #adds an optional argument for the set of values to analyse and plot
     parser.add_argument("--values","-v", default=["all"], nargs="*",
@@ -1114,18 +1383,30 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "value", "diff", "file"],
-                        choices=("rmse", "corr", "value", "diff", "file"),
+                        default=["rmse", "corr", "value", "diff"],
+                        choices=("rmse", "corr", "value", "diff", "file",
+                                 "alt","az","ew", "stn"),
                         help = '''
-Sets which plots will be shown.  Default is to show all plots and calculations
+Sets which plots will be shown.  Default is to show rmse, corr, value and diff
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
 corr shows plots of corrlation (overall, per time and per freq as appropriate)
-value shows plots of the values of the channels (per time and per freq as appropriate)
-diff shows plots of the differences in values of the channels (per time and per freq as appropriate)
- 
+value shows plots of the values of the channels (per time and per freq as 
+appropriate) 
+diff shows plots of the differences in values of the channels (per time and per
+ freq as appropriate)
+file determines whether to output the dataframe to a file for later analyses
+alt shows plots of value against altitude
+az shows plots of value against azimuth
+ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)
+stn means alt/az coordinates are calculated in the station reference frame
                         ''') 
+
+###############################################################################
+#Three D/Animation options
+###############################################################################    
+    
     #adds an optional argument for the way to show 3d data
-    parser.add_argument("--threed","-3", default="colour",
+    parser.add_argument("--three_d","-3", default="colour",
                         choices=("colour","color", "anim", "animf"),
                         help = '''
 Sets how to show three dimensional plots.  If colour is chosen, then they are 
@@ -1141,6 +1422,9 @@ animated graphs at.  If no animated plots are used, or animations are plotted
 to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
                              ''')
      
+###############################################################################
+#Timing options
+###############################################################################
     #adds an optional argument for a time offset between model and scoep
     parser.add_argument("--offset","-O", default = 0, type=int,
                         help = '''
@@ -1150,15 +1434,12 @@ time of the scope data.  Default is no offset.  Offsets may only be given in
 whole seconds
                              ''')
        
-    #adds an optional argument for the file types for image plots
-    parser.add_argument("--image_type","-i", default="png",
-                        choices=('png', 'gif', 'jpeg', 'tiff', 'sgi', 'bmp', 
-                                 'raw', 'rgba', 'html'),
-                        help = '''
-Sets the file type for image files to be saved as.  If using amimations, some
-file types will save animations, and others will save frames.  Default is png.
-                        ''')     
-    #creates a group for the scope filename
+
+
+###############################################################################
+#Frequencies
+###############################################################################
+    #creates a group for the chosen frequency or frequencies
     group_freq = parser.add_mutually_exclusive_group()
     #adds an optional argument for the frequency to filter to
     group_freq.add_argument("--freq","-f", default = [0.0], 
@@ -1167,16 +1448,66 @@ file types will save animations, and others will save frames.  Default is png.
 set a frequency filter to and display the channels for.   
 Must supply a float or collection of floats separated by spaces.
                         ''')
-    #adds an optional argument for a file containing a set of frequenciesy 
+    #adds an optional argument for a file containing a set of frequencies 
     #to filter to
     group_freq.add_argument("--freq_file","-F", default = "", 
                             help = '''
 set a file containing multiple frequencies to filter to and display the 
 channels for.  The file must contain one float per line in text format.
                             ''')    
+
+###############################################################################
+#Target object
+###############################################################################
     
+    #creates a group for the target object
+    group_object = parser.add_mutually_exclusive_group()
+    #adds an optional argument for target object
+    group_object.add_argument("--object_name","-X", default = None,
+                        choices=("","CasA", "CygA"), 
+                            help = '''
+set a variable for the name of the target object.  This is used to generate sky
+coordinates.  At present this is enabled only for CasA and CygA
+                            ''')        
+    #adds an optional argument for target object
+    group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
+                            type=float, nargs=2,
+                            help = '''
+set a variable for the coordinates of the target object.  Coordinates should 
+be 2 floats: RA and Dec (decimal degrees)
+                            ''')   
+    #TODO: deak with restricted units
+    #may later add functionality to parse non-decimal degree values or add a 
+    #unit functionality
     
+###############################################################################
+#Observing Location
+###############################################################################
     
+    #creates a group for the target object
+    group_location = parser.add_mutually_exclusive_group()
+    #adds an optional argument for target object
+    group_location.add_argument("--location_name","-L", default = None,
+                        choices=("","IE613", "SE607"), 
+                            help = '''
+Set the name of the observing location.  This is used to generate ground 
+coordinates for the oberving location.  From this and target coordinates, 
+Alt-Az coordinates can be generated.  At present this is only defined for LOFAR
+stations IE613 and SE607
+                            ''')        
+    #adds an optional argument for target object
+    group_location.add_argument("--location_coords","-l", 
+                                default = [0.0,0.0,0.0], 
+                            type=float, nargs='*',
+                            help = '''
+set a variable for the coordinates of the observing site.  Coordinates should 
+be 3 floats: Latitude, longitude (degrees) and height above sea level (metres).
+If two coordinates are specified, height will be assumed to be 0 (sea level)
+                            ''')   
+    
+###############################################################################
+#Using the arguments
+###############################################################################
     #passes these arguments to a unified variable
     args = parser.parse_args()
     
@@ -1195,19 +1526,22 @@ channels for.  The file must contain one float per line in text format.
     modes['plots']=args.plots
     modes['freq']=args.freq
     modes['freq_file']=args.freq_file
-    modes['threed']=args.threed
+    modes['three_d']=args.three_d
     modes['image_type']=args.image_type
     modes['frame_rate']=args.frame_rate
     modes['offset']=args.offset
+    modes['location_name']=args.location_name
+    modes['object_name']=args.object_name
     
-    #fixes issues with spelling of colour
-    if modes['threed'] == "color":
-        modes['threed'] = "colour"
+    #ensures that whichever spelling of colour is input by the user, only one 
+    #needs to be used in the rest of the code.
+    if modes['three_d'] == "color":
+        modes['three_d'] = "colour"
     
     #combines the components of the title with spaces to create titles
     modes['title']= " ".join(args.title)
 
-    #combines the components of the title with spaces to create titles
+    #combines the components of the title with underscores to create titles
     modes['title_']= "_".join(args.title)    
     
     #outputs the filename for the model to a returnable variable
@@ -1226,13 +1560,87 @@ channels for.  The file must contain one float per line in text format.
     elif args.scope != None:
         modes['in_file_scope']=args.scope
     else:
-        modes['in_file_scope']=raw_input("No filename specified for observed data from the telescope:\n"
-                                "Please enter the telescope filename:\n")
+        modes['in_file_scope']=raw_input("No filename specified for observed"+
+                                     " data from the telescope:\n"
+                                     "Please enter the telescope filename:\n")
     
     #sets up the output directory based on the input
     modes['out_dir']=prep_out_dir(args.out_dir)
     
+    
+    #sets up the object coordinates
+    if args.object_name != None:
+        modes['object_coords']=set_object_coords(args.object_name)
+    else:
+        modes['object_coords']=args.object_coords
+    
+    #sets up the location coordinates
+    if args.location_name != None:
+        modes['location_coords']=set_location_coords(args.location_name)
+        
+    elif len(args.location_coords) == 3:
+        modes['location_coords']=args.location_coords
+    elif len(args.location_coords) == 2:
+        #appends a height of zero (sea level) for the observing site
+        print("Warning, no height above sea level specified, defaulting to 0m")
+        modes['location_coords']=args.location_coords+[0.0]
+    else:
+        print("Warning: Site: "+ str(args.location_coords)+" incorrectly "+
+              "specified.  Setting site coordinates to 0,0,0 which will"+
+              " disable object tracking./n/n")    
+        modes['location_coords']=[0.0, 0.0, 0.0]
+    
     return(modes)
+
+
+
+
+###############################################################################
+#
+#coordinate setting functions
+#    
+###############################################################################
+
+
+    
+def set_object_coords(name_str=""):
+    '''
+    returns a 2-long list of the coordinates of an object identified by name
+    Want to replace this with something better at a later point, but this is 
+    designed as a module to be replaced.
+    '''
+    coords=[0.0,0.0]
+    if name_str == "CasA":
+        coords=[350.85,  58.815]
+    elif name_str == "CygA":
+        coords=[299.86791667,  40.73388889]
+    else:
+        print("Warning: Object: "+name_str+" not found.  Setting object "+
+              "coordinates to 0,0 which will disable object tracking./n/n" + 
+              "for an object at exactly 0,0 set one coordinate to 1e-308")
+    #minimum float increment coordinates will not affect the actual results
+    #due to precision limits but will pass a =!0 test later in the program
+    
+    return(coords)
+    
+def set_location_coords(name_str=""):
+    '''
+    returns a 2-long list of the coordinates of an observing location 
+    identified by name.
+    Want to replace this with something better at a later point, but this is 
+    designed as a module to be replaced.
+    '''
+    coords=[0.0,0.0,0.0]
+    if name_str == "IE613": 
+        coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
+    elif name_str == "SE607":
+        coords=[57.398743, 11.929636, 20.0]
+    else:
+        print("Warning: Site: "+name_str+" not found.  Setting site "+
+              "coordinates to 0,0,0 which will disable object tracking./n/n" )    
+        #there is no land at lat/long (0,0), so it should be ok to assume no
+        #observations at this location
+    return(coords)
 
 def prep_out_dir(out_dir=None):
     '''
@@ -1271,7 +1679,7 @@ def prep_out_dir(out_dir=None):
     return(out_dir)
     
 def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
-                  freq=0.0,
+                  freq=0.0, plot_name = "",
                   out_type=""):
     '''
     Prepares the output path for a variety of options given input parameters 
@@ -1296,6 +1704,9 @@ def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
 
     if ind_var != "":
         out_file_path= out_file_path + "_" + ind_var
+
+    if plot_name != "":
+        out_file_path= out_file_path + "_" + plot_name
 
     if freq != 0.0:
         out_file_path= out_file_path + "_" + str(freq).replace(".","-")+"Hz"
@@ -1584,10 +1995,106 @@ def crop_operation (in_df,modes):
             
     return(out_df)
 
+
+def calc_alt_az(merge_df,modes):
+    '''
+    This function uses astropy to calculate a set of altitude and azimuth 
+    coordinates for the target object at each time in the the dataset
+    '''
+    observing_location = EarthLocation(lat= modes['location_coords'][0],
+                                       lon= modes['location_coords'][1],
+                                       height =modes['location_coords'][2]*u.m)
     
+    coord = SkyCoord(modes['object_coords'][0],
+                     modes['object_coords'][1], 
+                     unit='deg')
+    
+    time_set = Time(list(merge_df.Time))
+    aa_set= AltAz(location=observing_location, obstime=time_set)
+    coord_set=coord.transform_to(aa_set)
+    
+    merge_df['alt'] = coord_set.alt
+    merge_df['az'] = coord_set.az
+    
+    merge_df['az_ew'] = coord_set.az
+    (merge_df.loc[merge_df['az']>180,'az_ew'])=(merge_df.loc[merge_df['az']>180,'az'])-360
+    return (merge_df)
+
+def calc_alt_az_lofar(merge_df,modes):
+    '''
+    This function is not currently defined.  This placeholder will be used to 
+    define the function to calculate LOFAR specific coordinates
+    '''
+    stn_id=modes['location_name']
+    stn_alt_az=horizon_to_station(stn_id, merge_df.az, merge_df.alt)
+    
+    merge_df['stn_alt']=np.array(stn_alt_az[1])
+    merge_df['stn_az_ew']=np.array(stn_alt_az[0])
+    (merge_df.loc[merge_df['stn_az_ew']<0,'stn_az_ew'])=(merge_df.loc[merge_df['stn_az_ew']<0,'az'])+360
+    return (merge_df)
+
+def horizon_to_station(stnid, refAz, refEl):
+    # Algorithm does not depend on time but need it for casacore call.
+    obstimestamp = "2000-01-01T12:00:00" 
+
+
+    obsstate = casacore.measures.measures()
+    when = obsstate.epoch("UTC", obstimestamp)
+    # Use antennafieldlib to get station position and rotation
+    # (using HBA here but it shouldn't matter much if it were LBA)
+    stnPos, stnRot, arrcfgpos_ITRF, stnIntilePos = \
+                         antennafieldlib.getArrayBandParams(stnid, 'HBA')
+
+    # Convert from ITRF to LOFAR station coordsys
+    #arrcfgpos_stncrd = stnRot.T * arrcfgpos_ITRF.T
+    pos_ITRF_X = str(stnPos[0,0])+'m'
+    pos_ITRF_Y = str(stnPos[1,0])+'m'
+    pos_ITRF_Z = str(stnPos[2,0])+'m'
+    where = obsstate.position("ITRF", pos_ITRF_X, pos_ITRF_Y, pos_ITRF_Z)
+    
+    
+    
+    obsstate.doframe(where)
+    obsstate.doframe(when)
+    
+    # Set Horizontal AZEL (not really necessary since request is already in
+    # coordinate system, but acts as a check)
+#    whatconv=obsstate.measure(what,'AZEL')
+#    az = whatconv['m0']['value']
+#    el = whatconv['m1']['value']
+#    print "Horizontal coord. AZ, EL: {}deg, {}deg".format(numpy.rad2deg(az),
+#                                                          numpy.rad2deg(el))
+    az_stn=[]
+    el_stn=[]
+    for i in range(len(refAz)):
+        refAz_i = np.deg2rad(float(refAz[i]))
+        refEl_i = np.deg2rad(float(refEl[i]))
+        what = obsstate.direction("AZEL", str(refAz_i)+"rad", str(refEl_i)+"rad")
+        # Convert to Station Coordinate system.
+        # First convert to ITRF
+        whatconvITRF=obsstate.measure(what,'ITRF')
+        lonITRF = whatconvITRF['m0']['value']
+        latITRF = whatconvITRF['m1']['value']
+        # then turn it into a vector
+        xITRF = np.cos(lonITRF)*np.cos(latITRF)
+        yITRF = np.sin(lonITRF)*np.cos(latITRF)
+        zITRF = np.sin(latITRF)
+        xyzITRF = np.matrix([[xITRF],[yITRF],[zITRF]])
+        # then rotate it using station's rotation matrix
+        what_stn = stnRot.T * xyzITRF
+        l_stn=what_stn[0,0]
+        m_stn=what_stn[1,0]
+        n_stn=what_stn[2,0]
+        # now convert vector in station local coordinate system to az/el
+        az_stn.append(np.rad2deg(np.arctan2(l_stn,m_stn)))
+        el_stn.append(np.rad2deg(np.arcsin(n_stn)))
+    
+    return(az_stn, el_stn)
+
 def calc_diff(merge_df, modes, channel):
     '''
-    Calculates the difference between the model and scope values for the 
+    Calculates the difference between the model and scope values for the given 
+    channel
     '''
     
     if modes['diff']=='sub':
@@ -1637,6 +2144,18 @@ if __name__ == "__main__":
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
     
+    #calculates Alt-Az coordinates if possible
+    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+        merge_df = calc_alt_az(merge_df,modes)
+    
+    #calculates station Alt-Az if possible and requested
+    if modes['location_name']!=None and "stn" in modes["plots"]:
+        try:
+            merge_df=calc_alt_az_lofar(merge_df,modes)
+        except NameError:
+            print ("ERROR: Unable to calculate Station coordintates\n"\
+                   "\tKnown issue: Casacore is not compatible with Windows\n"\
+                   "\tProceeding without station coordinates.")
     
     if  len(merge_df)>0:
         #runs different functions if there are one or multiple frequencies
