@@ -242,10 +242,12 @@ def plot_against_freq_time(merge_df, key, modes, source):
     '''
     plt.figure()
     if source == "diff":
-        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
+        graph_title="\n".join([modes['title'],
+            ("Plot of the differences in %s\n over time and frequency"%key)])
     else:
-        graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
-                  "and frequency for "+source)])
+        graph_title="\n".join([modes['title'],
+            ("Plot of the "+gen_pretty_name(source)+" for "+key+"-channel \nover time "+
+                  "and frequency.")])
     plt.title(graph_title)
 
     #plots the channel in a colour based on its name
@@ -294,7 +296,10 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     
     str_channel = list_to_string(var_ys,", ")
     var_t_string = str(var_t_val).rstrip('0').rstrip('.')
-    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
+                gen_pretty_name(str_channel)+" against "+
+                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
+                " of "+gen_pretty_name(var_t_string))
     label = "\n".join([modes["title"],anim_title])
     plt.title(label)
     
@@ -325,7 +330,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     ax.set_ylim(min_y,max_y)
     
 
-    ax.set_xlabel(var_x)
+    ax.set_xlabel(gen_pretty_name(var_x))
     ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)")    
  
     ax.legend(frameon=False)
@@ -427,7 +432,10 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
     var_t_val=var_t_vals[i]
     str_channel = list_to_string(var_ys,", ")
     var_t_string = str(var_t_val).rstrip('0').rstrip('.')
-    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
+                gen_pretty_name(str_channel)+" against "+
+                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
+                " of "+gen_pretty_name(var_t_string))
     label = "\n".join([modes["title"],anim_title])
     plt.title(label)
     
@@ -617,7 +625,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
     
     #completes the title using the independent variable plotted over
     
-    graph_title=graph_title+"-channels over "+var_str    
+    graph_title=graph_title+"-channels over "+gen_pretty_name(var_str)    
             
     
 
@@ -626,7 +634,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
-    plt.xlabel(var_str)
+    plt.xlabel(gen_pretty_name(var_str))
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -716,7 +724,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     
     #calculates and adds title with frequency in MHz
     
-    graph_title=graph_title+"-channels over "+var_str    
+    graph_title=graph_title+"-channels over "+gen_pretty_name(var_str)    
             
     plt.title(graph_title)
 
@@ -724,7 +732,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
-    plt.xlabel(var_str)
+    plt.xlabel(gen_pretty_name(var_str))
     
     #prints or saves the plot
     if modes['out_dir'] == None:
