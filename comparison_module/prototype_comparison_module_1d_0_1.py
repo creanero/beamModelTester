@@ -1530,6 +1530,8 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes['image_type']=args.image_type
     modes['frame_rate']=args.frame_rate
     modes['offset']=args.offset
+    modes['location_name']=args.location_name
+    modes['object_name']=args.object_name
     
     #ensures that whichever spelling of colour is input by the user, only one 
     #needs to be used in the rest of the code.
@@ -1575,7 +1577,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     #sets up the location coordinates
     if args.location_name != None:
         modes['location_coords']=set_location_coords(args.location_name)
-        modes['location_name']=args.location_name
+        
     elif len(args.location_coords) == 3:
         modes['location_coords']=args.location_coords
     elif len(args.location_coords) == 2:
@@ -2027,7 +2029,8 @@ def calc_alt_az_lofar(merge_df,modes):
     stn_alt_az=horizon_to_station(stn_id, merge_df.az, merge_df.alt)
     
     merge_df['stn_alt']=np.array(stn_alt_az[1])
-    merge_df['stn_az']=np.array(stn_alt_az[0])
+    merge_df['stn_az_ew']=np.array(stn_alt_az[0])
+    (merge_df.loc[merge_df['stn_az_ew']<0,'stn_az_ew'])=(merge_df.loc[merge_df['stn_az_ew']<0,'az'])+360
     return (merge_df)
 
 def horizon_to_station(stnid, refAz, refEl):
