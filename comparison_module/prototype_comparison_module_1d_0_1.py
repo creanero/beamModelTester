@@ -121,6 +121,7 @@ def plot_values_1f(merge_df, m_keys, modes):
     for key in m_keys:
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values per channel against time
+        print("Plotting values in "+key)
         plt.figure()
         graph_title="\n".join([modes['title'],
                         ("Plot of the values in "+key+"-channel over time"+
@@ -148,7 +149,7 @@ def plot_values_1f(merge_df, m_keys, modes):
                                    out_type="png")
             print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+            plt.close()
     return(0)
     
 def plottable(in_series):
@@ -240,6 +241,7 @@ def plot_against_freq_time(merge_df, key, modes, source):
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
     '''
+    print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
     plt.figure()
     if source == "diff":
         graph_title="\n".join([modes['title'],
@@ -504,7 +506,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-
+    print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
     plt.figure()
     
     graph_title = "\n".join([modes['title'],"Plot of the differences in "])
@@ -543,7 +545,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
     return(0)
     
     
@@ -609,6 +611,9 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
 
     #creates an overlaid plot of how the correlation of between model and scope
     #varies for each of the channels against var_str
+    print("Plotting the correlations between model and scope for "+\
+          channel_maker(m_keys,modes,", ")+" against "+\
+          gen_pretty_name(var_str))
     plt.figure()
 
     graph_title = "\n".join([modes['title'],"Plot of the correlation in "])
@@ -649,7 +654,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
         
     #returns the correlation lists if needed    
     return (n_corrs)    
@@ -708,7 +713,10 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
             n_rmses[i].append(n_rmse[i])
     
     #creates an overlaid plot of how the RMSE  between model and scope
-    #varies for each of the channels against var_str    
+    #varies for each of the channels against var_str  
+    print("Plotting the RMSE between model and scope for "+\
+          channel_maker(m_keys,modes,", ")+" against "+\
+          gen_pretty_name(var_str))
     plt.figure()
     graph_title = "\n".join([modes['title'],"Plot of the RMSE in "])
     for key in m_keys:    
@@ -747,7 +755,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
     
     #returns the correlation lists if needed    
     return (n_rmses)
@@ -985,7 +993,7 @@ def analysis_nd(merge_df,modes, m_keys):
             try:
                 ind_dfs[plot_item].to_csv(path_out_df)
             except IOError:
-                print("WARNING: unable to output to file:\n\t"+path_out_df)
+                print("WARNING: Unable to output to file:\n\t"+path_out_df)
     
 
     
