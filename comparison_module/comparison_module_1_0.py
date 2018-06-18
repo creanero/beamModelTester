@@ -37,14 +37,7 @@ except ImportError:
     print("WARNING: unable to import ilisa.\n"\
           "This may cause subsequent modules to fail")
 
-#try:    
-##    from reading_functions import read_dreambeam_csv as read_dreambeam_csv
-##    from reading_functions import read_OSO_h5 as read_OSO_h5
-#    from reading_functions import read_var_file as read_var_file
-#    from reading_functions import merge_dfs as merge_dfs
-#
-#except ImportError:
-#    print("WARNING: unable to import reading_functions.")
+
 
 
 #modules of this project
@@ -304,22 +297,26 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "value", "diff"],
-                        choices=("rmse", "corr", "value", "diff", "file",
-                                 "alt","az","ew", "stn"),
+                        default=["rmse", "corr", "spectra"],
+                        choices=("rmse", "corr", "spectra", 
+                                 "file",
+                                 "alt","az","ew", "stn",
+                                 "values","model","scope", "diff"),
                         help = '''
-Sets which plots will be shown.  Default is to show rmse, corr, value and diff
+Sets which plots will be shown.  Default is to show rmse, corr and spectra plots
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
 corr shows plots of corrlation (overall, per time and per freq as appropriate)
-value shows plots of the values of the channels (per time and per freq as 
+spectra shows plots of the spectrum of the channels (by frequency over time as 
 appropriate) 
-diff shows plots of the differences in values of the channels (per time and per
- freq as appropriate)
 file determines whether to output the dataframe to a file for later analyses
 alt shows plots of value against altitude
 az shows plots of value against azimuth
 ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)
 stn means alt/az coordinates are calculated in the station reference frame
+values means to plot both model and scope values
+model means to plot model values
+scope means to plot scope values
+diff shows plots of the differences in values of the channels 
                         ''') 
 
 ###############################################################################
@@ -610,7 +607,8 @@ def calc_alt_az_lofar(merge_df,modes):
     
     merge_df['stn_alt']=np.array(stn_alt_az[1])
     merge_df['stn_az_ew']=np.array(stn_alt_az[0])
-    (merge_df.loc[merge_df['stn_az_ew']<0,'stn_az_ew'])=(merge_df.loc[merge_df['stn_az_ew']<0,'az'])+360
+    merge_df['stn_az']=merge_df['stn_az_ew']
+    (merge_df.loc[merge_df['stn_az_ew']<0,'stn_az'])=(merge_df.loc[merge_df['stn_az_ew']<0,'stn_az_ew'])+360
     return (merge_df)
 
 def horizon_to_station(stnid, refAz, refEl):
@@ -673,7 +671,7 @@ def horizon_to_station(stnid, refAz, refEl):
 
     
 if __name__ == "__main__":
-    #gets the command line arguments for the scope and model filename
+    #gets the command line arguments and parses them into the modes dictionary
     modes=beam_arg_parser()
     
 
@@ -681,9 +679,6 @@ if __name__ == "__main__":
     #read in the csv files from DreamBeam and format them correctly
     model_df=read_var_file(modes['in_file_model'],modes,"m")
     
-
-
-
     #read in the file from the scope using variable reader
     scope_df=read_var_file(modes['in_file_scope'],modes,"s")
     

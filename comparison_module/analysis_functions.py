@@ -8,9 +8,10 @@ import pandas as pd
 
 from graphing_functions import plot_values_1f
 from graphing_functions import plot_diff_values_1f
-from graphing_functions import plot_values_nf
+from graphing_functions import plot_spectra_nf
 from graphing_functions import calc_fom_1d
 from graphing_functions import calc_fom_nd
+from graphing_functions import plot_altaz_values_nf
 
 from appearance_functions import channel_maker
 from appearance_functions import gen_pretty_name
@@ -26,7 +27,7 @@ def analysis_1d(merge_df,modes, m_keys):
     '''
   
     print("Carrying out 1-frequency Analysis")
-    if "value" in modes["plots"]:
+    if "spectra" in modes["plots"]:
         #plots the values for each channel
         plot_values_1f(merge_df, m_keys, modes)
     
@@ -88,15 +89,16 @@ def analysis_nd(merge_df,modes, m_keys):
     
     print("Carrying out multi-frequency Analysis")
   
-                
-    plot_values_nf(merge_df, m_keys, modes)
+    if "spectra" in modes["plots"]:
+        plot_spectra_nf(merge_df, m_keys, modes)
     
     if any (plot in modes["plots"] for plot in ["alt","az","ew"]):
         if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
-            try:
-                plot_altaz_values_nf(merge_df, m_keys, modes)
-            except NameError:
-                print("Error: unable to plot altaz values")
+#            try:
+#                plot_altaz_values_nf(merge_df, m_keys, modes)
+#            except NameError:
+#                print("Error: unable to plot altaz values")
+            plot_altaz_values_nf(merge_df, m_keys, modes)
             
         else:
             print("Warning: Alt-Azimuth plotting selected, but not available!")

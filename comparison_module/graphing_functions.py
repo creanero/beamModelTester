@@ -37,9 +37,9 @@ def plot_against_freq_time(merge_df, key, modes, source):
     else:
         graph_title="\n".join([modes['title'],
             ("Plot of the "+gen_pretty_name(source)+" for "+key+
-             "-channel \nover "+gen_pretty_name(x_var)+ "and "+
+             "-channel \nover "+gen_pretty_name(x_var)+ " and "+
              gen_pretty_name(y_var)+".")])
-    plt.title(graph_title)
+    plt.title(graph_title, wrap=True)
 
     #plots the channel in a colour based on its name
     plt.tripcolor(plottable(merge_df,x_var),
@@ -48,8 +48,8 @@ def plot_against_freq_time(merge_df, key, modes, source):
                   cmap=plt.get_cmap(colour_models(key+'_s')))
     plt.legend(frameon=False)
     #plots x-label using start time 
-    plt.xlabel(gen_pretty_name(x_var,units=True)+"\nStart Time: "+str(min(merge_df.Time)))
-    plt.ylabel(gen_pretty_name(y_var,units=True))
+    plt.xlabel(gen_pretty_name(x_var,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+    plt.ylabel(gen_pretty_name(y_var,units=True), wrap=True)
     plt.colorbar()
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -88,7 +88,12 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     var_t_val=var_t_vals[0]
     
     str_channel = list_to_string(var_ys,", ")
-    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    
+    if var_t == "Time":
+        var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    else:
+        var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
+        
     anim_title=("Plot of "+gen_pretty_name(source)+" for "+
                 gen_pretty_name(str_channel)+" against "+
                 gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
@@ -97,7 +102,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     
     print("Generating an Animated "+anim_title)
     
-    plt.title(label)
+    ax.set_title(label, wrap=True)
     
     var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
                           var_x)
@@ -127,8 +132,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     ax.set_ylim(min_y,max_y)
     
 
-    ax.set_xlabel(gen_pretty_name(var_x,units=True))
-    ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)")    
+    ax.set_xlabel(gen_pretty_name(var_x,units=True), wrap=True)
+    ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)", wrap=True)    
  
     ax.legend(frameon=False)
     
@@ -137,22 +142,62 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     else:
         repeat_option = False
     
-    #creates a global variable as animations only work with     
-    global anim
-    anim = FuncAnimation(fig, update_a, frames=range(len(var_t_vals)), 
+    #creates a global variable as animations only work with globals
+    if "anim" not in globals():
+        global anim
+        anim = []
+    else:
+        pass
+    anim.append(FuncAnimation(fig, update_a, frames=range(len(var_t_vals)), 
                                  interval=time_delay,
                                  fargs=(merge_df, modes, var_x, var_ys, var_t, 
                                         source,lines,ax),
-                                 repeat=repeat_option)
+                                 repeat=repeat_option))
 
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
         #str_channel = list_to_string(var_ys,", ")
         plt_file = prep_out_file(modes,source=source,plot=plot_name,dims="nd",
                                channel=str_channel,out_type=modes['image_type'])
-        anim.save(plt_file, dpi=80, writer='imagemagick')
+        anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
     else:
         plt.show()# will just loop the animation forever.
+
+
+
+
+
+def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
+    '''
+    Update function for animated plots
+    '''
+    
+    var_t_vals = np.sort(merge_df[var_t].unique())
+    var_t_val=var_t_vals[i]
+    str_channel = list_to_string(var_ys,", ")
+    if var_t == "Time":
+        var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    else:
+        var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
+    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
+                gen_pretty_name(str_channel)+" against "+
+                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
+                " of "+gen_pretty_name(var_t_string))
+    label = "\n".join([modes["title"],anim_title])
+    ax.set_title(label, wrap=True)
+    
+
+    
+    var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                          var_x)
+    
+    for y_index in range(len(var_ys)):
+        var_y = var_ys[y_index]
+        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                               (var_y+"_"+source))
+
+        lines[y_index].set_data(var_x_vals, var_y_vals)
+
 
 def plot_values_1f(merge_df, m_keys, modes):
     '''
@@ -173,7 +218,7 @@ def plot_values_1f(merge_df, m_keys, modes):
                         ("Plot of the values in "+key+"-channel over time"+
                          "\nat %.2f MHz"%(min(merge_df.Freq)/1e6))])
         
-        plt.title(graph_title)
+        plt.title(graph_title, wrap=True)
 
         #plots the model in one colour
         plt.plot(plottable(merge_df,"Time"),
@@ -225,7 +270,7 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
                  " for "+gen_pretty_name(var_z)+" against "+\
                  gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y))
     label = "\n".join([modes["title"],upper_title])
-    plt.title(label)
+    plt.title(label, wrap=True)
     
     plt.tripcolor(plottable(merge_df,var_x),
                   plottable(merge_df,var_y),
@@ -238,22 +283,22 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     
     #plots axes
     plt.xticks([])
-    plt.ylabel(gen_pretty_name(var_y, units=True))
+    plt.ylabel(gen_pretty_name(var_y, units=True), wrap=True)
     #plt.colorbar()
     
     plt.subplot(212)
 
     lower_title=("Plot of "+gen_pretty_name(var_y2)+" against "+\
                  gen_pretty_name(var_x))
-    plt.title(lower_title)
+    plt.title(lower_title, wrap=True)
     
     #plots the scattergraph
     plt.plot(plottable(merge_df,var_x),
              plottable(merge_df,var_y2),
              color=colour_models(var_y2), marker=".", linestyle="None")
     
-    plt.xlabel(gen_pretty_name(var_x, units=True))
-    plt.ylabel(gen_pretty_name(var_y2, units=True))
+    plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
+    plt.ylabel(gen_pretty_name(var_y2, units=True), wrap=True)
     plt.legend(frameon=False)
 
     #prints or saves the plot
@@ -268,36 +313,28 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
         plt.close()
 
 
-
-
-def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
-    '''
-    Update function for animated plots
-    '''
+def identify_plots(modes):
+    sources = []
     
-    var_t_vals = np.sort(merge_df[var_t].unique())
-    var_t_val=var_t_vals[i]
-    str_channel = list_to_string(var_ys,", ")
-    var_t_string = str(var_t_val).rstrip('0').rstrip('.')
-    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
-                gen_pretty_name(str_channel)+" against "+
-                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
-                " of "+gen_pretty_name(var_t_string))
-    label = "\n".join([modes["title"],anim_title])
-    plt.title(label)
+    if "value" in modes["plots"]:
+        sources.append("model")
+        sources.append("scope")
+    else:
+        if "model" in modes["plots"]:
+            sources.append("model")
+        if "scope" in modes["plots"]:
+            sources.append("scope")        
+    if "diff" in modes["plots"]:
+        sources.append("diff")
     
-    var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
-                          var_x)
-    
-    for y_index in range(len(var_ys)):
-        var_y = var_ys[y_index]
-        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
-                               (var_y+"_"+source))
+    if len(sources) == 0:
+        print ("Warning: Sources not specified: defaulting to all")
+        sources.append("model")
+        sources.append("scope")
+        sources.append("diff")        
+    return (sources)
 
-        lines[y_index].set_data(var_x_vals, var_y_vals)
-
-
-def plot_values_nf(merge_df, m_keys, modes):
+def plot_spectra_nf(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time and 
@@ -306,24 +343,20 @@ def plot_values_nf(merge_df, m_keys, modes):
 
     '''
     time_delay = 1000.0/modes['frame_rate']
-    sources = []
     
-    if "value" in modes["plots"]:
-        sources.append("model")
-        sources.append("scope")
-    if "diff" in modes["plots"]:
-        sources.append("diff")
+    sources = identify_plots(modes)
         
     
-    if modes['three_d']=="colour":
-        for key in m_keys:
+    for source in sources:
+        if modes['three_d']=="colour":
+            for key in m_keys:
             #creates a plot each of the values of model and scope
             
-            for source in sources:
+            
                 plot_against_freq_time(merge_df, key, modes, source)
 
-    elif modes['three_d']=="anim":
-        for source in sources:
+        elif modes['three_d']=="anim":
+
             
             animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay)
 #        if "each" in modes['values']:
@@ -335,8 +368,8 @@ def plot_values_nf(merge_df, m_keys, modes):
 #            for source in ["model","scope"]:
 #                animated_plot(merge_df, modes, 'Freq', m_keys, "Time", source, time_delay=20)
                 
-    elif modes['three_d']=="animf":
-        for source in sources:
+        elif modes['three_d']=="animf":
+
             animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay)
 #        if "each" in modes['values']:
 ##            print("WARNING: Each mode not supported by animations at this time")
@@ -347,8 +380,8 @@ def plot_values_nf(merge_df, m_keys, modes):
 #            for source in ["model","scope"]:
 #                animated_plot(merge_df, modes, "d_Time", m_keys, 'Freq', source, time_delay=20)
                 
-    else:
-        print("WARNING: No valid value for 3d plots")
+        else:
+            print("WARNING: No valid value for 3d plots")
 #            plt.figure()
 #            graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
 #                      "and frequency for "+source)])
@@ -415,9 +448,9 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
 
-    plt.title(graph_title)
+    plt.title(graph_title, wrap=True)
     plt.legend(frameon=False)
-    plt.xlabel(gen_pretty_name('Time',units=True))
+    plt.xlabel(gen_pretty_name('Time',units=True), wrap=True)
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -497,13 +530,13 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
     
     graph_title=graph_title+"-channels over "+gen_pretty_name(var_str)    
             
-    plt.title(graph_title)
+    plt.title(graph_title, wrap=True)
 
 
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
-    plt.xlabel(gen_pretty_name(var_str, units=True))
+    plt.xlabel(gen_pretty_name(var_str, units=True), wrap=True)
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -606,7 +639,8 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
 #    len_dir=len(directions)
     time_delay = 1000.0/modes['frame_rate']
 
-    source_list = ['model','scope']
+    sources = identify_plots(modes)
+
     
     alt_var ="alt"
     if 'ew' in modes['plots']:
@@ -618,37 +652,52 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
         az_var = "stn_"+az_var
         alt_var = "stn_"+alt_var
     
-    for source in source_list:
-        if modes["three_d"] == 'colour':
+    x_plots = []
+    y_plots = []
+    if "alt" in modes['plots']:
+        x_plots.append(alt_var)
+        y_plots.append(az_var)
+    
+    if "az" in modes['plots']:
+        x_plots.append(az_var)
+        y_plots.append(alt_var)        
+    
+    
+    for source in sources:
+        for i in range(len (x_plots)):
+            if modes["three_d"] == 'colour':
             #plots a 3-d plot against alt or az
-            for key in m_keys:
-                
-                if "alt" in modes['plots']:
-                    four_var_plot(merge_df,modes,alt_var,"Freq",key, az_var,
-                                  source)
-
-                    
-                if "az" in modes['plots']:
-                    four_var_plot(merge_df,modes,az_var,"Freq",key, alt_var,
-                                  source)
-
-    
-    
-        elif modes['three_d']=="anim":
-    
-            if "alt" in modes['plots']:
-                animated_plot(merge_df, modes, 'Freq', m_keys, alt_var, source, 
-                              time_delay, plot_name = alt_var)
-            if "az" in modes['plots']:
-                animated_plot(merge_df, modes, 'Freq', m_keys, az_var, source, 
-                              time_delay, plot_name = az_var)
+            
+            
+                for key in m_keys:
+                    four_var_plot(merge_df,modes,x_plots[i],"Freq",key, 
+                                  y_plots[i], source)
+#                if "alt" in modes['plots']:
+#                    four_var_plot(merge_df,modes,alt_var,"Freq",key, az_var,
+#                                  source)
+#
+#                    
+#                if "az" in modes['plots']:
+#                    four_var_plot(merge_df,modes,az_var,"Freq",key, alt_var,
+#                                  source)
 
     
-        elif modes['three_d']=="animf":
     
-            if "alt" in modes['plots']:
-                animated_plot(merge_df, modes, alt_var, m_keys, "Freq", source, 
-                              time_delay, plot_name = alt_var)
-            if "az" in modes['plots']:
-                animated_plot(merge_df, modes, az_var, m_keys, "Freq", source, 
-                              time_delay, plot_name = az_var)
+            elif modes['three_d']=="anim":
+        
+#                if "alt" in modes['plots']:
+                animated_plot(merge_df, modes, 'Freq', m_keys, x_plots[i], source, 
+                              time_delay, plot_name = x_plots[i])
+#                if "az" in modes['plots']:
+#                    animated_plot(merge_df, modes, 'Freq', m_keys, az_var, source, 
+#                                  time_delay, plot_name = az_var)
+    
+        
+            elif modes['three_d']=="animf":
+        
+#                if "alt" in modes['plots']:
+                animated_plot(merge_df, modes, x_plots[i], m_keys, "Freq", source, 
+                              time_delay, plot_name = x_plots[i])
+#                if "az" in modes['plots']:
+#                    animated_plot(merge_df, modes, az_var, m_keys, "Freq", source, 
+#                                  time_delay, plot_name = az_var)
