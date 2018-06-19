@@ -6,7 +6,7 @@ Created on Fri Jun 15 13:51:56 2018
 """
 import pandas as pd
 
-from graphing_functions import plot_values_1f
+from graphing_functions import plots_1f
 from graphing_functions import plot_diff_values_1f
 from graphing_functions import plot_spectra_nf
 from graphing_functions import calc_fom_1d
@@ -27,14 +27,14 @@ def analysis_1d(merge_df,modes, m_keys):
     '''
   
     print("Carrying out 1-frequency Analysis")
-    if "spectra" in modes["plots"]:
-        #plots the values for each channel
-        plot_values_1f(merge_df, m_keys, modes)
-    
-    if "diff" in modes["plots"]:    
-        #plots the differences in the values
-        plot_diff_values_1f(merge_df, m_keys, modes)
-    
+#    if "spectra" in modes["plots"]:
+#        #plots the values for each channel
+#        plot_values_1f(merge_df, m_keys, modes)
+#    
+#    if "diff" in modes["plots"]:    
+#        #plots the differences in the values
+#        plot_diff_values_1f(merge_df, m_keys, modes)
+    plots_1f(merge_df, m_keys, modes,"Time")
 
     if "corr" in modes["plots"]:
         #calculates the pearson correlation coefficient between scope and model

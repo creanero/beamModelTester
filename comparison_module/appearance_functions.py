@@ -89,7 +89,7 @@ def colour_models(colour_id):
     The colours used are defined in a function that returns the colour strings
     '''
     #sets oranges for various applications for the p channel
-    if 'p'==colour_id:
+    if colour_id in ['p','p_diff']:
         return('orange')
     if colour_id in ['p_light','p_model']:
         return('sandybrown')
@@ -99,7 +99,7 @@ def colour_models(colour_id):
         return('Oranges')
         
     #sets greens for various applications of the q channel    
-    if 'q'==colour_id:
+    if colour_id in ['q','q_diff']:
         return('green')
     if colour_id in ['q_light','q_model']:
         return('limegreen')
@@ -109,7 +109,7 @@ def colour_models(colour_id):
         return('Greens')
     
     #sets reds for various applications of the XX channel 
-    if 'xx'==colour_id:
+    if colour_id in ['xx','xx_diff']:
         return('red')   
     if colour_id in ['xx_light','xx_model']:
         return('orangered')
@@ -120,7 +120,7 @@ def colour_models(colour_id):
     
     
     #sets purples for various applications of the XY channel 
-    if 'xy'==colour_id:
+    if colour_id in ['xy','xy_diff']:
         return('darkviolet')
     if colour_id in ['xy_light','xy_model']:
         return('mediumorchid')
@@ -131,7 +131,7 @@ def colour_models(colour_id):
     
     
     #sets greens for various applications of the YY channel 
-    if 'yy'==colour_id:
+    if colour_id in ['yy','yy_diff']:
         return('blue')
     if colour_id in ['yy_light','yy_model']:
         return('deepskyblue')
@@ -141,7 +141,7 @@ def colour_models(colour_id):
         return('Blues')
         
     #sets golds/yellows for various applications of stokes U
-    if 'U'==colour_id:
+    if colour_id in ['U','U_diff']:
         return('gold')
     if colour_id in ['U_light','U_model']:
         return('goldenrod')
@@ -151,7 +151,7 @@ def colour_models(colour_id):
         return('YlOrBr')
         
     #sets oranges for various applications for the Stokes V
-    if 'V'==colour_id:
+    if colour_id in ['V','V_diff']:
         return('darkorange')
     if colour_id in ['V_light','V_model']:
         return('sandybrown')
@@ -161,7 +161,7 @@ def colour_models(colour_id):
         return('Oranges')        
 
     #sets cyans for various applications for the Stokes I
-    if 'I'==colour_id:
+    if colour_id in ['I','I_diff']:
         return('c')
     if colour_id in ['I_light','I_model']:
         return('aquamarine')
@@ -172,7 +172,7 @@ def colour_models(colour_id):
 
     #sets greens for various applications for the Stokes Q
     #note the distinction from the generic q-channel
-    if 'Q'==colour_id:
+    if colour_id in ['Q','Q_diff']:
         return('green')
     if colour_id in ['Q_light','Q_model']:
         return('limegreen')

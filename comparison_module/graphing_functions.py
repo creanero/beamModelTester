@@ -246,7 +246,69 @@ def plot_values_1f(merge_df, m_keys, modes):
             plt.savefig(plt_file,bbox_inches='tight')
             plt.close()
     return(0)
+  
+def plots_1f(merge_df, m_keys, modes,var_str):
+    '''
+    This function takes a merged dataframe as an argument and plots a graph of
+    each of the various values for the model and the scope against time.
     
+    This plot is only usable and valid if the data is ordered in time and has 
+    only a single frequency
+    '''
+    #TODO: Fix this mess
+    sources = identify_plots(modes)
+
+    
+    if "overlay" in modes['plots']:
+        plot_1f(merge_df, m_keys, modes, sources,var_str)
+    else:
+        for source in sources:
+            plot_1f(merge_df, m_keys, modes, [source],var_str)
+    return(0)
+
+def plot_1f(merge_df, m_keys, modes, sources,var_str):
+    #creates an overlaid plot of how the sources
+    #varies for each of the channels against var_str  
+    title = "Plot of "
+    for source in sources:
+        title=add_key(title, sources, source)
+    title=title+" for "
+    for key in m_keys:
+        title=add_key(title, m_keys, key)
+        
+    title=title+"-channels over "+gen_pretty_name(var_str)
+    
+    print(title)
+    
+    plt.figure()
+
+    for key in m_keys:
+        for source in sources:
+            plt.plot(plottable(merge_df, var_str),
+                     plottable(merge_df,(key+'_'+source)),
+                    label=key+'_'+source,
+                    color=colour_models(key+'_'+source))
+                   
+    plt.title(title, wrap=True)
+
+
+    plt.legend(frameon=False)
+    #plots the axis labels rotated so they're legible
+    plt.xticks(rotation=90)
+    plt.xlabel(gen_pretty_name(var_str,units=True))
+    
+    #prints or saves the plot
+    if modes['out_dir'] == None:
+        plt.show()
+    else:
+        plt_file=prep_out_file(modes,plot="vals",dims="1d",channel=key,
+                               freq=min(merge_df.Freq),
+                               out_type="png")
+        print("plotting: "+plt_file)
+        plt.savefig(plt_file,bbox_inches='tight')
+        plt.close()
+    return(0)
+
 
 def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     '''
@@ -407,7 +469,14 @@ def plot_spectra_nf(merge_df, m_keys, modes):
 #            plt.close()
     return(0)    
 
-
+def add_key(title, m_keys, key):
+    if (m_keys.index(key) < (len(m_keys)-2)) :
+        title=title+key+", "
+    elif m_keys.index(key)==(len(m_keys)-2):
+        title=title+key+" & "
+    else:
+        title=title+key
+    return(title)
 
 
 
@@ -430,12 +499,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
                  plottable(merge_df,(key+'_diff')), 
                  label=r'$\Delta $'+key,
                  color=colour_models(key))
-        if (m_keys.index(key) < (len(m_keys)-2)) :
-            graph_title=graph_title+key+", "
-        elif m_keys.index(key)==(len(m_keys)-2):
-            graph_title=graph_title+key+" & "
-        else:
-            graph_title=graph_title+key
+        graph_title=add_key(graph_title, m_keys, key)
     
     #calculates and adds title with frequency in MHz
     
@@ -519,12 +583,7 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
                 label=key+'_'+fom,
                 color=colour_models(key))
         
-        if (m_keys.index(key) < (len(m_keys)-2)) :
-            graph_title=graph_title+key+", "
-        elif m_keys.index(key)==(len(m_keys)-2):
-            graph_title=graph_title+key+" & "
-        else:
-            graph_title=graph_title+key
+        graph_title=add_key(graph_title, m_keys, key)
     
     #calculates and adds title with frequency in MHz
     
