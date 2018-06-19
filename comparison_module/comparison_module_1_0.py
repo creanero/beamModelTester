@@ -285,7 +285,7 @@ the difference between the scope and the model.  Default is subtract
     parser.add_argument("--values","-v", default=["all"], nargs="*",
                         choices=("all","linear","stokes",
                                  "xx","xy","yy","U","V","I","Q",
-                                 "each"),
+                                 "each", "overlay"),
                         help = '''
 Sets the parameters that will be plotted on the value and difference graphs.
   linear implies xx, xy and yy-channel values will be plotted. 
@@ -293,11 +293,13 @@ Sets the parameters that will be plotted on the value and difference graphs.
   all implies that all seven channels will be plotted.
   An individual channel name means to plot that channel alone. 
   each means that the channels will be plotted separately rather than overlaid.
+  overlay means that for a given channel, the plots will be overlaid
                         ''')     
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "spectra"],
+                        default=["rmse", "corr", "spectra",
+                                 "model","scope", "diff"],
                         choices=("rmse", "corr", "spectra", 
                                  "file",
                                  "alt","az","ew", "stn",

@@ -91,9 +91,9 @@ def colour_models(colour_id):
     #sets oranges for various applications for the p channel
     if 'p'==colour_id:
         return('orange')
-    if 'p_light'==colour_id:
+    if colour_id in ['p_light','p_model']:
         return('sandybrown')
-    if 'p_dark'==colour_id:
+    if colour_id in ['p_dark','p_scope']:
         return('darkorange')
     if 'p_s'==colour_id:
         return('Oranges')
@@ -101,9 +101,9 @@ def colour_models(colour_id):
     #sets greens for various applications of the q channel    
     if 'q'==colour_id:
         return('green')
-    if 'q_light'==colour_id:
+    if colour_id in ['q_light','q_model']:
         return('limegreen')
-    if 'q_dark'==colour_id:
+    if colour_id in ['q_dark','q_scope']:
         return('darkgreen')
     if 'q_s'==colour_id:
         return('Greens')
@@ -111,9 +111,9 @@ def colour_models(colour_id):
     #sets reds for various applications of the XX channel 
     if 'xx'==colour_id:
         return('red')   
-    if 'xx_light'==colour_id:
+    if colour_id in ['xx_light','xx_model']:
         return('orangered')
-    if 'xx_dark'==colour_id:
+    if colour_id in ['xx_dark','xx_scope']:
         return('darkred')
     if 'xx_s'==colour_id:
         return('Reds')
@@ -122,9 +122,9 @@ def colour_models(colour_id):
     #sets purples for various applications of the XY channel 
     if 'xy'==colour_id:
         return('darkviolet')
-    if 'xy_light'==colour_id:
+    if colour_id in ['xy_light','xy_model']:
         return('mediumorchid')
-    if 'xy_dark'==colour_id:
+    if colour_id in ['xy_dark','xy_scope']:
         return('purple')
     if 'xy_s'==colour_id:
         return('Purples')
@@ -133,9 +133,9 @@ def colour_models(colour_id):
     #sets greens for various applications of the YY channel 
     if 'yy'==colour_id:
         return('blue')
-    if 'yy_light'==colour_id:
+    if colour_id in ['yy_light','yy_model']:
         return('deepskyblue')
-    if 'yy_dark'==colour_id:
+    if colour_id in ['yy_dark','yy_scope']:
         return('darkblue')
     if 'yy_s'==colour_id:
         return('Blues')
@@ -143,9 +143,9 @@ def colour_models(colour_id):
     #sets golds/yellows for various applications of stokes U
     if 'U'==colour_id:
         return('gold')
-    if 'U_light'==colour_id:
+    if colour_id in ['U_light','U_model']:
         return('goldenrod')
-    if 'U_dark'==colour_id:
+    if colour_id in ['U_dark','U_scope']:
         return('darkgoldenrod')
     if 'U_s'==colour_id:
         return('YlOrBr')
@@ -153,9 +153,9 @@ def colour_models(colour_id):
     #sets oranges for various applications for the Stokes V
     if 'V'==colour_id:
         return('darkorange')
-    if 'V_light'==colour_id:
+    if colour_id in ['V_light','V_model']:
         return('sandybrown')
-    if 'V_dark'==colour_id:
+    if colour_id in ['V_dark','V_scope']:
         return('chocolate')
     if 'V_s'==colour_id:
         return('Oranges')        
@@ -163,9 +163,9 @@ def colour_models(colour_id):
     #sets cyans for various applications for the Stokes I
     if 'I'==colour_id:
         return('c')
-    if 'I_light'==colour_id:
+    if colour_id in ['I_light','I_model']:
         return('aquamarine')
-    if 'I_dark'==colour_id:
+    if colour_id in ['I_dark','I_scope']:
         return('teal')
     if 'I_s'==colour_id:
         return('winter')   
@@ -174,9 +174,9 @@ def colour_models(colour_id):
     #note the distinction from the generic q-channel
     if 'Q'==colour_id:
         return('green')
-    if 'Q_light'==colour_id:
+    if colour_id in ['Q_light','Q_model']:
         return('limegreen')
-    if 'Q_dark'==colour_id:
+    if colour_id in ['Q_dark','Q_scope']:
         return('darkgreen')
     if 'Q_s'==colour_id:
         return('Greens')           
@@ -184,7 +184,7 @@ def colour_models(colour_id):
     #sets black/grey for various applications for altitude
     if colour_id in ['alt','stn_alt']:
         return('black')
-    if colour_id in ['alt_light','stn_alt_light']:
+    if colour_id in ['alt_light','stn_alt_light','alt_model','stn_alt_model']:
         return('grey')
     if colour_id in ['alt_dark','stn_alt_dark']:
         return('darkslategrey')
@@ -194,9 +194,11 @@ def colour_models(colour_id):
     #sets browns for various applications for azimuth
     if colour_id in ['az','az_ew','stn_az','stn_az_ew']:
         return('brown')
-    if colour_id in ['az_light','az_ew_light','stn_az_light','stn_az_ew_light']:
+    if colour_id in ['az_light','az_ew_light','stn_az_light','stn_az_ew_light',
+                     'az_model','stn_az_model','az_ew_model','stn_az_ew_model']:
         return('chocolatebrown')
-    if colour_id in ['az_dark','az_ew_dark','stn_az_dark','stn_az_ew_dark']:
+    if colour_id in ['az_dark','az_ew_dark','stn_az_dark','stn_az_ew_dark',
+                     'az_scope','stn_az_scope','az_ew_scope','stn_az_ew_scope']:
         return('saddlebrown')
     if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
         return('Copper')     
@@ -206,10 +208,20 @@ def colour_models(colour_id):
         print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
               "\n\n'light' found in colourstring.\n"
               "Defaulting to grey\n")
+        return ('grey') 
+    if '_model' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'model' found in colourstring.\n"
+              "Defaulting to grey\n")
         return ('grey')    
     if '_dark' in colour_id:
         print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
               "\n\n'dark' found in colourstring.\n"
+              "Defaulting to darkeslategrey\n")
+        return ('darkslategrey')  
+    if '_scope' in colour_id:
+        print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              
+              "\n\n'scope' found in colourstring.\n"
               "Defaulting to darkeslategrey\n")
         return ('darkslategrey')  
     if '_s' in colour_id:    
