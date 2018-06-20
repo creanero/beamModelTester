@@ -261,9 +261,16 @@ def list_to_string (m_keys, sep_str="_"):
     '''
     creates an output-friendly string for the channel
     '''
-    str_channel = str(m_keys)
-    for char in (["[","]","'"]):
-        str_channel = str_channel.replace(char,'',)
-    str_channel.replace(", ",sep_str)    
+    #str_channel = str(m_keys)
+#    for char in (["[","]","'"]):
+#        str_channel = str_channel.replace(char,'',)
+#    str_channel.replace(", ",sep_str) 
+    str_channel = ""
+    for item in m_keys:
+        str_channel=str_channel+(str(item)+sep_str)
+    
+
+    str_channel=str_channel.rstrip(sep_str)      
+        
     
     return (str_channel)

@@ -34,8 +34,31 @@ def analysis_1d(merge_df,modes, m_keys):
 #    if "diff" in modes["plots"]:    
 #        #plots the differences in the values
 #        plot_diff_values_1f(merge_df, m_keys, modes)
-    plots_1f(merge_df, m_keys, modes,"Time")
-
+    if "spectra" in modes["plots"]:
+        #plots the values for each channel
+        plots_1f(merge_df, m_keys, modes,"Time")
+        
+        
+        
+    if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
+        alt_var = "alt"
+        az_var = "az"
+        if "stn" in modes["plots"]:
+            if all(coord in merge_df \
+                   for coord in ["stn_alt","stn_az","stn_az_ew"]):
+                alt_var = "stn_"+alt_var
+                az_var = "stn_"+az_var           
+            else:
+                print("Warning: Station coordinates selected but unavailable")
+        if "ew" in modes["plots"]:
+            az_var=az_var+"_ew"
+        if "alt" in modes["plots"]:
+            plots_1f(merge_df, m_keys, modes,alt_var)
+        if "az" in  modes["plots"]:
+            plots_1f(merge_df, m_keys, modes,az_var)
+    else:
+        print("Warning: Horizontal coordinates selected but unavailable")
+            
     if "corr" in modes["plots"]:
         #calculates the pearson correlation coefficient between scope and model
         corrs=calc_fom_1d(merge_df, m_keys,"corr")

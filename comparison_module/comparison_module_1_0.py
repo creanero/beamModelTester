@@ -285,7 +285,7 @@ the difference between the scope and the model.  Default is subtract
     parser.add_argument("--values","-v", default=["all"], nargs="*",
                         choices=("all","linear","stokes",
                                  "xx","xy","yy","U","V","I","Q",
-                                 "each", "overlay"),
+                                 "each"),
                         help = '''
 Sets the parameters that will be plotted on the value and difference graphs.
   linear implies xx, xy and yy-channel values will be plotted. 
@@ -293,7 +293,7 @@ Sets the parameters that will be plotted on the value and difference graphs.
   all implies that all seven channels will be plotted.
   An individual channel name means to plot that channel alone. 
   each means that the channels will be plotted separately rather than overlaid.
-  overlay means that for a given channel, the plots will be overlaid
+  
                         ''')     
     
     #adds an optional argument for the plots to show
@@ -303,7 +303,9 @@ Sets the parameters that will be plotted on the value and difference graphs.
                         choices=("rmse", "corr", "spectra", 
                                  "file",
                                  "alt","az","ew", "stn",
-                                 "values","model","scope", "diff"),
+                                 "values","model","scope", "diff", 
+                                 "overlay"
+                                 ),
                         help = '''
 Sets which plots will be shown.  Default is to show rmse, corr and spectra plots
 rmse shows plots of RMSE (overall, per time and per freq as appropriate)
@@ -319,6 +321,7 @@ values means to plot both model and scope values
 model means to plot model values
 scope means to plot scope values
 diff shows plots of the differences in values of the channels 
+overlay means that for a given channel, the plots will be overlaid
                         ''') 
 
 ###############################################################################
@@ -707,32 +710,39 @@ if __name__ == "__main__":
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
     
-    #calculates Alt-Az coordinates if possible
-    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
-        try:
-            merge_df = calc_alt_az(merge_df,modes)
-        except NameError:
-            ("ERROR: Unable to calculate Horizontal coordintates\n"\
-                   "\tPossible issue with AstroPy imports.")
-            for option in ["alt","az","stn"]:
-                if option in modes["plots"]:
-                    #removes plot options that are no longer valid
-                    modes["plots"].remove(option)
-    
-    #calculates station Alt-Az if possible and requested
-    if modes['location_name']!=None and "stn" in modes["plots"]:
-        try:
-            merge_df=calc_alt_az_lofar(merge_df,modes)
-        except NameError:
-            print ("ERROR: Unable to calculate Station coordintates\n"\
-                   "\tKnown issue: Casacore is not compatible with Windows\n"\
-                   "\tProceeding without station coordinates.")
+
     
     if  len(merge_df)>0:
+        #calculates Alt-Az coordinates if possible
+        if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+            try:
+                merge_df = calc_alt_az(merge_df,modes)
+            except NameError:
+                print("ERROR: Unable to calculate Horizontal coordintates\n"\
+                       "\tPossible issue with AstroPy imports.")
+                for option in ["alt","az","stn"]:
+                    if option in modes["plots"]:
+                        #removes plot options that are no longer valid
+                        modes["plots"].remove(option)
+    
+        
+        #calculates station Alt-Az if possible and requested
+        if modes['location_name']!=None and "stn" in modes["plots"]:
+            try:
+                merge_df=calc_alt_az_lofar(merge_df,modes)
+            except NameError:
+                print ("ERROR: Unable to calculate Station coordintates\n"\
+                       "\tKnown issue: Casacore is not compatible with Windows\n"\
+                       "\tProceeding without station coordinates.")
+        
         #runs different functions if there are one or multiple frequencies
         if merge_df.Freq.nunique()==1:
             #if only one frequency, does one-dimensional analysis
-            analysis_1d(merge_df,modes, m_keys)
+            if "each" in modes['values']: #if the plots are to be separate
+                for key in m_keys: #analyses them one at a time
+                    analysis_1d(merge_df,modes, [key])
+            else: #allows plots to be overlaid 
+                ind_dfs=analysis_1d(merge_df,modes, m_keys)
         else: #otherwise does multi-dimensional analysis
             if "each" in modes['values']: #if the plots are to be separate
                 for key in m_keys: #analyses them one at a time
@@ -747,6 +757,8 @@ if __name__ == "__main__":
                 merge_df.to_csv(path_out_df)
             except IOError:
                 print("WARNING: unable to output to file:\n\t"+path_out_df)
+        if (modes['out_dir'] == None) & ('file' in modes['plots']):
+            print("ERROR: file output requested, but no directory selected.")
                 
     else:
         print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
