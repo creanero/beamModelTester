@@ -13,7 +13,7 @@ from scipy.stats.stats import pearsonr
 
 from appearance_functions import gen_pretty_name
 from appearance_functions import colour_models
-from appearance_functions import list_to_string
+
 from appearance_functions import channel_maker
 from utility_functions import plottable 
 from io_functions import prep_out_file
@@ -181,7 +181,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
 
     ax.set_aspect('auto')
     
-    plt.subplots_adjust(top=0.85)#TODO: automate this so it's not fixed 
+    plt.subplots_adjust(top=0.80)#TODO: automate this so it's not fixed 
     if modes['out_dir']!=None:
         str_channel = channel_maker(var_ys,modes)
         str_sources = channel_maker(sources,modes)
@@ -359,7 +359,7 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     return(0)
 
 
-def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
+def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     '''
     Plots a two part plot of four variables from merge_df as controlled by 
     modes.
@@ -374,7 +374,7 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     '''
     print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
           " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
-          " and "+ gen_pretty_name(var_y2)+" against "+gen_pretty_name(var_x))
+          " and "+ gen_pretty_name(var_y2, plot_name)+" against "+gen_pretty_name(var_x))
     plt.figure()
     plt.subplot(211)
     upper_title=("Plot of "+gen_pretty_name(source)+\
@@ -399,7 +399,7 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     
     plt.subplot(212)
 
-    lower_title=("Plot of "+gen_pretty_name(var_y2)+" against "+\
+    lower_title=("Plot of "+gen_pretty_name(var_y2, plot_name)+" against "+\
                  gen_pretty_name(var_x))
     plt.title(lower_title, wrap=True)
     
@@ -417,7 +417,8 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
         plt.show()
     else:
         plt_file=prep_out_file(modes,source=source,plot=var_x,dims="nd",
-                               channel=var_z,
+                               channel=var_z, ind_var=var_y, 
+                               plot_name=plot_name,
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
@@ -670,35 +671,79 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
 
     
     alt_var ="alt"
+    az_var = "az"
+    az_var_ew ="az_ew" #for when East-west is 100% needed
     if 'ew' in modes['plots']:
-        az_var = "az_ew"
-    else:
-        az_var = "az"
+        az_var = az_var_ew
+
         
-    if 'stn_alt' in merge_df and 'stn_az' in merge_df:
+        
+    if ('stn' in modes['plots'] and
+        'stn_alt' in merge_df and 
+        'stn_az' in merge_df):
         az_var = "stn_"+az_var
         alt_var = "stn_"+alt_var
     
     x_plots = []
     y_plots = []
+    names = []
+
     if "alt" in modes['plots']:
-        x_plots.append(alt_var)
-        y_plots.append(az_var)
+        x_plots.append([alt_var])
+        y_plots.append(az_var)    
+        names.append([1])
+        if "split" in modes['plots']:
+            south_point = min(merge_df[alt_var])
+            south_point_az =min(merge_df.loc[merge_df[alt_var]==south_point,az_var_ew])
+            east_half=merge_df.loc[merge_df[az_var_ew]>=south_point_az]
+            west_half=merge_df.loc[merge_df[az_var_ew]<south_point_az]
+            x_plots[len(x_plots)-1].append(east_half)
+            names[len(names)-1].append("East")
+            x_plots[len(x_plots)-1].append(west_half)
+            names[len(names)-1].append("West")
+        else:
+            x_plots[len(x_plots)-1].append(merge_df)
+            names[len(names)-1].append("")
     
     if "az" in modes['plots']:
-        x_plots.append(az_var)
-        y_plots.append(alt_var)        
+        x_plots.append([az_var])
+        y_plots.append(alt_var)  
+        names.append([1])
+        if "split" in modes['plots']:
+            east_point = max(merge_df[az_var_ew])
+            east_point_alt =max(merge_df.loc[merge_df[az_var_ew]==east_point,alt_var])
+            north_half=merge_df.loc[merge_df[alt_var]>=east_point_alt]
+            south_half=merge_df.loc[merge_df[alt_var]<east_point_alt]
+            x_plots[len(x_plots)-1].append(north_half)
+            names[len(names)-1].append("North")
+            x_plots[len(x_plots)-1].append(south_half)
+            names[len(names)-1].append("South")
+        else:
+            x_plots[len(x_plots)-1].append(merge_df)
+            names[len(names)-1].append("")
     
+    #east_point = max(merge_df[az_var])
+    #west_point = min(merge_df[az_var])
+    #north_point = max(merge_df[alt_var])
     
-    for i in range(len (x_plots)):
+
+
+    no_xplots=len (x_plots)
+    
+    for i in range(no_xplots):
+        counter = 0
         if modes["three_d"] == 'colour':
             for source in sources:
                 #plots a 3-d plot against alt or az
             
             
                 for key in m_keys:
-                    four_var_plot(merge_df,modes,x_plots[i],"Freq",key, 
-                                  y_plots[i], source)
+                    for j in range(1,len(x_plots[i])):
+                        four_var_plot(x_plots[i][j],modes,x_plots[i][0],"Freq",key, 
+                                  y_plots[i], source, names[i][j])
+                        counter = counter +1
+
+
 #                if "alt" in modes['plots']:
 #                    four_var_plot(merge_df,modes,alt_var,"Freq",key, az_var,
 #                                  source)
@@ -712,9 +757,9 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
         elif modes['three_d']=="anim" or modes['three_d']=="animf":
             if modes['three_d']=="anim":
                 x_var = 'Freq'
-                t_var = x_plots[i]
+                t_var = x_plots[i][0]
             elif modes['three_d']=="animf":
-                x_var = x_plots[i]
+                x_var = x_plots[i][0]
                 t_var = 'Freq'
             
             animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay)
