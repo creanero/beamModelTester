@@ -51,6 +51,7 @@ from io_functions import prep_out_file
 from analysis_functions import analysis_1d
 from analysis_functions import analysis_nd
 
+from graphing_functions import identify_plots
 
 
 
@@ -711,7 +712,7 @@ if __name__ == "__main__":
     #identifies the keys with _diff suffix
     m_keys=get_df_keys(merge_df,"_diff", modes)
     
-
+    sources = identify_plots(modes)
     
     if  len(merge_df)>0:
         #calculates Alt-Az coordinates if possible
@@ -741,15 +742,15 @@ if __name__ == "__main__":
             #if only one frequency, does one-dimensional analysis
             if "each" in modes['values']: #if the plots are to be separate
                 for key in m_keys: #analyses them one at a time
-                    analysis_1d(merge_df,modes, [key])
+                    analysis_1d(merge_df,modes, [key],sources)
             else: #allows plots to be overlaid 
-                ind_dfs=analysis_1d(merge_df,modes, m_keys)
+                ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
         else: #otherwise does multi-dimensional analysis
             if "each" in modes['values']: #if the plots are to be separate
                 for key in m_keys: #analyses them one at a time
-                    ind_dfs=analysis_nd(merge_df,modes, [key])
+                    ind_dfs=analysis_nd(merge_df,modes, [key],sources)
             else: #allows plots to be overlaid 
-                ind_dfs=analysis_nd(merge_df,modes, m_keys)
+                ind_dfs=analysis_nd(merge_df,modes, m_keys,sources)
     
         #output the dataframe if requested
         if (modes['out_dir'] != None) & ('file' in modes['plots']):

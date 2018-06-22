@@ -7,17 +7,18 @@ Created on Fri Jun 15 13:51:56 2018
 import pandas as pd
 
 from graphing_functions import plots_1f
-from graphing_functions import plot_diff_values_1f
+#from graphing_functions import plot_diff_values_1f
 from graphing_functions import plot_spectra_nf
 from graphing_functions import calc_fom_1d
 from graphing_functions import calc_fom_nd
 from graphing_functions import plot_altaz_values_nf
+#from graphing_functions import identify_plots
 
 from appearance_functions import channel_maker
 from appearance_functions import gen_pretty_name
 from io_functions import prep_out_file
 
-def analysis_1d(merge_df,modes, m_keys):
+def analysis_1d(merge_df,modes, m_keys,sources):
     '''
     This function carries out all plotting and calculations needed for a 1-d 
     dataset (i.e. one frequency)
@@ -25,7 +26,7 @@ def analysis_1d(merge_df,modes, m_keys):
     Future iterations may include optional arguments to enable selection of the
     plots that are preferred
     '''
-  
+    
     print("Carrying out 1-frequency Analysis")
 #    if "spectra" in modes["plots"]:
 #        #plots the values for each channel
@@ -36,7 +37,7 @@ def analysis_1d(merge_df,modes, m_keys):
 #        plot_diff_values_1f(merge_df, m_keys, modes)
     if "spectra" in modes["plots"]:
         #plots the values for each channel
-        plots_1f(merge_df, m_keys, modes,"Time")
+        plots_1f(merge_df, m_keys, modes,"Time", sources)
         
         
         
@@ -101,7 +102,7 @@ def analysis_1d(merge_df,modes, m_keys):
                 out_file.write(out_str)
                 out_file.close()    
     
-def analysis_nd(merge_df,modes, m_keys):
+def analysis_nd(merge_df,modes, m_keys,sources):
     '''
     This function carries out all plotting and calculations needed for a n-d 
     dataset (i.e. multiple frequencies)
@@ -111,17 +112,15 @@ def analysis_nd(merge_df,modes, m_keys):
     '''
     
     print("Carrying out multi-frequency Analysis")
+    
   
     if "spectra" in modes["plots"]:
-        plot_spectra_nf(merge_df, m_keys, modes)
+        plot_spectra_nf(merge_df, m_keys, modes, sources)
     
     if any (plot in modes["plots"] for plot in ["alt","az","ew"]):
         if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
-#            try:
-#                plot_altaz_values_nf(merge_df, m_keys, modes)
-#            except NameError:
-#                print("Error: unable to plot altaz values")
-            plot_altaz_values_nf(merge_df, m_keys, modes)
+
+            plot_altaz_values_nf(merge_df, m_keys, modes, sources)
             
         else:
             print("Warning: Alt-Azimuth plotting selected, but not available!")

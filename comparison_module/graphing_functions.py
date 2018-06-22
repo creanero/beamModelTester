@@ -13,38 +13,38 @@ from scipy.stats.stats import pearsonr
 
 from appearance_functions import gen_pretty_name
 from appearance_functions import colour_models
-
 from appearance_functions import channel_maker
+
 from utility_functions import plottable 
+from utility_functions import get_source_separator
+
 from io_functions import prep_out_file
 
 
 
-def plot_against_freq_time(merge_df, key, modes, source):
+def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
     '''
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
     '''
-    y_var="Freq"
-    x_var="d_Time"
+
     
+    
+    sep=get_source_separator(source)
     
     print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
     plt.figure()
-    if source == "diff":
-        graph_title="\n".join([modes['title'],
-            ("Plot of the differences in %s\n over time and frequency"%key)])
-    else:
-        graph_title="\n".join([modes['title'],
-            ("Plot of the "+gen_pretty_name(source)+" for "+key+
-             "-channel \nover "+gen_pretty_name(x_var)+ " and "+
-             gen_pretty_name(y_var)+".")])
+
+    graph_title="\n".join([modes['title'],
+        ("Plot of the "+gen_pretty_name(source)+" for "+key+
+         "-channel \nover "+gen_pretty_name(x_var)+ " and "+
+         gen_pretty_name(y_var)+".")])
     plt.title(graph_title, wrap=True)
 
     #plots the channel in a colour based on its name
     plt.tripcolor(plottable(merge_df,x_var),
                   plottable(merge_df,y_var),
-                  plottable(merge_df,(key+'_'+source)),
+                  plottable(merge_df,(key+sep+source)),
                   cmap=plt.get_cmap(colour_models(key+'_s')))
     plt.legend(frameon=False)
     #plots x-label using start time 
@@ -69,7 +69,7 @@ def animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay):
 
     '''
 
-    sources = identify_plots(modes)
+    
 
     
     if "overlay" in modes['plots']:
@@ -136,22 +136,24 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     for i in range(len(var_ys)):
         var_y = var_ys[i]
         for source in sources:
+            sep=get_source_separator(source)
+            
             var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
-                                   (var_y+"_"+source))
+                                   (var_y+sep+source))
         
     
             line, = ax.plot(var_x_vals, var_y_vals, 
-                            color=colour_models(var_y+"_"+source))
+                            color=colour_models(var_y+sep+source))
             lines.append(line)
                 #code to set x and y limits.  
             #Really want to get a sensible way of doing this
-            if plottable(merge_df[(var_ys[i]+"_"+source)]).min() < 0:
-                local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+"_"+source)),percentile_gap)*multiplier
+            if plottable(merge_df[(var_ys[i]+sep+source)]).min() < 0:
+                local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
             else:
                 local_min_y = 0
             min_y=min(min_y,local_min_y)
             #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
-            local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+"_"+source)),100-percentile_gap)*multiplier
+            local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),100-percentile_gap)*multiplier
             max_y=max(max_y,local_max_y)
     
     ax.set_ylim(min_y,max_y)
@@ -239,8 +241,9 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
         var_y = var_ys[y_index]
         for source_index in range(no_sources):
             source = sources[source_index]
+            sep=get_source_separator(source)
             var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
-                                   (var_y+"_"+source))
+                                   (var_y+sep+source))
             line_index = (y_index * no_sources) + source_index
             lines[line_index].set_data(var_x_vals, var_y_vals)
     ax.set_aspect('auto')
@@ -295,7 +298,7 @@ def plot_values_1f(merge_df, m_keys, modes):
             plt.close()
     return(0)
   
-def plots_1f(merge_df, m_keys, modes,var_str):
+def plots_1f(merge_df, m_keys, modes,var_str,sources):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -303,9 +306,6 @@ def plots_1f(merge_df, m_keys, modes,var_str):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-
-    sources = identify_plots(modes)
-
     
     if "overlay" in modes['plots']:
         plot_1f(merge_df, m_keys, modes, sources,var_str)
@@ -332,10 +332,11 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
 
     for key in m_keys:
         for source in sources:
+            sep=get_source_separator(source)
             plt.plot(plottable(merge_df, var_str),
-                     plottable(merge_df,(key+'_'+source)),
-                    label=key+'_'+source,
-                    color=colour_models(key+'_'+source))
+                     plottable(merge_df,(key+sep+source)),
+                    label=key+sep+source,
+                    color=colour_models(key+sep+source))
                    
     plt.title(title, wrap=True)
 
@@ -383,14 +384,17 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     label = "\n".join([modes["title"],upper_title])
     plt.title(label, wrap=True)
     
+    
+    sep=get_source_separator(source)
+    
     plt.tripcolor(plottable(merge_df,var_x),
                   plottable(merge_df,var_y),
-                  plottable(merge_df,(var_z+'_'+source)), 
+                  plottable(merge_df,(var_z+sep+source)), 
                   cmap=plt.get_cmap(colour_models(var_z+'_s')))
     
     #TODO: fix percentile plotting limits
-    plt.clim(np.percentile(plottable(merge_df,(var_z+'_'+source)),5),
-             np.percentile(plottable(merge_df,(var_z+'_'+source)),95))
+    plt.clim(np.percentile(plottable(merge_df,(var_z+sep+source)),5),
+             np.percentile(plottable(merge_df,(var_z+sep+source)),95))
     
     #plots axes
     plt.xticks([])
@@ -446,7 +450,7 @@ def identify_plots(modes):
         sources.append("diff")        
     return (sources)
 
-def plot_spectra_nf(merge_df, m_keys, modes):
+def plot_spectra_nf(merge_df, m_keys, modes,sources):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time and 
@@ -456,16 +460,16 @@ def plot_spectra_nf(merge_df, m_keys, modes):
     '''
     time_delay = 1000.0/modes['frame_rate']
     
-    sources = identify_plots(modes)
-        
-    
+       
     if modes['three_d']=="colour":
         for source in sources:
             for key in m_keys:
             #creates a plot each of the values of model and scope
+                y_var="Freq"
+                x_var="d_Time"
             
-            
-                plot_against_freq_time(merge_df, key, modes, source)
+                plot_against_freq_time(merge_df, key, modes, source, 
+                                       x_var, y_var)
 
     elif modes['three_d']=="anim" or modes['three_d']=="animf":
         if modes['three_d']=="anim":
@@ -659,7 +663,7 @@ def calc_fom_1d(merge_df, m_keys, fom):
 
 
 
-def plot_altaz_values_nf(merge_df, m_keys, modes):
+def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
     '''
     plots a series of altitude and azimuth based graphs 
     '''
@@ -667,9 +671,7 @@ def plot_altaz_values_nf(merge_df, m_keys, modes):
 #    len_dir=len(directions)
     time_delay = 1000.0/modes['frame_rate']
 
-    sources = identify_plots(modes)
-
-    
+       
     alt_var ="alt"
     az_var = "az"
     az_var_ew ="az_ew" #for when East-west is 100% needed

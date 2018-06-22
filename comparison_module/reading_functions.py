@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 from utility_functions import plottable
+from utility_functions import get_source_separator
 
 def read_dreambeam_csv(in_file):
     '''
@@ -177,9 +178,10 @@ def merge_dfs(model_df,scope_df,modes):
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
     if len(merge_df) > 0:
-        merge_df=calc_xy(merge_df,modes)
-        merge_df=calc_stokes(merge_df,modes)
-        
+        sources = ["model","scope"]
+        merge_df=calc_stokes(merge_df,modes,sources)
+        for channel in ["xx","xy","yy","U","V","I","Q"]:
+            calc_diff(merge_df, modes, channel)
         if 'd_Time' not in merge_df:
             #creates a variable to hold the time since the start of the plot
             #this is necessary for plots that are not compatible with Timestamp data
@@ -245,44 +247,29 @@ def crop_operation (in_df,modes):
             
     return(out_df)
     
-def calc_xy(merge_df,modes):
-    
-    '''
-    Calculates the XY parameters for the model from the JNN values and 
-    normalises the XY parameters from the scope so they are comparable.  
-    
-    NOTE: this version makes no allowance for outliers or smoothing in the
-    scope data.  This may be added to future versions
-    
-    '''
 
-    print("Calculating differences in linear channels")
-    #calculates the differences
-    for channel in ["xx","xy","yy"]:
-        calc_diff(merge_df, modes, channel)
-    #note the d_Time is already calculated
-    return (merge_df)
 
-def calc_stokes(merge_df,modes):
+def calc_stokes(in_df,modes,sources):
     '''
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
     '''
     print("Calculating Stokes Parameters")
-    for source in ["model","scope"]:
+
+    for source in sources:
+        sep=get_source_separator(source)
         #Stokes U is the real component of the XY
-        merge_df['U_'+source]=np.real(merge_df['xy_'+source])
+        in_df['U'+sep+source]=np.real(in_df['xy'+sep+source])
         #Stokes V is the imaginary component of the XY
-        merge_df['V_'+source]=np.imag(merge_df['xy_'+source])
+        in_df['V'+sep+source]=np.imag(in_df['xy'+sep+source])
         
         #Stokes I is the sum of XX and YY
-        merge_df['I_'+source]=merge_df['xx_'+source]+merge_df['yy_'+source]
+        in_df['I'+sep+source]=in_df['xx'+sep+source]+in_df['yy'+sep+source]
         #Stokes Q is the difference between XX and YY
-        merge_df['Q_'+source]=merge_df['xx_'+source]-merge_df['yy_'+source]
+        in_df['Q'+sep+source]=in_df['xx'+sep+source]-in_df['yy'+sep+source]
 
-    for channel in ["U","V","I","Q"]:
-        calc_diff(merge_df, modes, channel)    
-    return (merge_df)
+  
+    return (in_df)
 
 def normalise_data(merge_df,modes,channel,out_str=""):
     '''
