@@ -55,7 +55,7 @@ from graphing_functions import identify_plots
 
 
 
-def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
+def get_df_keys(merge_df, modes={"values":"all"}):
     '''
     Calculates the keys from a given dataframe or based on the input modes.
     '''
@@ -68,9 +68,7 @@ def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
     if "linear" in modes["values"]:
         m_keys.extend(["xx","xy","yy"])
     if "all" in modes["values"]:
-        for m_key in merge_df.keys():
-            if key_str in m_key:
-                m_keys.append(m_key.split(key_str)[0])
+        m_keys.extend(["xx","xy","yy","U","V","I","Q"])
                 
     #if keys have been supplied individually                
     if "xx" in modes["values"]:
@@ -710,7 +708,7 @@ if __name__ == "__main__":
         merge_df.reset_index(drop=True, inplace=True)
     
     #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff", modes)
+    m_keys=get_df_keys(merge_df, modes)
     
     sources = identify_plots(modes)
     

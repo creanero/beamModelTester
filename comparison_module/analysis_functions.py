@@ -41,7 +41,8 @@ def analysis_1d(merge_df,modes, m_keys,sources):
         
         
         
-    if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
+    if ((all(coord in merge_df for coord in ["alt","az","az_ew"])) and
+        (any (plot in modes["plots"] for plot in ["alt","az","ew"]))):
         alt_var = "alt"
         az_var = "az"
         if "stn" in modes["plots"]:
@@ -57,7 +58,7 @@ def analysis_1d(merge_df,modes, m_keys,sources):
             plots_1f(merge_df, m_keys, modes,alt_var)
         if "az" in  modes["plots"]:
             plots_1f(merge_df, m_keys, modes,az_var)
-    else:
+    elif any (plot in modes["plots"] for plot in ["alt","az","ew"]):
         print("Warning: Horizontal coordinates selected but unavailable")
             
     if "corr" in modes["plots"]:
