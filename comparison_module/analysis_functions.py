@@ -27,7 +27,8 @@ def analysis_1d(merge_df,modes, m_keys,sources):
     plots that are preferred
     '''
     
-    print("Carrying out 1-frequency Analysis")
+    if modes['verbose'] >=2:
+        print("Carrying out 1-frequency Analysis")
 #    if "spectra" in modes["plots"]:
 #        #plots the values for each channel
 #        plot_values_1f(merge_df, m_keys, modes)
@@ -51,7 +52,8 @@ def analysis_1d(merge_df,modes, m_keys,sources):
                 alt_var = "stn_"+alt_var
                 az_var = "stn_"+az_var           
             else:
-                print("Warning: Station coordinates selected but unavailable")
+                if modes['verbose'] >=1:
+                    print("Warning: Station coordinates selected but unavailable")
         if "ew" in modes["plots"]:
             az_var=az_var+"_ew"
         if "alt" in modes["plots"]:
@@ -59,14 +61,22 @@ def analysis_1d(merge_df,modes, m_keys,sources):
         if "az" in  modes["plots"]:
             plots_1f(merge_df, m_keys, modes,az_var)
     elif any (plot in modes["plots"] for plot in ["alt","az","ew"]):
-        print("Warning: Horizontal coordinates selected but unavailable")
+        if modes['verbose'] >=1:
+            print("Warning: Horizontal coordinates selected but unavailable")
             
+    foms = []
     if "corr" in modes["plots"]:
-        #calculates the pearson correlation coefficient between scope and model
-        corrs=calc_fom_1d(merge_df, m_keys,"corr")
+        foms.append("corr")
+    
+    if "rmse" in modes["plots"]:
+        foms.append("rmse")
+        
+    for fom in foms:
+        fom_results=calc_fom_1d(merge_df, m_keys,fom)
         
         for i in range(len(m_keys)):
-            out_str=("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
+            out_str=("The "+str(m_keys[i])+"-channel "+gen_pretty_name(fom)+
+                     " is "+str(fom_results[i]))
             if modes['out_dir'] == None:
                 print(out_str)
             else:
@@ -75,7 +85,7 @@ def analysis_1d(merge_df,modes, m_keys,sources):
                 str_channel = channel_maker(m_keys,modes)
         
                         
-                plt_file=prep_out_file(modes,plot="corr", dims="1d",
+                plt_file=prep_out_file(modes,plot=fom, dims="1d",
                                        channel=str_channel,
                                        out_type="txt")
                 out_file=open(plt_file,'a')
@@ -83,25 +93,48 @@ def analysis_1d(merge_df,modes, m_keys,sources):
                 out_file.close()
                 
         print("\n")
-        
-    if "rmse" in modes["plots"]:        
-        #calculates the root mean squared error between scope and model
-        rmses=calc_fom_1d(merge_df, m_keys,"rmse")
-        for i in range(len(m_keys)):
-            out_str=("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
-            if modes['out_dir'] == None:
-                print(out_str)
-            else:
-                #creates an output-friendly string for the channel
-                str_channel = channel_maker(m_keys,modes)
-        
-        
-                plt_file=prep_out_file(modes,plot="rmse", dims="1d",
-                                       channel=str_channel,
-                                       out_type="txt")
-                out_file=open(plt_file,'a')
-                out_file.write(out_str)
-                out_file.close()    
+
+#    if "corr" in modes["plots"]:
+#        #calculates the pearson correlation coefficient between scope and model
+#        corrs=calc_fom_1d(merge_df, m_keys,"corr")
+#        
+#        for i in range(len(m_keys)):
+#            out_str=("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
+#            if modes['out_dir'] == None:
+#                print(out_str)
+#            else:
+#
+#                #creates an output-friendly string for the channel
+#                str_channel = channel_maker(m_keys,modes)
+#        
+#                        
+#                plt_file=prep_out_file(modes,plot="corr", dims="1d",
+#                                       channel=str_channel,
+#                                       out_type="txt")
+#                out_file=open(plt_file,'a')
+#                out_file.write(out_str)
+#                out_file.close()
+#                
+#        print("\n")
+#        
+#    if "rmse" in modes["plots"]:        
+#        #calculates the root mean squared error between scope and model
+#        rmses=calc_fom_1d(merge_df, m_keys,"rmse")
+#        for i in range(len(m_keys)):
+#            out_str=("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
+#            if modes['out_dir'] == None:
+#                print(out_str)
+#            else:
+#                #creates an output-friendly string for the channel
+#                str_channel = channel_maker(m_keys,modes)
+#        
+#        
+#                plt_file=prep_out_file(modes,plot="rmse", dims="1d",
+#                                       channel=str_channel,
+#                                       out_type="txt")
+#                out_file=open(plt_file,'a')
+#                out_file.write(out_str)
+#                out_file.close()    
     
 def analysis_nd(merge_df,modes, m_keys,sources):
     '''
@@ -112,7 +145,8 @@ def analysis_nd(merge_df,modes, m_keys,sources):
     plots that are preferred
     '''
     
-    print("Carrying out multi-frequency Analysis")
+    if modes['verbose'] >=2:
+        print("Carrying out multi-frequency Analysis")
     
   
     if "spectra" in modes["plots"]:
@@ -124,7 +158,8 @@ def analysis_nd(merge_df,modes, m_keys,sources):
             plot_altaz_values_nf(merge_df, m_keys, modes, sources)
             
         else:
-            print("Warning: Alt-Azimuth plotting selected, but not available!")
+            if modes['verbose'] >=1:
+                print("Warning: Alt-Azimuth plotting selected, but not available!")
     
     #calculates the figures of merit at each independent variable 
     #return values are stored as possible future outputs
@@ -176,7 +211,8 @@ def analysis_nd(merge_df,modes, m_keys,sources):
             try:
                 ind_dfs[plot_item].to_csv(path_out_df)
             except IOError:
-                print("WARNING: Unable to output to file:\n\t"+path_out_df)
+                    if modes['verbose'] >=1:
+                        print("WARNING: Unable to output to file:\n\t"+path_out_df)
     
 
     

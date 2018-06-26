@@ -59,7 +59,8 @@ def get_df_keys(merge_df, modes={"values":"all"}):
     '''
     Calculates the keys from a given dataframe or based on the input modes.
     '''
-    print("Identifying channels to analyse")
+    if modes['verbose'] >=2:
+        print("Identifying channels to analyse")
     m_keys=[]
     
     #if key groups have been supplied, extend the keylist with their components
@@ -90,7 +91,8 @@ def get_df_keys(merge_df, modes={"values":"all"}):
     
     #if the keys are still blank
     if m_keys == []:
-        print ("Warning, no appropriate keys found!")
+        if modes['verbose'] >=1:
+            print ("Warning, no appropriate keys found!")
     
     
     return(m_keys)
@@ -129,6 +131,20 @@ def beam_arg_parser():
     '''
     
     parser = argparse.ArgumentParser()
+
+###############################################################################
+#verbosity
+###############################################################################
+
+    #adds an optional argument for verbosity
+    parser.add_argument("--verbose","-V", default=1, type=int,
+                        choices = (0,1,2),
+                             help='''
+sets the level of verbosity for the program outputs.  
+0 indicates silent mode
+1 indicates to show warnings or errors only
+2 gives verbose progress indicators
+                             ''')   
     
 ###############################################################################
 #Model filenames
@@ -388,7 +404,7 @@ channels for.  The file must contain one float per line in text format.
     group_object = parser.add_mutually_exclusive_group()
     #adds an optional argument for target object
     group_object.add_argument("--object_name","-X", default = None,
-                        choices=("","CasA", "CygA"), 
+                        choices=("","CasA", "CygA", "VirA"), 
                             help = '''
 set a variable for the name of the target object.  This is used to generate sky
 coordinates.  At present this is enabled only for CasA and CygA
@@ -438,7 +454,8 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
 
     
     #creates and uses a dictionary to store the mode arguments
-    modes={}    
+    modes={}
+    modes['verbose']=args.verbose    
     modes['norm']=args.norm
     modes['norm_data']=args.norm_data
     modes['crop_data']=args.crop_data
@@ -476,6 +493,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     else:
         modes['in_file_model']=raw_input("No model filename specified:\n"
                                 "Please enter the model filename:\n")
+        #TODO:alternative interactive mode
     
     
     #outputs the filename for the scope to a returnable variable
@@ -489,7 +507,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
                                      "Please enter the telescope filename:\n")
     
     #sets up the output directory based on the input
-    modes['out_dir']=prep_out_dir(args.out_dir)
+    modes['out_dir']=prep_out_dir(args.out_dir, modes)
     
     
     #sets up the object coordinates
@@ -506,10 +524,12 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
         modes['location_coords']=args.location_coords
     elif len(args.location_coords) == 2:
         #appends a height of zero (sea level) for the observing site
-        print("Warning, no height above sea level specified, defaulting to 0m")
+        if modes['verbose'] >=1:
+            print("Warning, no height above sea level specified, defaulting to 0m")
         modes['location_coords']=args.location_coords+[0.0]
     else:
-        print("Warning: Site: "+ str(args.location_coords)+" incorrectly "+
+        if modes['verbose'] >=1:
+            print("Warning: Site: "+ str(args.location_coords)+" incorrectly "+
               "specified.  Setting site coordinates to 0,0,0 which will"+
               " disable object tracking./n/n")    
         modes['location_coords']=[0.0, 0.0, 0.0]
@@ -538,8 +558,11 @@ def set_object_coords(name_str=""):
         coords=[350.85,  58.815]
     elif name_str == "CygA":
         coords=[299.86791667,  40.73388889]
+    elif name_str == "VirA":
+        coords=[187.70415,  12.39111]
     else:
-        print("Warning: Object: "+name_str+" not found.  Setting object "+
+        if modes['verbose'] >=1:
+            print("Warning: Object: "+name_str+" not found.  Setting object "+
               "coordinates to 0,0 which will disable object tracking./n/n" + 
               "for an object at exactly 0,0 set one coordinate to 1e-308")
     #minimum float increment coordinates will not affect the actual results
@@ -560,7 +583,8 @@ def set_location_coords(name_str=""):
     elif name_str == "SE607":
         coords=[57.398743, 11.929636, 20.0]
     else:
-        print("Warning: Site: "+name_str+" not found.  Setting site "+
+        if modes['verbose'] >=1:
+            print("Warning: Site: "+name_str+" not found.  Setting site "+
               "coordinates to 0,0,0 which will disable object tracking./n/n" )    
         #there is no land at lat/long (0,0), so it should be ok to assume no
         #observations at this location
@@ -581,7 +605,8 @@ def calc_alt_az(merge_df,modes):
     This function uses astropy to calculate a set of altitude and azimuth 
     coordinates for the target object at each time in the the dataset
     '''
-    print("Calculating Horizontal Coordinates")
+    if modes['verbose'] >=2:
+        print("Calculating Horizontal Coordinates")
     observing_location = EarthLocation(lat= modes['location_coords'][0],
                                        lon= modes['location_coords'][1],
                                        height =modes['location_coords'][2]*u.m)
@@ -598,7 +623,8 @@ def calc_alt_az(merge_df,modes):
     merge_df['az'] = coord_set.az
     
     merge_df['az_ew'] = coord_set.az
-    print("Calculating East/West Horizontal Coordinates")
+    if modes['verbose'] >=2:
+        print("Calculating East/West Horizontal Coordinates")
     (merge_df.loc[merge_df['az']>180,'az_ew'])=(merge_df.loc[merge_df['az']>180,'az'])-360
     return (merge_df)
 
@@ -607,7 +633,8 @@ def calc_alt_az_lofar(merge_df,modes):
     This function is not currently defined.  This placeholder will be used to 
     define the function to calculate LOFAR specific coordinates
     '''
-    print("Calculating LOFAR Coordinates")
+    if modes['verbose'] >=2:
+        print("Calculating LOFAR Coordinates")
     stn_id=modes['location_name']
     stn_alt_az=horizon_to_station(stn_id, merge_df.az, merge_df.alt)
     
@@ -697,13 +724,15 @@ if __name__ == "__main__":
     merge_df=merge_dfs(model_df, scope_df, modes)
     
     if modes['freq'] !=[0.0]:
-        print ("isolating frequencies: "+str(modes['freq']))
+        if modes['verbose'] >=2:
+            print ("isolating frequencies: "+str(modes['freq']))
         #drops all frequencies which do not match the filter if applicable
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
         merge_df.reset_index(drop=True, inplace=True)
     
     if modes['freq_file'] != "":
-        print ("isolating frequencies from file: "+modes['freq_file'])
+        if modes['verbose'] >=2:
+            print ("isolating frequencies from file: "+modes['freq_file'])
         freq_df=pd.read_csv(modes['freq_file'], header=None)
         merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
         merge_df.reset_index(drop=True, inplace=True)
@@ -719,7 +748,8 @@ if __name__ == "__main__":
             try:
                 merge_df = calc_alt_az(merge_df,modes)
             except NameError:
-                print("ERROR: Unable to calculate Horizontal coordintates\n"\
+                if modes['verbose'] >=1:
+                    print("ERROR: Unable to calculate Horizontal coordintates\n"\
                        "\tPossible issue with AstroPy imports.")
                 for option in ["alt","az","stn"]:
                     if option in modes["plots"]:
@@ -732,7 +762,8 @@ if __name__ == "__main__":
             try:
                 merge_df=calc_alt_az_lofar(merge_df,modes)
             except NameError:
-                print ("ERROR: Unable to calculate Station coordintates\n"\
+                if modes['verbose'] >=1:
+                    print ("ERROR: Unable to calculate Station coordintates\n"\
                        "\tKnown issue: Casacore is not compatible with Windows\n"\
                        "\tProceeding without station coordinates.")
         
@@ -757,10 +788,13 @@ if __name__ == "__main__":
             try:
                 merge_df.to_csv(path_out_df)
             except IOError:
-                print("WARNING: unable to output to file:\n\t"+path_out_df)
+                if modes['verbose'] >=1:
+                    print("WARNING: unable to output to file:\n\t"+path_out_df)
         if (modes['out_dir'] == None) & ('file' in modes['plots']):
-            print("ERROR: file output requested, but no directory selected.")
+            if modes['verbose'] >=1:
+                print("ERROR: file output requested, but no directory selected.")
                 
     else:
-        print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
+        if modes['verbose'] >=1:
+            print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
     

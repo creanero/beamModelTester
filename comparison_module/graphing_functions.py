@@ -32,7 +32,8 @@ def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
     
     sep=get_source_separator(source)
     
-    print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
+    if modes['verbose'] >=2:
+        print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
     plt.figure()
 
     graph_title="\n".join([modes['title'],
@@ -58,7 +59,8 @@ def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
         plt_file=prep_out_file(modes,source=source,plot="vals",dims="nd",
                                channel=key,
                                out_type=modes['image_type'])
-        print("plotting: "+plt_file)
+        if modes['verbose'] >=2:
+            print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
@@ -122,7 +124,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
       
     
     
-    print("Generating an Animated "+title)
+    if modes['verbose'] >=2:
+        print("Generating an Animated "+title)
     
     title = "\n".join([modes["title"],title+" of "+var_t_string])  
     
@@ -263,7 +266,8 @@ def plot_values_1f(merge_df, m_keys, modes):
     for key in m_keys:
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values per channel against time
-        print("Plotting values in "+key)
+        if modes['verbose'] >=2:
+            print("Plotting values in "+key)
         plt.figure()
         graph_title="\n".join([modes['title'],
                         ("Plot of the values in "+key+"-channel over time"+
@@ -293,7 +297,8 @@ def plot_values_1f(merge_df, m_keys, modes):
             plt_file=prep_out_file(modes,plot="vals",dims="1d",channel=key,
                                    freq=min(merge_df.Freq),
                                    out_type="png")
-            print("plotting: "+plt_file)
+            if modes['verbose'] >=2:
+                print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight',pad_inches=1)
             plt.close()
     return(0)
@@ -326,7 +331,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
         
     title=title+"-channels over "+gen_pretty_name(var_str)
     
-    print(title)
+    if modes['verbose'] >=2:
+        print(title)
     
     plt.figure()
 
@@ -354,7 +360,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
                                channel=channel_maker(m_keys),
                                freq=min(merge_df.Freq),
                                out_type="png")
-        print("plotting: "+plt_file)
+        if modes['verbose'] >=2:
+            print("Saving: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
     return(0)
@@ -373,7 +380,8 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     
     var_z must be one of the dependent variables
     '''
-    print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
+    if modes['verbose'] >=2:
+        print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
           " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
           " and "+ gen_pretty_name(var_y2, plot_name)+" against "+gen_pretty_name(var_x))
     plt.figure()
@@ -424,7 +432,8 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
                                channel=var_z, ind_var=var_y, 
                                plot_name=plot_name,
                                out_type=modes['image_type'])
-        print("plotting: "+plt_file)
+        if modes['verbose'] >=2:
+            print("Saving: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
@@ -444,7 +453,8 @@ def identify_plots(modes):
         sources.append("diff")
     
     if len(sources) == 0:
-        print ("Warning: Sources not specified: defaulting to all")
+        if modes['verbose'] >=1:
+            print ("Warning: Sources not specified: defaulting to all")
         sources.append("model")
         sources.append("scope")
         sources.append("diff")        
@@ -485,7 +495,8 @@ def plot_spectra_nf(merge_df, m_keys, modes,sources):
 
                 
     else:
-        print("WARNING: No valid value for 3d plots")
+        if modes['verbose'] >=1:
+            print("WARNING: No valid value for 3d plots")
 
     return(0)    
 
@@ -510,7 +521,8 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-    print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
+    if modes['verbose'] >=2:
+        print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
     plt.figure()
     
     graph_title = "\n".join([modes['title'],"Plot of the differences in "])
@@ -542,7 +554,8 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     else:
         plt_file=prep_out_file(modes,plot="diff",dims="1d",
                                out_type=modes['image_type'])
-        print("plotting: "+plt_file)
+        if modes['verbose'] >=2:
+            print("Saving: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
     return(0)
@@ -561,7 +574,8 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
     in current versions, useable values for fom are "rmse" and "corr"
     '''
 
-    print ("Calculating the "+gen_pretty_name(fom)+\
+    if modes['verbose'] >=2:
+        print ("Calculating the "+gen_pretty_name(fom)+\
            " between observed and model data.")        
     #creates empty lists for the Errors
     n_foms=[]
@@ -590,7 +604,8 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
     
     #creates an overlaid plot of how the Figure of Merit  between model and scope
     #varies for each of the channels against var_str  
-    print("Plotting the "+gen_pretty_name(fom)+\
+    if modes['verbose'] >=2:
+        print("Plotting the "+gen_pretty_name(fom)+\
             " between model and scope for "+\
           channel_maker(m_keys,modes,", ")+" against "+\
           gen_pretty_name(var_str))
@@ -628,7 +643,8 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
         plt_file=prep_out_file(modes,plot=fom,ind_var=var_str,
                                channel=str_channel,
                                out_type=modes['image_type'])
-        print("plotting: "+plt_file)
+        if modes['verbose'] >=2:
+            print("Saving: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
     

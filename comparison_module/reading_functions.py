@@ -12,7 +12,7 @@ import numpy as np
 from utility_functions import plottable
 from utility_functions import get_source_separator
 
-def read_dreambeam_csv(in_file):
+def read_dreambeam_csv(in_file,modes):
     '''
     This function reads in csv files output by dreambeam into a formatted 
     dataframe
@@ -20,7 +20,8 @@ def read_dreambeam_csv(in_file):
     DreamBeam format described at 
     https://github.com/creaneroDIAS/beamModelTester/blob/multi-frequency-upgrade/DreamBeam_Source_data_description.md
     '''
-    print("Reading in CSV file: "+in_file)
+    if modes['verbose'] >=2:
+        print("Reading in CSV file: "+in_file)
     out_df=pd.read_csv(in_file,\
                         converters={'J11':complex,'J12':complex,\
                                     'J21':complex,'J22':complex}, \
@@ -48,7 +49,7 @@ def read_dreambeam_csv(in_file):
     out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
     return out_df
 
-def read_OSO_h5 (file_name):
+def read_OSO_h5 (file_name, modes):
     '''
     This function reads in the data from an OSO-supplied HDF5 file and converts
     it into a data frame. This data is then returned to the calling function
@@ -59,7 +60,8 @@ def read_OSO_h5 (file_name):
     This function uses slightly crude methods, and probably needs to be 
     updated with a more straightforward conversion from HDF5 to a dataframe
     '''
-    print("Reading in HDF5 file: "+file_name)
+    if modes['verbose'] >=2:
+        print("Reading in HDF5 file: "+file_name)
     #'/home/creanero/outputs/observations/OSO/2018-03-16T11_26_11_acc2bst_rcu5_CasA_dur2587_ct20161220.hdf5'
     #Reads in the designated HDF5 file
     f = h5py.File(file_name, 'r')
@@ -140,14 +142,16 @@ def read_var_file(file_name,modes,source):
     This function reads in the filename and checks the suffix.  Depending on
     the suffix chosen, it calls different file reader functions
     '''
-    print("Determining file type for: "+file_name)
+    if modes['verbose'] >=2:
+        print("Determining file type for: "+file_name)
     suffix=file_name.rsplit('.',1)[1]
     if 'csv'==suffix:
-        out_df=read_dreambeam_csv(file_name)
+        out_df=read_dreambeam_csv(file_name, modes)
     elif 'hdf5'==suffix:
-        out_df=read_OSO_h5(file_name)    
+        out_df=read_OSO_h5(file_name, modes)    
     else:
-        print (file_name+" is not an appropriate file")
+        if modes['verbose'] >=1:
+            print ("ERROR: "+file_name+" is not an appropriate file")
         out_df=pd.DataFrame(data={"none":[]})
     
     source_options = ['b']
@@ -174,7 +178,8 @@ def merge_dfs(model_df,scope_df,modes):
     The merged dataframe is then returned
     
     '''
-    print("Merging data from scope and source")
+    if modes['verbose'] >=2:
+        print("Merging data from scope and source")
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
     if len(merge_df) > 0:
@@ -188,7 +193,8 @@ def merge_dfs(model_df,scope_df,modes):
             start_time=min(merge_df['Time'])
             merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
     else:
-        print("ERROR: NO MATCHING DATA: CLOSING")
+        if modes['verbose'] >=1:
+            print("ERROR: NO MATCHING DATA: CLOSING")
     return(merge_df)        
 
 def crop_vals(in_df,modes):
@@ -199,12 +205,15 @@ def crop_vals(in_df,modes):
     
     This function also removes all 0.0 values for the various channels.
     '''
-    print("Cropping values")
+    if modes['verbose'] >=2:
+        print("Cropping values")
     if 'o' in modes["crop_basis"]:
-        print("Crop basis: Overall")
+        if modes['verbose'] >=2:
+            print("Crop basis: Overall")
         out_df=crop_operation (in_df,modes)
     elif 'f' in modes["crop_basis"]:
-        print("Crop basis: Frequency")
+        if modes['verbose'] >=2:
+            print("Crop basis: Frequency")
         var_str='Freq'
         unique_vals=in_df[var_str].unique()
         out_df= pd.DataFrame(columns=in_df.columns)
@@ -220,7 +229,8 @@ def crop_vals(in_df,modes):
     return(out_df)
 
 def crop_operation (in_df,modes):
-    print("Carrying out Crop Operation")
+    if modes['verbose'] >=2:
+        print("Carrying out Crop Operation")
     out_df=in_df.copy()
     #goes through all the columns of the data
     for col in out_df:
@@ -238,10 +248,12 @@ def crop_operation (in_df,modes):
                     if modes['crop'] <100:
                         col_limit = np.percentile(out_df[col],modes['crop'])
                     else:
-                        print("WARNING: Percentile must be less than 100")
+                        if modes['verbose'] >=1:
+                            print("WARNING: Percentile must be less than 100")
                         col_limit = np.max(plottable(out_df[col]))
                 else:
-                    print("WARNING: crop_type incorrectly specified.")
+                    if modes['verbose'] >=1:
+                        print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
             
@@ -254,7 +266,8 @@ def calc_stokes(in_df,modes,sources):
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
     '''
-    print("Calculating Stokes Parameters")
+    if modes['verbose'] >=2:
+        print("Calculating Stokes Parameters")
 
     for source in sources:
         sep=get_source_separator(source)
@@ -276,36 +289,43 @@ def normalise_data(merge_df,modes,channel,out_str=""):
     This function normalises the data for the scope according to the 
     normalisation mode specified.  These options are detailed belwo
     '''
-    print("Normalising data")
+    if modes['verbose'] >=2:
+        print("Normalising data")
     if 'o' in modes['norm'] :
-        print("Normalisation basis: Overall")
+        if modes['verbose'] >=2:
+            print("Normalisation basis: Overall")
         #normalises by dividing by the maximum
         merge_df[channel+out_str]=merge_df[channel]/np.max((plottable(merge_df[channel])))
     elif 'f' in modes['norm']:
-        print("Normalisation basis: Frequency")
+        if modes['verbose'] >=2:
+            print("Normalisation basis: Frequency")
         #normalises by dividing by the maximum for each frequency
         var_str='Freq'
-        norm_operation(merge_df, var_str,channel,out_str)
+        norm_operation(merge_df, var_str,channel,modes,out_str)
     elif 't' in modes['norm']:
-        print("Normalisation basis: time")
+        if modes['verbose'] >=2:
+            print("Normalisation basis: time")
         #normalises by dividing by the maximum for each frequency
         var_str='Time'
-        norm_operation(merge_df, var_str,channel,out_str)
+        norm_operation(merge_df, var_str,channel,modes,out_str)
     elif 'n' in modes ['norm']:
-        print("Normalisation basis: None")
+        if modes['verbose'] >=2:
+            print("Normalisation basis: None")
         pass     #nothing to be done       
     else:
-        print("WARNING: Normalisation mode not specified correctly!")
+        if modes['verbose'] >=1:
+            print("WARNING: Normalisation mode not specified correctly!")
  
     return (merge_df)
 
-def norm_operation(in_df, var_str,channel,out_str=""):
+def norm_operation(in_df, var_str,channel,modes,out_str=""):
     '''
     This function carries out the normalisation operation based on the input 
     which specifies which variable to normalise over.  
     '''
 
-    print("Carrying out normalisation")
+    if modes['verbose'] >=2:
+        print("Carrying out normalisation")
     #identifies allthe unique values of the variable in the column
     unique_vals=in_df[var_str].unique()
     
@@ -326,7 +346,8 @@ def calc_diff(merge_df, modes, channel):
     channel
     '''
     
-    print("Calculating differences between scope and model for "+channel)
+    if modes['verbose'] >=2:
+        print("Calculating differences between scope and model for "+channel)
     if modes['diff']=='sub':
         merge_df[channel+'_diff']=(merge_df[channel+"_model"])-(merge_df[channel+"_scope"])
     elif modes['diff']=='div':
@@ -334,8 +355,9 @@ def calc_diff(merge_df, modes, channel):
     elif modes['diff']=='idiv':
         merge_df[channel+'_diff']=(merge_df[channel+"_scope"])/((merge_df[channel+"_model"])+0.0)
     else:
-        print("Difference mode "+str(modes['diff'])+" incorrectly specified.  "
-              "Defaulting to subtraction mode.")
+        if modes['verbose'] >=1:
+            print("Warning: Difference mode "+str(modes['diff'])+
+                  " incorrectly specified.  Defaulting to subtraction mode.")
         merge_df[channel+'_diff']=(merge_df[channel+"_model"])-(merge_df[channel+"_scope"])
         
         

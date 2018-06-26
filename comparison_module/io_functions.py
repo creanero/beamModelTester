@@ -6,7 +6,7 @@ Created on Fri Jun 15 13:43:38 2018
 """
 import os
 
-def prep_out_dir(out_dir=None):
+def prep_out_dir(out_dir=None, modes={"verbose":1}):
     '''
     Sets up the output directory based on the inputs.  If there are issues with
     the output directory specified, warns the user and continues by printing 
@@ -27,18 +27,21 @@ def prep_out_dir(out_dir=None):
             
             #if it's not possible to make that directory
             except OSError:
-                #print a warning and ask the user for new input
-                os_dir = raw_input("WARNING: output directory not suitable, "
-                                   "please enter a new output directory:\n"
-                                   "Leave blank for output to screen\n\t")
+                if modes['verbose'] >=1:
+                    #print a warning and ask the user for new input
+                    out_dir = raw_input("WARNING: output directory not suitable, "
+                                       "please enter a new output directory:\n"
+                                       "Leave blank for output to screen\n\t")
+                    #TODO: Check if this still works after interactive mode
+                    #if they leave the input blank, return a Null value
+                    if out_dir == '':
+                        out_dir = None
                 
-                #if they leave the input blank, return a Null value
-                if os_dir == '':
-                    os_dir = None
-                
-                #otherwise try this function again
+                    #otherwise try this function again
+                    else:
+                        out_dir=prep_out_dir(out_dir)
                 else:
-                    prep_out_dir(out_dir)
+                    out_dir = None
     
     return(out_dir)
     
