@@ -54,7 +54,7 @@ from analysis_functions import analysis_nd
 
 
 
-def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
+def get_df_keys(merge_df, modes={"values":"all"}):
     '''
     Calculates the keys from a given dataframe or based on the input modes.
     '''
@@ -62,30 +62,30 @@ def get_df_keys(merge_df,key_str="", modes={"values":"all"}):
     m_keys=[]
     
     #if key groups have been supplied, extend the keylist with their components
-    if "stokes" in modes["values"]:
-        m_keys.extend(["U","V","I","Q"])
-    if "linear" in modes["values"]:
-        m_keys.extend(["xx","xy","yy"])
     if "all" in modes["values"]:
-        for m_key in merge_df.keys():
-            if key_str in m_key:
-                m_keys.append(m_key.split(key_str)[0])
+        m_keys.extend(["xx","xy","yy","U","V","I","Q"])
+    else:
+        if "stokes" in modes["values"]:
+            m_keys.extend(["U","V","I","Q"])
+        if "linear" in modes["values"]:
+            m_keys.extend(["xx","xy","yy"])
+
                 
-    #if keys have been supplied individually                
-    if "xx" in modes["values"]:
-        m_keys.append("xx")
-    if "xy" in modes["values"]:
-        m_keys.append("xy")
-    if "yy" in modes["values"]:
-        m_keys.append("yy")
-    if "U" in modes["values"]:
-        m_keys.append("U")
-    if "V" in modes["values"]:
-        m_keys.append("V")
-    if "I" in modes["values"]:
-        m_keys.append("I")
-    if "Q" in modes["values"]:
-        m_keys.append("Q")
+        #if keys have been supplied individually                
+        if "xx" in modes["values"]:
+            m_keys.append("xx")
+        if "xy" in modes["values"]:
+            m_keys.append("xy")
+        if "yy" in modes["values"]:
+            m_keys.append("yy")
+        if "U" in modes["values"]:
+            m_keys.append("U")
+        if "V" in modes["values"]:
+            m_keys.append("V")
+        if "I" in modes["values"]:
+            m_keys.append("I")
+        if "Q" in modes["values"]:
+            m_keys.append("Q")
     
     
     #if the keys are still blank
@@ -709,7 +709,7 @@ if __name__ == "__main__":
         merge_df.reset_index(drop=True, inplace=True)
     
     #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df,"_diff", modes)
+    m_keys=get_df_keys(merge_df, modes)
     
 
     
