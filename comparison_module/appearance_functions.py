@@ -64,7 +64,11 @@ def gen_pretty_name(key,units=False):
     elif key =='rmse':
         pretty_name = 'Root Mean Square Error'    
     elif key =='corr':
-        pretty_name = "Pearson's Correlation"            
+        pretty_name = "Pearson's Correlation"    
+
+    elif key =='':
+        pretty_name = "value" 
+        
     if units:
         pretty_name=add_units (pretty_name,units)
     

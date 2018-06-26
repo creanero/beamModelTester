@@ -42,3 +42,9 @@ def clean_complex(in_series):
         out_series = abs(in_series)
     return (out_series)
     
+def get_source_separator(source):
+    if source == "":
+        sep = ""
+    else:
+        sep = "_"
+    return (sep)
