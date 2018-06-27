@@ -17,6 +17,8 @@ from appearance_functions import channel_maker
 
 from utility_functions import plottable 
 from utility_functions import get_source_separator
+from utility_functions import get_alt_az_var
+from utility_functions import split_df
 
 from io_functions import prep_out_file
 
@@ -367,7 +369,7 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     return(0)
 
 
-def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
+def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     '''
     Plots a two part plot of four variables from merge_df as controlled by 
     modes.
@@ -395,14 +397,14 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     
     sep=get_source_separator(source)
     
-    plt.tripcolor(plottable(merge_df,var_x),
-                  plottable(merge_df,var_y),
-                  plottable(merge_df,(var_z+sep+source)), 
+    plt.tripcolor(plottable(in_df,var_x),
+                  plottable(in_df,var_y),
+                  plottable(in_df,(var_z+sep+source)), 
                   cmap=plt.get_cmap(colour_models(var_z+'_s')))
     
     #TODO: fix percentile plotting limits
-    plt.clim(np.percentile(plottable(merge_df,(var_z+sep+source)),5),
-             np.percentile(plottable(merge_df,(var_z+sep+source)),95))
+    plt.clim(np.percentile(plottable(in_df,(var_z+sep+source)),5),
+             np.percentile(plottable(in_df,(var_z+sep+source)),95))
     
     #plots axes
     plt.xticks([])
@@ -416,8 +418,8 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     plt.title(lower_title, wrap=True)
     
     #plots the scattergraph
-    plt.plot(plottable(merge_df,var_x),
-             plottable(merge_df,var_y2),
+    plt.plot(plottable(in_df,var_x),
+             plottable(in_df,var_y2),
              color=colour_models(var_y2), marker=".", linestyle="None")
     
     plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
@@ -454,10 +456,8 @@ def identify_plots(modes):
     
     if len(sources) == 0:
         if modes['verbose'] >=1:
-            print ("Warning: Sources not specified: defaulting to all")
-        sources.append("model")
-        sources.append("scope")
-        sources.append("diff")        
+            print ("Warning: Sources not specified, no values will be plotted")
+    
     return (sources)
 
 def plot_spectra_nf(merge_df, m_keys, modes,sources):
@@ -564,7 +564,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
 
 
 
-def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
+def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     '''
     This function calculates a figure of merit between the scope and model 
     values for the specified channels  as they are distributed against another 
@@ -585,7 +585,7 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
     
     
     #identifies allthe unique values of the variable in the column
-    unique_vals=merge_df[var_str].unique()
+    unique_vals=in_df[var_str].unique()
     
     unique_vals=np.sort(unique_vals)
     
@@ -593,7 +593,7 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
     for unique_val in unique_vals:
         #creates a dataframe with  only the elements that match the current 
         #unique value
-        unique_merge_df=merge_df[merge_df[var_str]==unique_val]
+        unique_merge_df=in_df[in_df[var_str]==unique_val]
         #uses this unique value for and the 1-dimensional calc_fom_1d function
         #to calculate the Figure of merit for each channel
         n_fom=calc_fom_1d(unique_merge_df, m_keys, fom)
@@ -655,10 +655,12 @@ def calc_fom_nd(merge_df, var_str, m_keys, modes,fom="rmse"):
 def calc_fom_1d(merge_df, m_keys, fom):
     '''
     This function takes a merged dataframe as an argument and 
-    calculates and returns the root mean square difference between scope and 
-    model
+    calculates and returns the selected figure of merit for the differences in
+    between source and model that data frame
     '''
+    #creates an output list for figures of merit
     fom_outs=[]
+
     if fom == "rmse":
         for key in m_keys:
             fom_outs.append(np.mean(plottable(merge_df,(key+'_diff'))**2)**0.5)
@@ -688,19 +690,7 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
     time_delay = 1000.0/modes['frame_rate']
 
        
-    alt_var ="alt"
-    az_var = "az"
-    az_var_ew ="az_ew" #for when East-west is 100% needed
-    if 'ew' in modes['plots']:
-        az_var = az_var_ew
-
-        
-        
-    if ('stn' in modes['plots'] and
-        'stn_alt' in merge_df and 
-        'stn_az' in merge_df):
-        az_var = "stn_"+az_var
-        alt_var = "stn_"+alt_var
+    alt_var,az_var,az_var_ew = get_alt_az_var(merge_df, modes)  
     
     x_plots = []
     y_plots = []
@@ -710,36 +700,20 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
         x_plots.append([alt_var])
         y_plots.append(az_var)    
         names.append([1])
-        if "split" in modes['plots']:
-            south_point = min(merge_df[alt_var])
-            south_point_az =min(merge_df.loc[merge_df[alt_var]==south_point,az_var_ew])
-            east_half=merge_df.loc[merge_df[az_var_ew]>=south_point_az]
-            west_half=merge_df.loc[merge_df[az_var_ew]<south_point_az]
-            x_plots[len(x_plots)-1].append(east_half)
-            names[len(names)-1].append("East")
-            x_plots[len(x_plots)-1].append(west_half)
-            names[len(names)-1].append("West")
-        else:
-            x_plots[len(x_plots)-1].append(merge_df)
-            names[len(names)-1].append("")
+
+        splits,split_names = split_df(merge_df, modes, alt_var)
+        x_plots[len(x_plots)-1].extend(splits)
+        names[len(names)-1].extend(split_names)
+
     
     if "az" in modes['plots']:
         x_plots.append([az_var])
         y_plots.append(alt_var)  
         names.append([1])
-        if "split" in modes['plots']:
-            east_point = max(merge_df[az_var_ew])
-            east_point_alt =max(merge_df.loc[merge_df[az_var_ew]==east_point,alt_var])
-            north_half=merge_df.loc[merge_df[alt_var]>=east_point_alt]
-            south_half=merge_df.loc[merge_df[alt_var]<east_point_alt]
-            x_plots[len(x_plots)-1].append(north_half)
-            names[len(names)-1].append("North")
-            x_plots[len(x_plots)-1].append(south_half)
-            names[len(names)-1].append("South")
-        else:
-            x_plots[len(x_plots)-1].append(merge_df)
-            names[len(names)-1].append("")
-    
+        
+        splits,split_names = split_df(merge_df, modes, az_var)
+        x_plots[len(x_plots)-1].extend(splits)
+        names[len(names)-1].extend(split_names)
     #east_point = max(merge_df[az_var])
     #west_point = min(merge_df[az_var])
     #north_point = max(merge_df[alt_var])
@@ -780,7 +754,8 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
                 x_var = x_plots[i][0]
                 t_var = 'Freq'
             
-            animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay)
+            for j in range(1,len(x_plots[i])):
+                animated_plots(x_plots[i][j], modes, x_var, m_keys, t_var, sources, time_delay)
 #            elif modes['three_d']=="anim":
 #        
 ##                if "alt" in modes['plots']:

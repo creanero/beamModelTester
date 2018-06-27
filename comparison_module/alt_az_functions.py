@@ -34,7 +34,11 @@ try:
 except ImportError:
     print("WARNING: unable to import ilisa.\n"\
           "This may cause subsequent modules to fail")
-
+try:
+    import numpy as np
+except ImportError:
+    print("WARNING: unable to import numpy.\n"\
+      "This may cause subsequent modules to fail")
 
     
 def set_object_coords(modes, name_str=""):

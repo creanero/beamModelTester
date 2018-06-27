@@ -12,7 +12,7 @@ import numpy as np
 
 import argparse
 
-
+import sys
 
 
 
@@ -39,18 +39,6 @@ from alt_az_functions import calc_alt_az_lofar
 
 
 
-
-
-
-
-
-
-
-#            for i in range(len_dir):
-#                four_var_plot(merge_df,modes,directions[i],"Freq",key,
-#                              directions[len_dir-i-1],source)
-#    
-    
 
 
 
@@ -494,14 +482,32 @@ if __name__ == "__main__":
     
     #read in the file from the scope using variable reader
     scope_df=read_var_file(modes['in_file_scope'],modes,"s")
-    
-    #adjusts for the offset if needed (e.g. comparing two observations)
-    offset=np.timedelta64(modes['offset'],'s')
-    scope_df.Time=scope_df.Time-offset
+
+    if "none" not in scope_df:        
+        #adjusts for the offset if needed (e.g. comparing two observations)
+        offset=np.timedelta64(modes['offset'],'s')
+        scope_df.Time=scope_df.Time-offset
   
-    
-    #merges the dataframes
-    merge_df=merge_dfs(model_df, scope_df, modes)
+    if "none" not in model_df and "none" not in scope_df:
+        #merges the dataframes
+        merge_df=merge_dfs(model_df, scope_df, modes)
+        
+        #identifies the sources required
+        sources = identify_plots(modes)
+        
+    #if only scope is valid
+    elif "none" in model_df and "none" not in scope_df:
+        merge_df=scope_df.copy()#sets the output to scope_df
+        sources = [""]#sets the source to blank as there are no differentiators
+    elif "none" not in model_df and "none" in scope_df:
+        merge_df=model_df.copy()
+        sources = [""]
+    else: #Both blank
+        print("ERROR: No data available in either file")
+        sys.exit(1)
+
+    #identifies the channels
+    m_keys=get_df_keys(merge_df, modes)
     
     if modes['freq'] !=[0.0]:
         if modes['verbose'] >=2:
@@ -517,10 +523,7 @@ if __name__ == "__main__":
         merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
         merge_df.reset_index(drop=True, inplace=True)
     
-    #identifies the keys with _diff suffix
-    m_keys=get_df_keys(merge_df, modes)
-    
-    sources = identify_plots(modes)
+
     
     if  len(merge_df)>0:
         #calculates Alt-Az coordinates if possible
@@ -541,7 +544,7 @@ if __name__ == "__main__":
         if modes['location_name']!=None and "stn" in modes["plots"]:
             try:
                 merge_df=calc_alt_az_lofar(merge_df,modes)
-            except NameError:
+            except ValueError:#except NameError:
                 if modes['verbose'] >=1:
                     print ("ERROR: Unable to calculate Station coordintates\n"\
                        "\tKnown issue: Casacore is not compatible with Windows\n"\

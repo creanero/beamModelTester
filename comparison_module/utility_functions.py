@@ -90,3 +90,46 @@ def get_df_keys(merge_df, modes={"values":"all"}):
     
     
     return(m_keys)
+
+def split_df(merge_df, modes, splitter):
+    alt_var,az_var,az_var_ew = get_alt_az_var(merge_df, modes)  
+    out_list = []
+    out_names = []
+    if "split" in modes['plots'] and splitter in [alt_var,az_var,az_var_ew]:
+        print("Splitting the dataframe")
+        if alt_var ==splitter:
+            south_point = min(merge_df[alt_var])
+            south_point_az =min(merge_df.loc[merge_df[alt_var]==south_point,az_var_ew])
+            east_half=merge_df.loc[merge_df[az_var_ew]>=south_point_az].reset_index(drop=True)#east half
+            west_half=merge_df.loc[merge_df[az_var_ew]<south_point_az].reset_index(drop=True)#west_half
+            out_list.extend([east_half,west_half])
+            out_names.extend(["East","West"])
+            
+        elif az_var ==splitter:
+            east_point = max(merge_df[az_var_ew])
+            east_point_alt =max(merge_df.loc[merge_df[az_var_ew]==east_point,alt_var])
+            north_half=merge_df.loc[merge_df[alt_var]>=east_point_alt].reset_index(drop=True)
+            south_half=merge_df.loc[merge_df[alt_var]<east_point_alt].reset_index(drop=True)
+            out_list.extend([north_half,south_half])
+            out_names.extend(["North","South"])
+
+    else:
+        out_list.extend([merge_df])
+        out_names.extend([""])
+    return(out_list,out_names)
+    
+def get_alt_az_var(merge_df, modes):
+    alt_var ="alt"
+    az_var = "az"
+    az_var_ew ="az_ew" #for when East-west is 100% needed
+    if 'ew' in modes['plots']:
+        az_var = az_var_ew
+
+        
+        
+    if ('stn' in modes['plots'] and
+        'stn_alt' in merge_df and 
+        'stn_az' in merge_df):
+        az_var = "stn_"+az_var
+        alt_var = "stn_"+alt_var
+    return(alt_var, az_var, az_var_ew)

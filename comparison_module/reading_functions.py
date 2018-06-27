@@ -47,6 +47,13 @@ def read_dreambeam_csv(in_file,modes):
     out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
     out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
     out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    
+    if 'd_Time' not in out_df:
+        #creates a variable to hold the time since the start of the plot
+        #this is necessary for plots that are not compatible with Timestamp data
+        start_time=min(out_df['Time'])
+        out_df['d_Time']=(out_df.Time-start_time)/np.timedelta64(1,'s')
+        
     return out_df
 
 def read_OSO_h5 (file_name, modes):
@@ -144,26 +151,35 @@ def read_var_file(file_name,modes,source):
     '''
     if modes['verbose'] >=2:
         print("Determining file type for: "+file_name)
-    suffix=file_name.rsplit('.',1)[1]
+    try:
+        suffix=file_name.rsplit('.',1)[1]
+    except IndexError:
+        suffix=""
     if 'csv'==suffix:
         out_df=read_dreambeam_csv(file_name, modes)
     elif 'hdf5'==suffix:
         out_df=read_OSO_h5(file_name, modes)    
     else:
         if modes['verbose'] >=1:
-            print ("ERROR: "+file_name+" is not an appropriate file")
+            print ("Warning: \""+file_name+"\" is not an appropriate file")
         out_df=pd.DataFrame(data={"none":[]})
     
-    source_options = ['b']
-    source_options.append(source)
-    
-    if any (c in modes['crop_data'] for c in source_options):
-        #always crops zero values, may crop high values depending on user input
-        out_df=crop_vals(out_df,modes)
-    if any (c in modes['norm_data'] for c in source_options):    
-        for channel in ['xx','xy','yy']:
-            #normalises the dataframe
-            out_df=normalise_data(out_df,modes,channel)    
+    if "none" in out_df:
+        pass
+    else:
+        source_options = ['b']
+        source_options.append(source)
+        
+        if any (c in modes['crop_data'] for c in source_options):
+            #always crops zero values, may crop high values depending on user input
+            out_df=crop_vals(out_df,modes)
+        if any (c in modes['norm_data'] for c in source_options):    
+            for channel in ['xx','xy','yy']:
+                #normalises the dataframe
+                out_df=normalise_data(out_df,modes,channel)  
+        
+        #calculates the stokes parameters for the dataframe
+        calc_stokes(out_df,modes)
     
     return(out_df)
     
@@ -183,8 +199,16 @@ def merge_dfs(model_df,scope_df,modes):
     #merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
     if len(merge_df) > 0:
-        sources = ["model","scope"]
+        #checks if the stokes parameters have been calculated
+        sources = []
+        if "Q_model" not in merge_df:
+            sources.append("model")
+        if "Q_model" not in scope_df:
+            sources.append("scope")
+        #and if not, calculates them
         merge_df=calc_stokes(merge_df,modes,sources)
+        
+        #calculates differences between model and scope values for each channel
         for channel in ["xx","xy","yy","U","V","I","Q"]:
             calc_diff(merge_df, modes, channel)
         if 'd_Time' not in merge_df:
@@ -261,7 +285,7 @@ def crop_operation (in_df,modes):
     
 
 
-def calc_stokes(in_df,modes,sources):
+def calc_stokes(in_df,modes,sources=[""]):
     '''
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
