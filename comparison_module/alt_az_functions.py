@@ -37,7 +37,7 @@ except ImportError:
 
 
     
-def set_object_coords(name_str="", modes):
+def set_object_coords(modes, name_str=""):
     '''
     returns a 2-long list of the coordinates of an object identified by name
     Want to replace this with something better at a later point, but this is 
@@ -60,7 +60,7 @@ def set_object_coords(name_str="", modes):
     
     return(coords)
     
-def set_location_coords(name_str="", modes):
+def set_location_coords(modes, name_str=""):
     '''
     returns a 2-long list of the coordinates of an observing location 
     identified by name.

@@ -454,13 +454,13 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     
     #sets up the object coordinates
     if args.object_name != None:
-        modes['object_coords']=set_object_coords(args.object_name, modes)
+        modes['object_coords']=set_object_coords(modes, args.object_name)
     else:
         modes['object_coords']=args.object_coords
     
     #sets up the location coordinates
     if args.location_name != None:
-        modes['location_coords']=set_location_coords(args.location_name, modes)
+        modes['location_coords']=set_location_coords(modes, args.location_name)
         
     elif len(args.location_coords) == 3:
         modes['location_coords']=args.location_coords
