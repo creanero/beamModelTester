@@ -92,28 +92,49 @@ def get_df_keys(merge_df, modes={"values":"all"}):
     return(m_keys)
 
 def split_df(merge_df, modes, splitter):
+    '''
+    This function splits a dataframe into eastern and western or northern and
+    southern halves to prevent aliasing of data in various plots.
+    
+    Returns a list of dataframes and a list of strings identifying those DFs
+    '''
     alt_var,az_var,az_var_ew = get_alt_az_var(merge_df, modes)  
     out_list = []
     out_names = []
+    
+    #if a split has been requested and the variable is suitable to split
     if "split" in modes['plots'] and splitter in [alt_var,az_var,az_var_ew]:
-        print("Splitting the dataframe")
+        if modes['verbose'] >=2:
+            print("Splitting the dataframe")
+            
+        #if splitting for altitude, splits into East and West
         if alt_var ==splitter:
+            #identifies the southernmost point
             south_point = min(merge_df[alt_var])
+            #identifies the azimuth of that point
             south_point_az =min(merge_df.loc[merge_df[alt_var]==south_point,az_var_ew])
+            
+            #creates dataframes which include the points east and west of the southern most point
             east_half=merge_df.loc[merge_df[az_var_ew]>=south_point_az].reset_index(drop=True)#east half
             west_half=merge_df.loc[merge_df[az_var_ew]<south_point_az].reset_index(drop=True)#west_half
             out_list.extend([east_half,west_half])
             out_names.extend(["East","West"])
-            
-        elif az_var ==splitter:
+        
+        #if splitting for azimuth, splits into North and South
+        elif splitter in [az_var,az_var_ew]:
+            #identifies the Easternmost point
             east_point = max(merge_df[az_var_ew])
+            #identifies the altitude of that point
             east_point_alt =max(merge_df.loc[merge_df[az_var_ew]==east_point,alt_var])
+            
+            #creates dataframes which include the points North and South of the eastern most point
             north_half=merge_df.loc[merge_df[alt_var]>=east_point_alt].reset_index(drop=True)
             south_half=merge_df.loc[merge_df[alt_var]<east_point_alt].reset_index(drop=True)
             out_list.extend([north_half,south_half])
             out_names.extend(["North","South"])
 
     else:
+        #otherwise returns a 1-long list including the original dataframe
         out_list.extend([merge_df])
         out_names.extend([""])
     return(out_list,out_names)

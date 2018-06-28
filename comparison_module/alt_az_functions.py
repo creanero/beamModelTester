@@ -10,7 +10,7 @@ Created on Wed Jun 27 10:03:28 2018
 #coordinate setting functions
 #    
 ###############################################################################
-
+#TODO see if import warnings can be suppressed without passing arguments
 try:
     from astropy.coordinates import EarthLocation,SkyCoord
     from astropy.time import Time

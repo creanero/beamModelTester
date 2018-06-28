@@ -7,12 +7,10 @@ Created on Fri Jun 15 13:51:56 2018
 import pandas as pd
 
 from graphing_functions import plots_1f
-#from graphing_functions import plot_diff_values_1f
 from graphing_functions import plot_spectra_nf
 from graphing_functions import calc_fom_1d
 from graphing_functions import calc_fom_nd
 from graphing_functions import plot_altaz_values_nf
-#from graphing_functions import identify_plots
 
 from appearance_functions import channel_maker
 from appearance_functions import gen_pretty_name
@@ -74,7 +72,7 @@ def analysis_1d(merge_df,modes, m_keys,sources):
                 out_str=("The "+str(m_keys[i])+"-channel "+gen_pretty_name(fom)+
                          " is "+str(fom_results[i]))
                 if modes['out_dir'] == None:
-                    print(out_str)
+                    print("\n"+out_str+"\n")
                 else:
     
                     #creates an output-friendly string for the channel
@@ -88,7 +86,7 @@ def analysis_1d(merge_df,modes, m_keys,sources):
                     out_file.write(out_str)
                     out_file.close()
                     
-            print("\n")
+            
     else:
         if "corr" in modes["plots"]:
             if modes['verbose'] >=1:
@@ -100,47 +98,6 @@ def analysis_1d(merge_df,modes, m_keys,sources):
             
         
 
-#    if "corr" in modes["plots"]:
-#        #calculates the pearson correlation coefficient between scope and model
-#        corrs=calc_fom_1d(merge_df, m_keys,"corr")
-#        
-#        for i in range(len(m_keys)):
-#            out_str=("The "+str(m_keys[i])+"-channel correlation is "+str(corrs[i]))
-#            if modes['out_dir'] == None:
-#                print(out_str)
-#            else:
-#
-#                #creates an output-friendly string for the channel
-#                str_channel = channel_maker(m_keys,modes)
-#        
-#                        
-#                plt_file=prep_out_file(modes,plot="corr", dims="1d",
-#                                       channel=str_channel,
-#                                       out_type="txt")
-#                out_file=open(plt_file,'a')
-#                out_file.write(out_str)
-#                out_file.close()
-#                
-#        print("\n")
-#        
-#    if "rmse" in modes["plots"]:        
-#        #calculates the root mean squared error between scope and model
-#        rmses=calc_fom_1d(merge_df, m_keys,"rmse")
-#        for i in range(len(m_keys)):
-#            out_str=("The "+str(m_keys[i])+"-channel RMSE is "+str(rmses[i]))
-#            if modes['out_dir'] == None:
-#                print(out_str)
-#            else:
-#                #creates an output-friendly string for the channel
-#                str_channel = channel_maker(m_keys,modes)
-#        
-#        
-#                plt_file=prep_out_file(modes,plot="rmse", dims="1d",
-#                                       channel=str_channel,
-#                                       out_type="txt")
-#                out_file=open(plt_file,'a')
-#                out_file.write(out_str)
-#                out_file.close()    
     
 def analysis_nd(merge_df,modes, m_keys,sources):
     '''
@@ -207,8 +164,7 @@ def analysis_nd(merge_df,modes, m_keys,sources):
         if "rmse" in modes["plots"]:
             if modes['verbose'] >=1:
                 print("Warning: RMSE selected, but no differences available")
-            #newline to separate outputs
-            #print("\n")  
+           
 
     
     str_channel=channel_maker(m_keys,modes)

@@ -206,7 +206,10 @@ def colour_models(colour_id):
         return('saddlebrown')
     if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
         return('Copper')     
-    
+
+    #TODO: see if there's a way to make this generic but enable suppression of 
+    #warnings if user requested.
+
     #sets grey values for other plots, where there are partial matches.
     if '_light' in colour_id:
         print("Warning: Colour incompletely specified as:\n\n\t"+colour_id+              

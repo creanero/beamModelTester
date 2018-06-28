@@ -503,7 +503,8 @@ if __name__ == "__main__":
         merge_df=model_df.copy()
         sources = [""]
     else: #Both blank
-        print("ERROR: No data available in either file")
+        if modes['verbose'] >=1:
+            print("ERROR: No data available in either file")
         sys.exit(1)
 
     #identifies the channels

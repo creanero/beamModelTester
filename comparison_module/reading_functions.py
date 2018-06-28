@@ -151,18 +151,27 @@ def read_var_file(file_name,modes,source):
     '''
     if modes['verbose'] >=2:
         print("Determining file type for: "+file_name)
+    
+    #creates a blank dataframe for use in several non-readable cases    
+    blank_df=pd.DataFrame(data={"none":[]})
+
+    #Tries to get the file extension    
     try:
         suffix=file_name.rsplit('.',1)[1]
+    #if there's no extension, returns the empty string
     except IndexError:
         suffix=""
-    if 'csv'==suffix:
+        
+    if '' == file_name:
+        out_df=blank_df
+    elif 'csv'==suffix:
         out_df=read_dreambeam_csv(file_name, modes)
     elif 'hdf5'==suffix:
         out_df=read_OSO_h5(file_name, modes)    
     else:
         if modes['verbose'] >=1:
             print ("Warning: \""+file_name+"\" is not an appropriate file")
-        out_df=pd.DataFrame(data={"none":[]})
+        out_df=blank_df
     
     if "none" in out_df:
         pass
@@ -246,10 +255,12 @@ def crop_vals(in_df,modes):
         for unique_val in unique_vals:
             unique_df=in_df.loc[(in_df.Freq==unique_val),:].copy()
             out_df=out_df.append(crop_operation (unique_df,modes))
-        out_df.reset_index(drop=True, inplace=True) 
+        
     else:
         out_df=crop_operation (in_df,modes)
-    
+        
+        
+    out_df.reset_index(drop=True, inplace=True) 
     return(out_df)
 
 def crop_operation (in_df,modes):
