@@ -49,18 +49,7 @@ def analysis_1d(merge_df,modes, m_keys,sources):
         
     if ((all(coord in merge_df for coord in ["alt","az","az_ew"])) and
         (any (plot in modes["plots"] for plot in ["alt","az","ew"]))):
-        alt_var = "alt"
-        az_var = "az"
-        if "stn" in modes["plots"]:
-            if all(coord in merge_df \
-                   for coord in ["stn_alt","stn_az","stn_az_ew"]):
-                alt_var = "stn_"+alt_var
-                az_var = "stn_"+az_var           
-            else:
-                if modes['verbose'] >=1:
-                    print("Warning: Station coordinates selected but unavailable")
-        if "ew" in modes["plots"]:
-            az_var=az_var+"_ew"
+        alt_var, az_var, az_var_ew = get_alt_az_var(merge_df, modes)
         if "alt" in modes["plots"]:
             plots_1f(merge_df, m_keys, modes,alt_var, sources)
         if "az" in  modes["plots"]:
