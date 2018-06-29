@@ -32,11 +32,9 @@ from analysis_functions import analysis_nd
 from graphing_functions import identify_plots
 
 from alt_az_functions import set_object_coords
-from alt_az_functions import set_location_coords
 from alt_az_functions import calc_alt_az
 from alt_az_functions import calc_alt_az_lofar
-
-
+from alt_az_functions import get_location
 
 
 
@@ -63,7 +61,7 @@ def beam_arg_parser():
     parser = argparse.ArgumentParser()
 
 ###############################################################################
-#verbosity
+#Verbosity
 ###############################################################################
 
     #adds an optional argument for verbosity
@@ -75,6 +73,22 @@ sets the level of verbosity for the program outputs.
 1 indicates to show warnings or errors only
 2 gives verbose progress indicators
                              ''')   
+   
+
+###############################################################################
+#Interactivity
+###############################################################################
+
+    #adds an optional argument for interactivity
+    parser.add_argument("--interactive","-I", default=0, type=int,
+                        choices = (0,1,2),
+                             help='''
+sets the level of interactivity for the program inputs.  
+0 indicates non-interactive mode
+1 indicates to allow interactions when crucial elements are missing
+2 indicates fully interactive mode #not fully enabled
+                             ''')   
+    
     
 ###############################################################################
 #Model filenames
@@ -386,6 +400,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     #creates and uses a dictionary to store the mode arguments
     modes={}
     modes['verbose']=args.verbose    
+    modes['interactive']=args.interactive    
     modes['norm']=args.norm
     modes['norm_data']=args.norm_data
     modes['crop_data']=args.crop_data
@@ -402,6 +417,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes['frame_rate']=args.frame_rate
     modes['offset']=args.offset
     modes['location_name']=args.location_name
+    modes['location_coords']=args.location_coords
     modes['object_name']=args.object_name
     
     #ensures that whichever spelling of colour is input by the user, only one 
@@ -421,9 +437,11 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.model != None:
         modes['in_file_model']=args.model
     else:
-        modes['in_file_model']=raw_input("No model filename specified:\n"
-                                "Please enter the model filename:\n")
-        #TODO:alternative interactive mode
+        if modes['interactive']>=1:
+            modes['in_file_model']=raw_input("No model filename specified:\n"
+                                    "Please enter the model filename:\n")
+        else:
+            modes['in_file_model']=""
     
     
     #outputs the filename for the scope to a returnable variable
@@ -432,13 +450,19 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.scope != None:
         modes['in_file_scope']=args.scope
     else:
-        modes['in_file_scope']=raw_input("No filename specified for observed"+
+        if modes['interactive']>=1:
+            modes['in_file_scope']=raw_input("No filename specified for observed"+
                                      " data from the telescope:\n"
                                      "Please enter the telescope filename:\n")
+        else:
+            modes['in_file_scope']=""
     
     #sets up the output directory based on the input
     modes['out_dir']=prep_out_dir(args.out_dir, modes)
-    
+
+
+    #finalises the location coordinates
+    modes=get_location(modes)
     
     #sets up the object coordinates
     if args.object_name != None:
@@ -446,23 +470,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     else:
         modes['object_coords']=args.object_coords
     
-    #sets up the location coordinates
-    if args.location_name != None:
-        modes['location_coords']=set_location_coords(modes, args.location_name)
-        
-    elif len(args.location_coords) == 3:
-        modes['location_coords']=args.location_coords
-    elif len(args.location_coords) == 2:
-        #appends a height of zero (sea level) for the observing site
-        if modes['verbose'] >=1:
-            print("Warning, no height above sea level specified, defaulting to 0m")
-        modes['location_coords']=args.location_coords+[0.0]
-    else:
-        if modes['verbose'] >=1:
-            print("Warning: Site: "+ str(args.location_coords)+" incorrectly "+
-              "specified.  Setting site coordinates to 0,0,0 which will"+
-              " disable object tracking./n/n")    
-        modes['location_coords']=[0.0, 0.0, 0.0]
+
     
     return(modes)
 

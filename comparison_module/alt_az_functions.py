@@ -71,23 +71,170 @@ def set_location_coords(modes, name_str=""):
     Want to replace this with something better at a later point, but this is 
     designed as a module to be replaced.
     '''
-    coords=[0.0,0.0,0.0]
+    coords=[]
     if name_str == "IE613": 
         coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
     elif name_str == "SE607":
         coords=[57.398743, 11.929636, 20.0]
     else:
         if modes['verbose'] >=1:
-            print("Warning: Site: "+name_str+" not found.  Setting site "+
-              "coordinates to 0,0,0 which will disable object tracking./n/n" )    
-        #there is no land at lat/long (0,0), so it should be ok to assume no
-        #observations at this location
+            print("Warning: Site: "+name_str+" not found.  " )    
+
     return(coords)
 
 
+def get_location(modes):
+    """
+    This function prompts the user to enter the coordinates of the observing 
+    station
+    """
+    warn_flag = False
+
+    #sets up the location coordinates
+    if modes['location_name'] != None:
+        modes['location_coords']=set_location_coords(modes, modes['location_name'])
+      
+    #checks the coordinates are valid
+    
+    #if there are 2 or 3 coordinates
+    if len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
+        
+        #checks the validity of those coordinates
+        warn_flag = check_coords(modes['location_coords'][0], #latitude
+                                 modes['location_coords'][1], #longitude
+                                 modes) #supplied separately for compatibility
+
+    
+        #if there are only two coordinates (missing height)
+        if len(modes['location_coords']) == 2 and not warn_flag:
+            
+            if modes['verbose'] >=1:
+                print("Warning: no height above sea level specified")
+        
+            if modes['interactive']>=1:
+                height_flag=True
+                while height_flag:
+                    height_test = raw_input("\nDo you want to specify a height (Default 0m)? [y/n]:\t")
+                    
+                    if height_test in ["N", "n"]: 
+                        print("Height above sea level defaulting to 0m")
+                        modes['location_coords']=modes['location_coords']+[0.0]
+                        height_flag=False#end the while loop
+                        
+                    elif height_test in ["Y", "y"]:
+                        warn_flag = True #reenter the coordinates
+                        height_flag=False #end while loop
+                    else:
+                        print("Input not understood.")
+                        height_flag=True #continue while loop
+            
+            
+            else:#in low interactivity modes
+                #appends a height of zero (sea level) for the observing site
+                if modes['verbose'] >=1:
+                    print("Interactivity mode: "+str(modes['interactive'])+"\n"
+                          "Height above sea level defaulting to 0m")
+                modes['location_coords']=modes['location_coords']+[0.0]
+    else:
+        if modes['verbose'] >=1:
+            if modes['location_name'] == None:
+                print("Warning: Site: "+ str(modes['location_coords'])+
+                      " incorrectly specified.  ")
+        warn_flag = True    
+    if warn_flag == True:
+        if modes['interactive']>=1:
+            modes = interactive_get_location(modes)
+            modes = get_location(modes)
+        else:
+            if modes['verbose'] >=1:
+                print("Interactivity mode: "+str(modes['interactive'])+"\n"
+                      "Setting site coordinates to 0,0,0 which will"+
+                      " disable object tracking.")    
+                modes['location_coords']=[0.0, 0.0, 0.0]
+        #there is no land at lat/long (0,0), so it should be ok to assume no
+        #observations at this location
+    
+    return(modes)
+
+def interactive_get_location(modes):
+    '''
+    This function prompts the user to specify the location of the station to be
+    used and modifies the modes dictionary to correspond to the new setting.
+    '''
+    
+    print("Please specify the location of the station manually")
+
+    choice_continue = True
+    while choice_continue:
+        
+        choice=raw_input("Please enter whether you want to specify the location "+
+                 "by name (N) or by coordinate (C):\n"+
+                 "If you do not wish to specify a station, enter 0:\n\t")
+        
+        if choice in ["N", "n"]:
+            modes['location_name']=raw_input("Please enter the StationID:\n")
+            choice_continue = False
+            
+        elif choice in ["C", "c"]:
+            #wipes the name clean
+            modes['location_name']=None
+            #initialises variables
+            l_coords = []
+            coords=["Latitude", "Longitude","Height above Sea Level"]
+            for coord in coords:
+                f_coord = 0
+                coord_continue = True
+                
+                while coord_continue:
+                    input_coord=raw_input("Please enter the "+coord+" leave blank to stop entering coordinates:\n\t\t")
+                    
+                    if input_coord == "":
+                        coord_continue = False
+                    else:
+                        try:
+                            f_coord=(float(input_coord))
+                            coord_continue = False    
+                        except ValueError:
+                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
+                            coord_continue = True
+                
+                if type(f_coord) is int:
+                    break #stops going through the for loop over coordinates
+                else:
+                    l_coords.append(f_coord)
+            
+            modes['location_coords']=l_coords
+            choice_continue = False
+        
+        elif choice in ["0", "O", "o"]:#O and o also permitted
+            if modes['verbose'] >=1:
+                print("\tSetting site coordinates to 0,0,0 which will"+
+                      " disable object tracking.")
+                modes['location_coords']=[0.0, 0.0, 0.0]
+            choice_continue = False
+        
+        else:
+            print("Warning: Incorrect option specified!")
+            choice_continue = True
+            
+    return(modes)
 
 
-
+def check_coords(ns, ew, modes={"verbose":1}): #default value gives responses
+    warn_flag = False
+    
+    if ns>90 or ns<(-90):
+        if modes['verbose'] >=1:
+            print("Warning: North/South coordinate supplied out of range.  "
+                  "North/South coordinates restricted to +/-90 degrees!")
+        warn_flag = True
+    if ew>360 or ns<(-360):
+        if modes['verbose'] >=1:
+            print("Warning: East/West coordinate supplied out of range.  "
+                  "East/West coordinates restricted to +/-360 degrees!")
+        warn_flag = True
+    
+    return(warn_flag)
 
 
 

@@ -185,6 +185,9 @@ def analysis_nd(merge_df,modes, m_keys,sources):
     return (ind_dfs)
 
 def plot_fom_vs_ind(merge_df, m_keys, modes, fom):
+    """
+    plots various figures of merit against available independent variables
+    """
     ind_dfs = {}
     
     ind_var = []
@@ -195,10 +198,12 @@ def plot_fom_vs_ind(merge_df, m_keys, modes, fom):
     if "spectra" in modes["plots"]:
         ind_var.append("Freq")
         ind_var.append("Time")
-    if "alt" in modes['plots']:
-        ind_var.append(alt_var)
-    if "az" in modes['plots']:
-        ind_var.append(az_var)
+    
+    if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
+        if "alt" in modes['plots']:
+            ind_var.append(alt_var)
+        if "az" in modes['plots']:
+            ind_var.append(az_var)
     
     for ind in ind_var:        
         splits, names = split_df(merge_df, modes, ind)
