@@ -15,23 +15,29 @@ import h5py
 import os
 from matplotlib.animation import FuncAnimation
 
-from astropy.coordinates import EarthLocation,SkyCoord
-from astropy.time import Time
-from astropy import units as u
-from astropy.coordinates import AltAz
-
+try:
+    from astropy.coordinates import EarthLocation,SkyCoord
+    from astropy.time import Time
+    from astropy import units as u
+    from astropy.coordinates import AltAz
+except ImportError:
+    print("WARNING: Unable to import astropy.\n"\
+          "This may cause subsequent modules to fail")
+    
 try:
     import casacore.measures
     import casacore.quanta.quantity
 
 except ImportError:
-    print("WARNING: Unable to import casacore")
+    print("WARNING: Unable to import casacore.\n"\
+          "This may cause subsequent modules to fail")
     
 try:    
     import ilisa.antennameta.antennafieldlib as antennafieldlib
 
 except ImportError:
-    print("WARNING: unable to import ilisa")
+    print("WARNING: unable to import ilisa.\n"\
+          "This may cause subsequent modules to fail")
 
 def read_dreambeam_csv(in_file):
     '''
@@ -121,6 +127,7 @@ def plot_values_1f(merge_df, m_keys, modes):
     for key in m_keys:
         #creates a two part plot of the values of model and scope
         #part one: plots the model and scope values per channel against time
+        print("Plotting values in "+key)
         plt.figure()
         graph_title="\n".join([modes['title'],
                         ("Plot of the values in "+key+"-channel over time"+
@@ -129,15 +136,19 @@ def plot_values_1f(merge_df, m_keys, modes):
         plt.title(graph_title)
 
         #plots the model in one colour
-        plt.plot(merge_df.Time,plottable(merge_df[key+'_model']),label='model',
+        plt.plot(plottable(merge_df,"Time"),
+                 plottable(merge_df,(key+'_model')),
+                 label='model',
                  color=colour_models(key+'_light'))
         #plots the scope in another colour
-        plt.plot(merge_df.Time,plottable(merge_df[key+'_scope']),label='scope',
+        plt.plot(plottable(merge_df,"Time"),
+                 plottable(merge_df,(key+'_scope')),
+                 label='scope',
                  color=colour_models(key+'_dark'))
         plt.legend(frameon=False)
         #plots the axis labels rotated so they're legible
         plt.xticks(rotation=90)
-        plt.xlabel('Time')
+        plt.xlabel(gen_pretty_name('Time',units=True))
         
         #prints or saves the plot
         if modes['out_dir'] == None:
@@ -148,22 +159,46 @@ def plot_values_1f(merge_df, m_keys, modes):
                                    out_type="png")
             print("plotting: "+plt_file)
             plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
+            plt.close()
     return(0)
     
-def plottable(in_series):
+def plottable(in_series, col_name=""):
     '''
-    turns a complex number into a series of absolute values, but just returns a
+    produces plot and print friendly versions of variables
+    '''
+    if col_name == "":
+        #if it is a single series, tides up the complex components
+        out_series = clean_complex(in_series)
+    elif col_name == "Freq":
+        if str(type(in_series))=="<class 'pandas.core.frame.DataFrame'>":
+            out_series = in_series[col_name]/1e6
+        else:
+            out_series = in_series/1e6
+    else:
+        if str(type(in_series))=="<class 'pandas.core.frame.DataFrame'>":
+            out_series = clean_complex(in_series[col_name])
+        else:
+            out_series = clean_complex(in_series)
+    return(out_series)
+
+def clean_complex(in_series):
+    '''
+    turns a complex series into a series of absolute values, but just returns a
     real number
-    '''
-    out_series=in_series.reset_index(drop=True)
+    '''    
+    try:
+        out_series=in_series.reset_index(drop=True)
+    except AttributeError: #if reset index doesn't work
+        out_series=in_series
     if len(out_series)>0:
         if 'complex' in str(type(out_series[0])):
-            return abs(in_series)
+            out_series =  abs(in_series)
         else:
-            return in_series
+            out_series =  in_series
     else:
-        return abs(in_series)
+        out_series = abs(in_series)
+    return (out_series)
+    
     
 def plot_values_nf(merge_df, m_keys, modes):
     '''
@@ -240,21 +275,31 @@ def plot_against_freq_time(merge_df, key, modes, source):
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
     '''
+    y_var="Freq"
+    x_var="d_Time"
+    
+    
+    print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
     plt.figure()
     if source == "diff":
-        graph_title="\n".join([modes['title'],("Plot of the differences in %s\n over time and frequency"%key)])
+        graph_title="\n".join([modes['title'],
+            ("Plot of the differences in %s\n over time and frequency"%key)])
     else:
-        graph_title="\n".join([modes['title'],("Plot of the values in "+key+"-channel \nover time "+
-                  "and frequency for "+source)])
+        graph_title="\n".join([modes['title'],
+            ("Plot of the "+gen_pretty_name(source)+" for "+key+
+             "-channel \nover "+gen_pretty_name(x_var)+ "and "+
+             gen_pretty_name(y_var)+".")])
     plt.title(graph_title)
 
     #plots the channel in a colour based on its name
-    plt.tripcolor(merge_df.d_Time,merge_df.Freq,plottable(merge_df[key+'_'+source]),
+    plt.tripcolor(plottable(merge_df,x_var),
+                  plottable(merge_df,y_var),
+                  plottable(merge_df,(key+'_'+source)),
                   cmap=plt.get_cmap(colour_models(key+'_s')))
     plt.legend(frameon=False)
-    #plots x-label for both using start time 
-    plt.xlabel("Time in seconds since start time\n"+str(min(merge_df.Time)))
-    plt.ylabel("Frequency")
+    #plots x-label using start time 
+    plt.xlabel(gen_pretty_name(x_var,units=True)+"\nStart Time: "+str(min(merge_df.Time)))
+    plt.ylabel(gen_pretty_name(y_var,units=True))
     plt.colorbar()
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -282,7 +327,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     
     
     #sets default values for max_ and min_y
-    max_y= 0
+    max_y= np.nextafter(0,1) #makes max and min values distinct
     min_y = 0
     
 
@@ -294,19 +339,23 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
     
     str_channel = list_to_string(var_ys,", ")
     var_t_string = str(var_t_val).rstrip('0').rstrip('.')
-    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
+                gen_pretty_name(str_channel)+" against "+
+                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
+                " of "+gen_pretty_name(var_t_string))
     label = "\n".join([modes["title"],anim_title])
     plt.title(label)
     
-    var_x_vals =merge_df.loc[merge_df[var_t]==var_t_val,var_x].reset_index(drop=True)
+    var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                          var_x)
     
     lines = []
     
     for i in range(len(var_ys)):
         var_y = var_ys[i]
         
-        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val,
-                                (var_y+"_"+source)].reset_index(drop=True))
+        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                               (var_y+"_"+source))
     
 
         line, = ax.plot(var_x_vals, var_y_vals, color=colour_models(var_y))
@@ -314,18 +363,18 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, source, time_delay=20,
             #code to set x and y limits.  
         #Really want to get a sensible way of doing this
         if plottable(merge_df[(var_ys[i]+"_"+source)]).min() < 0:
-            local_min_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),percentile_gap)*multiplier
+            local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+"_"+source)),percentile_gap)*multiplier
         else:
             local_min_y = 0
         min_y=min(min_y,local_min_y)
         #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
-        local_max_y=np.percentile(plottable(merge_df[(var_ys[i]+"_"+source)]),100-percentile_gap)*multiplier
+        local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+"_"+source)),100-percentile_gap)*multiplier
         max_y=max(max_y,local_max_y)
     
     ax.set_ylim(min_y,max_y)
     
 
-    ax.set_xlabel(var_x)
+    ax.set_xlabel(gen_pretty_name(var_x,units=True))
     ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)")    
  
     ax.legend(frameon=False)
@@ -376,18 +425,18 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     label = "\n".join([modes["title"],upper_title])
     plt.title(label)
     
-    plt.tripcolor(plottable(merge_df[var_x]),
-                  plottable(merge_df[var_y]),
-                  plottable(merge_df[var_z+'_'+source]), 
+    plt.tripcolor(plottable(merge_df,var_x),
+                  plottable(merge_df,var_y),
+                  plottable(merge_df,(var_z+'_'+source)), 
                   cmap=plt.get_cmap(colour_models(var_z+'_s')))
     
     #TODO: fix percentile plotting limits
-    plt.clim(np.percentile(plottable(merge_df[var_z+'_'+source]),5),
-             np.percentile(plottable(merge_df[var_z+'_'+source]),95))
+    plt.clim(np.percentile(plottable(merge_df,(var_z+'_'+source)),5),
+             np.percentile(plottable(merge_df,(var_z+'_'+source)),95))
     
     #plots axes
     plt.xticks([])
-    plt.ylabel(gen_pretty_name(var_y))
+    plt.ylabel(gen_pretty_name(var_y, units=True))
     #plt.colorbar()
     
     plt.subplot(212)
@@ -397,11 +446,12 @@ def four_var_plot(merge_df,modes,var_x,var_y,var_z,var_y2,source):
     plt.title(lower_title)
     
     #plots the scattergraph
-    plt.plot(merge_df[var_x],merge_df[var_y2],
+    plt.plot(plottable(merge_df,var_x),
+             plottable(merge_df,var_y2),
              color=colour_models(var_y2), marker=".", linestyle="None")
     
-    plt.xlabel(gen_pretty_name(var_x))
-    plt.ylabel(gen_pretty_name(var_y2))
+    plt.xlabel(gen_pretty_name(var_x, units=True))
+    plt.ylabel(gen_pretty_name(var_y2, units=True))
     plt.legend(frameon=False)
 
     #prints or saves the plot
@@ -427,20 +477,25 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, source,lines,ax):
     var_t_val=var_t_vals[i]
     str_channel = list_to_string(var_ys,", ")
     var_t_string = str(var_t_val).rstrip('0').rstrip('.')
-    anim_title="Plot of "+source+" for "+str_channel+" against "+var_x+ " at\n"+var_t+" of "+var_t_string
+    anim_title=("Plot of "+gen_pretty_name(source)+" for "+
+                gen_pretty_name(str_channel)+" against "+
+                gen_pretty_name(var_x)+ " at\n"+gen_pretty_name(var_t)+
+                " of "+gen_pretty_name(var_t_string))
     label = "\n".join([modes["title"],anim_title])
     plt.title(label)
     
-    var_x_vals = (merge_df.loc[merge_df[var_t]==var_t_val,var_x]).reset_index(drop=True)
+    var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                          var_x)
     
     for y_index in range(len(var_ys)):
         var_y = var_ys[y_index]
-        var_y_vals = plottable((merge_df.loc[merge_df[var_t]==var_t_val,(var_y+"_"+source)]).reset_index(drop=True))
+        var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
+                               (var_y+"_"+source))
 
         lines[y_index].set_data(var_x_vals, var_y_vals)
     
 
-def gen_pretty_name(key,units=''):
+def gen_pretty_name(key,units=False):
     '''
     This function generates suitable names for graph titles and axes from the 
     keys used to access elements of the dataframe in the system. 
@@ -450,32 +505,53 @@ def gen_pretty_name(key,units=''):
     pretty_name = key
     if key =='Freq':
         pretty_name = 'Frequency'
+        if units == True:
+            units = "MHz"
     if key =='d_Time':
         pretty_name = 'Time since start'
-
+        if units == True:
+            units = "s"
+    
+    if key =='Time':
+        pretty_name = 'Time'
+        if units == True:
+            units = "UTC"
     
     elif key =='alt':
         pretty_name = 'Altitude'
+        if units == True:
+            units = "degrees"             
+        
     elif key =='az':
-        pretty_name = 'Azimuth (0-360)'
+        pretty_name = 'Azimuth'
+        if units == True:
+            units = "0 to 360 degrees"        
     elif key =='az_ew':
-        pretty_name = 'Azimuth (-180 - +180)'        
-
+        pretty_name = 'Azimuth'        
+        if units == True:
+            units = "-180 to +180 degrees"
+            
     elif key =='stn_alt':
         pretty_name = 'LOFAR Station Altitude'
+        if units == True:
+            units = "degrees"            
     elif key =='stn_az':
-        pretty_name = 'LOFAR Station Azimuth (0-360)'
+        pretty_name = 'LOFAR Station Azimuth'
+        if units == True:
+            units = "0 to 360 degrees"
     elif key =='stn_az_ew':
-        pretty_name = 'LOFAR Station Azimuth (-180 - +180)'        
+        pretty_name = 'LOFAR Station Azimuth'
+        if units == True:
+            units = "-180 to +180 degrees"
 
     elif key =='scope':
         pretty_name = 'Observed value'
     elif key =='model':
         pretty_name = 'Model value'
-    elif key =='scope':
+    elif key =='diff':
         pretty_name = 'Difference between Observed and Model values'            
         
-    if units!="":
+    if units:
         pretty_name=add_units (pretty_name,units)
     
     return(pretty_name)
@@ -496,13 +572,13 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
     This plot is only usable and valid if the data is ordered in time and has 
     only a single frequency
     '''
-
+    print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
     plt.figure()
     
     graph_title = "\n".join([modes['title'],"Plot of the differences in "])
     for key in m_keys:
-        plt.plot(merge_df.Time,
-                 plottable(merge_df[key+'_diff']), 
+        plt.plot(plottable(merge_df,"Time"),
+                 plottable(merge_df,(key+'_diff')), 
                  label=r'$\Delta $'+key,
                  color=colour_models(key))
         if (m_keys.index(key) < (len(m_keys)-2)) :
@@ -525,7 +601,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
 
     plt.title(graph_title)
     plt.legend(frameon=False)
-    plt.xlabel('Time')
+    plt.xlabel(gen_pretty_name('Time',units=True))
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -535,7 +611,7 @@ def plot_diff_values_1f(merge_df, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
     return(0)
     
     
@@ -553,8 +629,8 @@ def calc_corr_1d(merge_df, m_keys):
     for key in m_keys:
         #uses absolute values as real values cannot be negative and complex 
         #values cannot be correlated
-        model_vals=list(plottable(merge_df[key+'_model']))
-        scope_vals=list(plottable(merge_df[key+'_scope']))
+        model_vals=list(plottable(merge_df,(key+'_model')))
+        scope_vals=list(plottable(merge_df,(key+'_scope')))
         corr=pearsonr(model_vals,scope_vals)[0]
         corr_outs.append(corr)
     #using [0] from the pearsonr to return the correlation coefficient, but not
@@ -601,12 +677,17 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
 
     #creates an overlaid plot of how the correlation of between model and scope
     #varies for each of the channels against var_str
+    print("Plotting the correlations between model and scope for "+\
+          channel_maker(m_keys,modes,", ")+" against "+\
+          gen_pretty_name(var_str))
     plt.figure()
 
     graph_title = "\n".join([modes['title'],"Plot of the correlation in "])
     for key in m_keys:    
-        plt.plot(unique_vals,n_corrs[m_keys.index(key)],
-                label=key+'_correlation',color=colour_models(key))
+        plt.plot(plottable(unique_vals, var_str),
+                 n_corrs[m_keys.index(key)],
+                label=key+'_correlation',
+                color=colour_models(key))
         
         if (m_keys.index(key) < (len(m_keys)-2)) :
             graph_title=graph_title+key+", "
@@ -617,7 +698,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
     
     #completes the title using the independent variable plotted over
     
-    graph_title=graph_title+"-channels over "+var_str    
+    graph_title=graph_title+"-channels over "+gen_pretty_name(var_str)    
             
     
 
@@ -626,7 +707,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
-    plt.xlabel(var_str)
+    plt.xlabel(gen_pretty_name(var_str, units=True))
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -641,7 +722,7 @@ def calc_corr_nd(merge_df, var_str, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
         
     #returns the correlation lists if needed    
     return (n_corrs)    
@@ -657,7 +738,7 @@ def calc_rmse_1d(merge_df, m_keys):
     '''
     rmse_outs=[]
     for key in m_keys:
-        rmse_outs.append(np.mean(plottable(merge_df[key+'_diff'])**2)**0.5)
+        rmse_outs.append(np.mean(plottable(merge_df,(key+'_diff'))**2)**0.5)
    
     return(rmse_outs)
  
@@ -700,12 +781,17 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
             n_rmses[i].append(n_rmse[i])
     
     #creates an overlaid plot of how the RMSE  between model and scope
-    #varies for each of the channels against var_str    
+    #varies for each of the channels against var_str  
+    print("Plotting the RMSE between model and scope for "+\
+          channel_maker(m_keys,modes,", ")+" against "+\
+          gen_pretty_name(var_str))
     plt.figure()
     graph_title = "\n".join([modes['title'],"Plot of the RMSE in "])
     for key in m_keys:    
-        plt.plot(unique_vals,n_rmses[m_keys.index(key)],
-                label=key+'_RMSE',color=colour_models(key))
+        plt.plot(plottable(unique_vals, var_str),
+                 n_rmses[m_keys.index(key)],
+                label=key+'_RMSE',
+                color=colour_models(key))
         
         if (m_keys.index(key) < (len(m_keys)-2)) :
             graph_title=graph_title+key+", "
@@ -716,7 +802,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     
     #calculates and adds title with frequency in MHz
     
-    graph_title=graph_title+"-channels over "+var_str    
+    graph_title=graph_title+"-channels over "+gen_pretty_name(var_str)    
             
     plt.title(graph_title)
 
@@ -724,7 +810,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
     #rotates the labels.  This is necessary for timestamps
     plt.xticks(rotation=90)
     plt.legend(frameon=False)
-    plt.xlabel(var_str)
+    plt.xlabel(gen_pretty_name(var_str, units=True))
     
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -739,7 +825,7 @@ def calc_rmse_nd(merge_df, var_str, m_keys, modes):
                                out_type=modes['image_type'])
         print("plotting: "+plt_file)
         plt.savefig(plt_file,bbox_inches='tight')
-    plt.close()
+        plt.close()
     
     #returns the correlation lists if needed    
     return (n_rmses)
@@ -937,7 +1023,10 @@ def analysis_nd(merge_df,modes, m_keys):
     
     if any (plot in modes["plots"] for plot in ["alt","az","ew"]):
         if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
-            plot_altaz_values_nf(merge_df, m_keys, modes)
+            try:
+                plot_altaz_values_nf(merge_df, m_keys, modes)
+            except NameError:
+                print("Error: unable to plot altaz values")
             
         else:
             print("Warning: Alt-Azimuth plotting selected, but not available!")
@@ -977,7 +1066,7 @@ def analysis_nd(merge_df,modes, m_keys):
             try:
                 ind_dfs[plot_item].to_csv(path_out_df)
             except IOError:
-                print("WARNING: unable to output to file:\n\t"+path_out_df)
+                print("WARNING: Unable to output to file:\n\t"+path_out_df)
     
 
     
@@ -2146,7 +2235,15 @@ if __name__ == "__main__":
     
     #calculates Alt-Az coordinates if possible
     if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
-        merge_df = calc_alt_az(merge_df,modes)
+        try:
+            merge_df = calc_alt_az(merge_df,modes)
+        except NameError:
+            ("ERROR: Unable to calculate Horizontal coordintates\n"\
+                   "\tPossible issue with AstroPy imports.")
+            for option in ["alt","az","stn"]:
+                if option in modes["plots"]:
+                    #removes plot options that are no longer valid
+                    modes["plots"].remove(option)
     
     #calculates station Alt-Az if possible and requested
     if modes['location_name']!=None and "stn" in modes["plots"]:
