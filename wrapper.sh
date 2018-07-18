@@ -112,6 +112,8 @@ else
 
 	#calls the dreamBeam file
 	${DB_DIR}/scripts/pointing_jones.py $DB_OUT_TYPE $telescope $band $stnID $beammodel $beginUTC $duration $timeStep $pointingRA $pointingDEC $frequency > $CSV_FILE 2> /dev/null
+	echo "created file: ${CSV_FILE}"
+
 fi
 
 
