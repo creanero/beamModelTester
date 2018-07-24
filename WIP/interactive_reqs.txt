@@ -1,0 +1,44 @@
+{
+Cropping
+'crop': 0.0,
+ 'crop_basis': 'n',
+ 'crop_data': 's',
+ 'crop_type': 'median',
+
+Normalisation
+ 'norm': 'f',
+ 'norm_data': 's',
+
+Animation/3D options
+'frame_rate': 60.0,
+ 'three_d': 'colour', 
+
+Location/Target Options
+ 'location_coords': [53.095263, -7.922245, 150.0],
+ 'location_name': 'IE613',
+ 'object_coords': [350.85, 58.815],
+ 'object_name': 'CasA',
+
+Plotting Options
+ 'plots': ['model', 'spectra'],
+ 'values': ['Q'],
+
+
+File I/O options
+ 'image_type': 'png',
+ 'in_file_model': '/home/creanero/IE613_20180406T090450_rcu3_CasA_dur2069_ct20171108_acc2bst.hdf5',
+ 'in_file_scope': '/home/creanero/IE613_20180406T090450_rcu3_CasA_dur2069_Hamaker_model.csv',
+ 'out_dir': None,
+
+Frequency Options
+ 'freq': [0.0],
+ 'freq_file': '',
+
+Other
+ 'interactive': 1,
+ 'offset': 0,
+ 'title': '',
+ 'title_': '',
+ 'verbose': 1
+ 'diff': 'sub',
+}

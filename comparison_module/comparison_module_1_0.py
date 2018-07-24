@@ -475,23 +475,18 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     
     return(modes)
 
-
-
-
-
+def merge_crop_test(model_df, scope_df, modes):
+    """
+    This function takes in the model and scope data frames, and based on 
+    whether they have contents, returns a merge_df which is either the 
+    result of merging the two dataframes or the contents of the only DF if only
+    one has been supplied.
     
-if __name__ == "__main__":
-    #gets the command line arguments and parses them into the modes dictionary
-    modes=beam_arg_parser()
-    
-
-    
-    #read in the csv files from DreamBeam and format them correctly
-    model_df=read_var_file(modes['in_file_model'],modes)
-    
-    #read in the file from the scope using variable reader
-    scope_df=read_var_file(modes['in_file_scope'],modes)
-
+    It also returns sources, which defines whether the model, the scope or the
+    difference is to be plotted.  When only one file is provided, sources is 
+    a list containing the empty string, which means values are plotted from the
+    only dataframe that was loaded with no suffix
+    """
     if "none" not in scope_df:        
         #adjusts for the offset if needed (e.g. comparing two observations)
         offset=np.timedelta64(modes['offset'],'s')
@@ -515,10 +510,14 @@ if __name__ == "__main__":
         if modes['verbose'] >=1:
             print("ERROR: No data available in either file")
         sys.exit(1)
+    return(merge_df, sources)
 
-    #identifies the channels
-    m_keys=get_df_keys(merge_df, modes)
-    
+def filter_frequencies(merge_df, modes):
+    """
+    This function takes a dataframe and (through modes) either a file or a list
+    of frequencies, and drops any rows which do not correspond to that 
+    frequency.
+    """
     if modes['freq'] !=[0.0]:
         if modes['verbose'] >=2:
             print ("isolating frequencies: "+str(modes['freq']))
@@ -531,64 +530,223 @@ if __name__ == "__main__":
             print ("isolating frequencies from file: "+modes['freq_file'])
         freq_df=pd.read_csv(modes['freq_file'], header=None)
         merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
-        merge_df.reset_index(drop=True, inplace=True)
+        merge_df.reset_index(drop=True, inplace=True)    
+    
+    return (merge_df)
     
 
-    
-    if  len(merge_df)>0:
-        #calculates Alt-Az coordinates if possible
-        if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
-            try:
-                merge_df = calc_alt_az(merge_df,modes)
-            except NameError:
-                if modes['verbose'] >=1:
-                    print("ERROR: Unable to calculate Horizontal coordintates\n"\
-                       "\tPossible issue with AstroPy imports.")
-                for option in ["alt","az","stn"]:
-                    if option in modes["plots"]:
-                        #removes plot options that are no longer valid
-                        modes["plots"].remove(option)
-    
-        
-        #calculates station Alt-Az if possible and requested
-        if modes['location_name']!=None and "stn" in modes["plots"]:
-            try:
-                merge_df=calc_alt_az_lofar(merge_df,modes)
-            except ValueError:#except NameError:
-                if modes['verbose'] >=1:
-                    print ("ERROR: Unable to calculate Station coordintates\n"\
-                       "\tKnown issue: Casacore is not compatible with Windows\n"\
-                       "\tProceeding without station coordinates.")
-        
-        #runs different functions if there are one or multiple frequencies
-        if merge_df.Freq.nunique()==1:
-            #if only one frequency, does one-dimensional analysis
-            if "each" in modes['values']: #if the plots are to be separate
-                for key in m_keys: #analyses them one at a time
-                    analysis_1d(merge_df,modes, [key],sources)
-            else: #allows plots to be overlaid 
-                ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
-        else: #otherwise does multi-dimensional analysis
-            if "each" in modes['values']: #if the plots are to be separate
-                for key in m_keys: #analyses them one at a time
-                    ind_dfs=analysis_nd(merge_df,modes, [key],sources)
-            else: #allows plots to be overlaid 
-                ind_dfs=analysis_nd(merge_df,modes, m_keys,sources)
-    
-        #output the dataframe if requested
-        if (modes['out_dir'] != None) & ('file' in modes['plots']):
-            path_out_df = prep_out_file(modes,out_type=".csv")
-            try:
-                merge_df.to_csv(path_out_df)
-            except IOError:
-                if modes['verbose'] >=1:
-                    print("WARNING: unable to output to file:\n\t"+path_out_df)
-        if (modes['out_dir'] == None) & ('file' in modes['plots']):
+def alt_az_ops(merge_df, modes):
+    """
+    """
+    #calculates Alt-Az coordinates if possible
+    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+        try:
+            merge_df = calc_alt_az(merge_df,modes)
+        except NameError:
             if modes['verbose'] >=1:
-                print("ERROR: file output requested, but no directory selected.")
+                print("ERROR: Unable to calculate Horizontal coordintates\n"\
+                   "\tPossible issue with AstroPy imports.")
+            for option in ["alt","az","stn"]:
+                if option in modes["plots"]:
+                    #removes plot options that are no longer valid
+                    modes["plots"].remove(option)
+    
+        
+    #calculates station Alt-Az if possible and requested
+    if modes['location_name']!=None and "stn" in modes["plots"]:
+        try:
+            merge_df=calc_alt_az_lofar(merge_df,modes)
+        except ValueError:#except NameError:
+            if modes['verbose'] >=1:
+                print ("ERROR: Unable to calculate Station coordintates\n"\
+                   "\tKnown issue: Casacore is not compatible with Windows\n"\
+                   "\tProceeding without station coordinates.")    
+    return(merge_df)
+
+def analysis(merge_df, modes, m_keys, sources):
+    """
+    based on options, chooses the analysis to perform and returns the 
+    dataframes of the independent variables
+    """
+    #runs different functions if there are one or multiple frequencies
+    if merge_df.Freq.nunique()==1:
+        #if only one frequency, does one-dimensional analysis
+        if "each" in modes['values']: #if the plots are to be separate
+            for key in m_keys: #analyses them one at a time
+                analysis_1d(merge_df,modes, [key],sources)
+        else: #allows plots to be overlaid 
+            ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
+    else: #otherwise does multi-dimensional analysis
+        if "each" in modes['values']: #if the plots are to be separate
+            for key in m_keys: #analyses them one at a time
+                ind_dfs=analysis_nd(merge_df,modes, [key],sources)
+        else: #allows plots to be overlaid 
+            ind_dfs=analysis_nd(merge_df,modes, m_keys,sources)  
+    
+    return(ind_dfs)
+
+def output_df(merge_df, modes):
+    """
+    This function saves the merged dataframe to a CSV file
+    """
+    #output the dataframe if requested
+    if (modes['out_dir'] != None) & ('file' in modes['plots']):
+        path_out_df = prep_out_file(modes,out_type=".csv")
+        try:
+            merge_df.to_csv(path_out_df)
+        except IOError:
+            if modes['verbose'] >=1:
+                print("WARNING: unable to output to file:\n\t"+path_out_df)
+    if (modes['out_dir'] == None) & ('file' in modes['plots']):
+        if modes['verbose'] >=1:
+            print("ERROR: file output requested, but no directory selected.")
+            
+def interactive_operation(modes):
+    """
+    This function controls interactive elements of the software system and 
+    enables iterative use of the system
+    """
+    continue_option='o'
+    menu_choice = "X"
+    menu_options=range(0,9)
+    
+    while continue_option not in ["Y", "y", "N", "n"]:
+        continue_option=raw_input("Do you want to continue to analyse the data? (y/n):\t")
+        if continue_option not in ["Y", "y", "N", "n"]:
+            print("Warning, invalid input!")
+        elif continue_option in ["N", "n"]:
+            modes['interactive']=1
+
+    while menu_choice not in menu_options:
+        print("""
+              INTERACTIVE MODE MENU
+        
+        1: Cropping Options
+        2: Normalisation Options
+        3: Animation/3D Options
+        4: Location/Target Options
+        5: Plotting Options
+        6: File Output Options
+        7: Frequency Options
+        8: Other Options
+        
+        0: Plot with current options
+              """)
+    
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:/t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_crop_options(modes)
+            menu_choice="X" #resets the menu choice to restart the loop
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            
+def set_crop_options(modes):
+    """
+    This function modifies the cropping options in the modes
+    """
+    print("Setting cropping options #NOT IMPLEMENTED#")
+    pass
+
+def validate_options(user_input, valid_options, permit_partial=True):
+    """
+    This function is used to validate options input by the user to interactive 
+    operations.  User input is compared with a list of valid options and the
+    valid options in the user input are returned.  
+    
+    The "permit partial" option allows for valid options to be retained if the 
+    user submits a mix of valid and invalid options
+    """
+    output_options = []
+    
+    #if all are valid
+    if all (opt in valid_options for opt in user_input):
+        #pass them all to output
+        output_options = user_input
+        
+    else : #not all options are valid
+        #check if partial matches are permitted
+        if True==permit_partial:
+            
+            #Setup the output variable by making a copy of the input
+            output_options=list(user_input)
+            
+            #if so, go through the input
+            for opt in user_input:
+                #and reove invalid inputs from the output
+                if opt not in valid_options:
+                    output_options.remove(opt)
+                    print("Option: "+str(opt)+
+                          " is invalid, continuing with remainder")
+            
+
+        else:
+            output_options=[]
+            print("Some options are invalid.  Stopping.")
+    return(output_options)
                 
+                    
+            
+
+
+def operational_loop(model_df, scope_df, modes):       
+    """
+    This function contains the main operational loop of the program.  This can
+    be iterated many times as part of an interactive system.
+    """
+    #creates the dataframe to be used in plotting.  This dataframe may be 
+    #cropped or normalised based on parameters from the user.
+    merge_df,sources=merge_crop_test(model_df, scope_df, modes)
+
+    #identifies the channels
+    m_keys=get_df_keys(merge_df, modes)
+    
+    #filters the frequencies if requested
+    merge_df = filter_frequencies(merge_df, modes)
+
+    #if there is some data in the merged dataframe
+    if  len(merge_df)>0:
+        #performs the various operations to create the alt-az components
+        merge_df= alt_az_ops(merge_df, modes)
+
+        #chooses between various analysisn options and then carries them out
+        ind_dfs=analysis(merge_df, modes, m_keys, sources)
+
+        #outputs the dataframe to disc if required.
+        output_df(merge_df, modes)
+
+    #otherwise gives an error
     else:
         if modes['verbose'] >=1:
             print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
         sys.exit(1)
+        
+    
+if __name__ == "__main__":
+    #gets the command line arguments and parses them into the modes dictionary
+    modes=beam_arg_parser()
+    
+
+    
+    #read in the csv files from DreamBeam and format them correctly
+    model_df=read_var_file(modes['in_file_model'],modes)
+    
+    #read in the file from the scope using variable reader
+    scope_df=read_var_file(modes['in_file_scope'],modes)
+    
+    if modes['interactive']<2:
+        operational_loop(model_df, scope_df, modes)
+    else:
+        while modes['interactive']>=2:
+            operational_loop(model_df, scope_df, modes)
+            interactive_operation(modes)
+            
     
