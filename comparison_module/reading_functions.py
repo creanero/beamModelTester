@@ -144,7 +144,7 @@ def read_OSO_h5 (file_name, modes):
     #returns the data frame
     return(out_df)
 
-def read_var_file(file_name,modes,source):
+def read_var_file(file_name,modes):
     '''
     This function reads in the filename and checks the suffix.  Depending on
     the suffix chosen, it calls different file reader functions
@@ -176,21 +176,33 @@ def read_var_file(file_name,modes,source):
     if "none" in out_df:
         pass
     else:
-        source_options = ['b']
-        source_options.append(source)
-        
-        if any (c in modes['crop_data'] for c in source_options):
-            #always crops zero values, may crop high values depending on user input
-            out_df=crop_vals(out_df,modes)
-        if any (c in modes['norm_data'] for c in source_options):    
-            for channel in ['xx','xy','yy']:
-                #normalises the dataframe
-                out_df=normalise_data(out_df,modes,channel)  
-        
+       
         #calculates the stokes parameters for the dataframe
         calc_stokes(out_df,modes)
     
     return(out_df)
+
+def crop_and_norm(in_df,modes,origin):
+    '''
+    this funtion returns a data frame that has been normalised based on the 
+    options in modes
+    '''
+    origin_options = ['b']
+    origin_options.append(origin)
+    
+    out_df=in_df.copy()
+    
+    if any (c in modes['crop_data'] for c in origin_options):
+        #always crops zero values, may crop high values depending on user input
+        out_df=crop_vals(out_df,modes)
+    if any (c in modes['norm_data'] for c in origin_options):    
+        for channel in ["xx","xy","yy"]:
+            #normalises the dataframe
+            out_df=normalise_data(out_df,modes,channel)  
+        #recalculates the Stokes Parameters for the normalised values
+        calc_stokes(out_df,modes)
+    return(out_df)
+    
     
 def merge_dfs(model_df,scope_df,modes):
     '''
@@ -205,8 +217,16 @@ def merge_dfs(model_df,scope_df,modes):
     '''
     if modes['verbose'] >=2:
         print("Merging data from scope and source")
+        
+        
+    #crops and normalises the scope and model data if needed
+    scope_df_clean=crop_and_norm(scope_df,modes,"s")
+    model_df_clean=crop_and_norm(model_df,modes,"m")
+    
+    
     #merges the two datagrames using time and frequency
-    merge_df=pd.merge(model_df,scope_df,on=('Time','Freq'),suffixes=('_model','_scope'))
+    merge_df=pd.merge(model_df_clean,scope_df_clean,on=('Time','Freq'),
+                      suffixes=('_model','_scope'))
     if len(merge_df) > 0:
         #checks if the stokes parameters have been calculated
         sources = []

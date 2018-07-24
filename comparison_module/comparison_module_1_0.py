@@ -20,6 +20,7 @@ import sys
 #modules of this project
 from reading_functions import read_var_file
 from reading_functions import merge_dfs 
+from reading_functions import crop_and_norm
 
 from utility_functions import get_df_keys
 
@@ -486,10 +487,10 @@ if __name__ == "__main__":
 
     
     #read in the csv files from DreamBeam and format them correctly
-    model_df=read_var_file(modes['in_file_model'],modes,"m")
+    model_df=read_var_file(modes['in_file_model'],modes)
     
     #read in the file from the scope using variable reader
-    scope_df=read_var_file(modes['in_file_scope'],modes,"s")
+    scope_df=read_var_file(modes['in_file_scope'],modes)
 
     if "none" not in scope_df:        
         #adjusts for the offset if needed (e.g. comparing two observations)
@@ -505,10 +506,10 @@ if __name__ == "__main__":
         
     #if only scope is valid
     elif "none" in model_df and "none" not in scope_df:
-        merge_df=scope_df.copy()#sets the output to scope_df
+        merge_df=crop_and_norm(scope_df,modes,"s")
         sources = [""]#sets the source to blank as there are no differentiators
     elif "none" not in model_df and "none" in scope_df:
-        merge_df=model_df.copy()
+        merge_df=crop_and_norm(model_df,modes,"m")
         sources = [""]
     else: #Both blank
         if modes['verbose'] >=1:
