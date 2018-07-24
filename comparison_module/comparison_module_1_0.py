@@ -589,4 +589,5 @@ if __name__ == "__main__":
     else:
         if modes['verbose'] >=1:
             print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
+        sys.exit(1)
     
