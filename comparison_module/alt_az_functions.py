@@ -66,7 +66,7 @@ def set_object_coords(modes, name_str=""):
     
 def set_location_coords(modes, name_str=""):
     '''
-    returns a 2-long list of the coordinates of an observing location 
+    returns a 3-long list of the coordinates of an observing location 
     identified by name.
     Want to replace this with something better at a later point, but this is 
     designed as a module to be replaced.

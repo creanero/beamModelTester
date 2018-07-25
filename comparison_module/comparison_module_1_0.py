@@ -14,6 +14,7 @@ import argparse
 
 import sys
 
+import interactive_ops as iops
 
 
 
@@ -601,99 +602,7 @@ def output_df(merge_df, modes):
         if modes['verbose'] >=1:
             print("ERROR: file output requested, but no directory selected.")
             
-def interactive_operation(modes):
-    """
-    This function controls interactive elements of the software system and 
-    enables iterative use of the system
-    """
-    continue_option='o'
-    menu_choice = "X"
-    menu_options=range(0,9)
-    
-    while continue_option not in ["Y", "y", "N", "n"]:
-        continue_option=raw_input("Do you want to continue to analyse the data? (y/n):\t")
-        if continue_option not in ["Y", "y", "N", "n"]:
-            print("Warning, invalid input!")
-        elif continue_option in ["N", "n"]:
-            modes['interactive']=1
 
-    while menu_choice not in menu_options:
-        print("""
-              INTERACTIVE MODE MENU
-        
-        1: Cropping Options
-        2: Normalisation Options
-        3: Animation/3D Options
-        4: Location/Target Options
-        5: Plotting Options
-        6: File Output Options
-        7: Frequency Options
-        8: Other Options
-        
-        0: Plot with current options
-              """)
-    
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:/t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
-        
-        elif 1 == menu_choice:
-            set_crop_options(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
-            
-def set_crop_options(modes):
-    """
-    This function modifies the cropping options in the modes
-    """
-    print("Setting cropping options #NOT IMPLEMENTED#")
-    pass
-
-def validate_options(user_input, valid_options, permit_partial=True):
-    """
-    This function is used to validate options input by the user to interactive 
-    operations.  User input is compared with a list of valid options and the
-    valid options in the user input are returned.  
-    
-    The "permit partial" option allows for valid options to be retained if the 
-    user submits a mix of valid and invalid options
-    """
-    output_options = []
-    
-    #if all are valid
-    if all (opt in valid_options for opt in user_input):
-        #pass them all to output
-        output_options = user_input
-        
-    else : #not all options are valid
-        #check if partial matches are permitted
-        if True==permit_partial:
-            
-            #Setup the output variable by making a copy of the input
-            output_options=list(user_input)
-            
-            #if so, go through the input
-            for opt in user_input:
-                #and reove invalid inputs from the output
-                if opt not in valid_options:
-                    output_options.remove(opt)
-                    print("Option: "+str(opt)+
-                          " is invalid, continuing with remainder")
-            
-
-        else:
-            output_options=[]
-            print("Some options are invalid.  Stopping.")
-    return(output_options)
-                
-                    
             
 
 
@@ -747,6 +656,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            interactive_operation(modes)
+            iops.interactive_operation(modes)
             
     
