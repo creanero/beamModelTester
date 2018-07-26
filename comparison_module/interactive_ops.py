@@ -637,7 +637,198 @@ def set_plotting_options(modes):
             print("Input: "+str(menu_choice)+" not valid or not implemented.")            
 
 def set_plotting(modes):
-    print ("Not implemented, returning")
+    """
+    This functionsets the graphs to be plotted.
+    """
+    menu_choice = "X"
+    num_options = 6
+    menu_options=range(0,num_options)
+    
+#    ["rmse", "corr", "spectra", 
+#                                 "file",
+#                                 "alt","az","ew", "stn", "split",
+#                                 "values","model","scope", "diff", 
+#                                 "overlay"]
+    
+    while menu_choice not in menu_options:
+
+        print("""
+              GRAPH SELECTION MENU
+      
+      1: Set figure of merit for closeness of fit
+      2: Set alt-azimuth plotting options
+      3: Set whether to plot model, scope or difference values
+      4: Set single-channel overlay options
+      5: Set time series plots
+          
+      0: Return to previous menu
+              """)
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_fom(modes)
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            set_alt_az(modes)
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 3 == menu_choice:
+            set_msd_vals(modes)
+            menu_choice="X" #resets the menu choice to restart the loop       
+        elif 4 == menu_choice:
+            set_overlay(modes)
+            menu_choice="X" #resets the menu choice to restart the loop       
+        elif 5 == menu_choice:
+            set_time_series(modes)
+            menu_choice="X" #resets the menu choice to restart the loop     
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_fom(modes):
+    """
+    This function sets the figures of merit to be plotted.
+    """
+    menu_choice = "X"
+    num_options = 3
+    menu_options=range(0,num_options)
+    
+#    ["rmse", "corr" 
+    
+    while menu_choice not in menu_options:
+        rmse_status="rmse" in modes['plots']
+        corr_status="corr" in modes['plots']
+        print(("""
+              FIGURE OF MERIT SELECTION MENU
+      
+      1: Toggle Root Mean Squared Error Plotting. Currently: {0}
+      2: Toggle Pearson's Correlation Plotting. Currently: {1}
+
+          
+      0: Return to previous menu
+              """).format(gen_plotting_boolean(rmse_status),
+                          gen_plotting_boolean(corr_status),))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            if rmse_status:
+                modes['plots'].remove("rmse")
+            else:
+                modes['plots'].append("rmse")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        elif 2 == menu_choice:
+            if corr_status:
+                modes['plots'].remove("corr")
+            else:
+                modes['plots'].append("corr")
+            menu_choice="X" #resets the menu choice to restart the loop            
+            
+        else:
+            menu_choice="X" #resets the menu choice to restart the loop
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_alt_az(modes):
+    """
+    This function sets the plotting options for Alt/Az plots.
+    """
+    menu_choice = "X"
+    num_options = 6
+    menu_options=range(0,num_options)
+    
+#    ["alt","az","ew", "stn", "split"
+    
+    while menu_choice not in menu_options:
+        alt_status="alt" in modes['plots']
+        az_status="az" in modes['plots']
+        ew_status="ew" in modes['plots']
+        stn_status="stn" in modes['plots']        
+        split_status="split" in modes['plots']        
+        print(("""
+              FIGURE OF MERIT SELECTION MENU
+      
+      1: Toggle Altitude Plotting. Currently: {0}
+      2: Toggle Azimuth Plotting. Currently: {1}
+      3: Toggle Plotting Azimuth on an East West basis instea of 0-360. Currently: {2}
+      4: Toggle Use of LOFAR Station Coordinates. Currently: {3}
+      5: Toggle splitting of looping plots. Currently: {4}
+          
+      0: Return to previous menu
+              """).format(gen_plotting_boolean(alt_status),
+                          gen_plotting_boolean(az_status),
+                          gen_plotting_boolean(ew_status),
+                          gen_plotting_boolean(stn_status),
+                          gen_plotting_boolean(split_status)))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            if alt_status:
+                modes['plots'].remove("alt")
+            else:
+                modes['plots'].append("alt")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        elif 2 == menu_choice:
+            if az_status:
+                modes['plots'].remove("az")
+            else:
+                modes['plots'].append("az")
+            menu_choice="X" #resets the menu choice to restart the loop
+        
+        elif 3 == menu_choice:
+            if ew_status:
+                modes['plots'].remove("ew")
+            else:
+                modes['plots'].append("ew")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        elif 4 == menu_choice:
+            if stn_status:
+                modes['plots'].remove("stn")
+            else:
+                modes['plots'].append("stn")
+            menu_choice="X" #resets the menu choice to restart the loop
+        
+        elif 5 == menu_choice:
+            if split_status:
+                modes['plots'].remove("split")
+            else:
+                modes['plots'].append("split")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        else:   
+            menu_choice="X" #resets the menu choice to restart the loop            
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_msd_vals(modes):
+    pass
+
+def set_overlay(modes):
+    pass
+
+def set_time_series(modes):
     pass
 
 def set_values(modes):
@@ -717,6 +908,7 @@ def set_values(modes):
             
         #to toggle the overlay/separate plots
         elif menu_choice == "each":
+            menu_choice="X" #resets the menu choice to restart the loop
             if each_status:
                 modes["values"].remove("each")
             else:
