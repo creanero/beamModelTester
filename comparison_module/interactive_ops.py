@@ -29,7 +29,7 @@ def interactive_operation(modes):
 
             while menu_choice not in menu_options:
                 print("""
-                      INTERACTIVE MODE MENU
+              INTERACTIVE MODE MENU
                 
         1: Cropping Options
         2: Normalisation Options
@@ -124,8 +124,8 @@ def set_crop_level(modes):
 
 
     print(("""
-          CROPPING LEVEL MENU
-          Current cropping Level {0}
+              CROPPING LEVEL MENU
+              Current cropping Level {0}
           
       Crop level mode indicates the numerical factor for cropping. 
       Depending on the crop operation, the crop level is implemented differently.
@@ -402,7 +402,7 @@ def set_norm_data(modes):
     while menu_choice not in menu_options:
 
         print(("""
-              CROPPING DATA MENU
+              NORMALISATION DATA MENU
               Current: {0}
               
       n: Normalise Neither
@@ -661,36 +661,31 @@ def set_values(modes):
     
     
     while menu_choice not in menu_options:
-        dict_set={"xx":False,
-              "xy":False,
-              "yy":False,
-              "U":False,
-              "V":False,
-              "I":False,
-              "Q":False}
+        dict_set=set_dict(modes,dict_lists)
         
-        for channel in list_all:
-            if any (setting in modes["values"] for setting in[channel, "all"]):
-                dict_set[channel]=True
-            if channel in list_linear and "linear" in modes["values"]:
-                dict_set[channel]=True
-            if channel in list_stokes and "stokes" in modes["values"]:
-                dict_set[channel]=True
-
+        if "each" in modes["values"]:
+            each_status = True
+        else:
+            each_status = False
         
         print(("""
               CHANNEL SELECTION MENU
       
-      Linear Polarisations
+      Linear Polarisations (to Toggle all enter "linear")
       xx: Currently: {0}
       xy: Currently: {1}
       yy: Currently: {2}
       
-      Stokes Parameters
+      Stokes Parameters (to Toggle all enter "stokes")
       U: Currently: {3}
       V: Currently: {4}
       I: Currently: {5}
       Q: Currently: {6}
+      
+      To toggle all channels simultaneously, enter "all"
+      
+      Channels are currently plotted {7} one another
+      To toggle to plotting {8} one another enter "each"
       
       0: Return to previous menu
               """).format(gen_plotting_boolean(dict_set['xx']),
@@ -700,7 +695,8 @@ def set_values(modes):
                           gen_plotting_boolean(dict_set['V']),
                           gen_plotting_boolean(dict_set['I']),
                           gen_plotting_boolean(dict_set['Q']),
-                          
+                          gen_overlay_boolean(each_status),
+                          gen_overlay_boolean(not each_status)
               ))
 
         menu_choice=raw_input("Please enter your (case sensitive) selection to toggle the option on the menu above:\t")
@@ -709,13 +705,24 @@ def set_values(modes):
         if "0" == menu_choice:
             pass #finish the loop
         
+        #if it's a single value
         elif menu_choice in list_all:
-            process_values_menu(menu_choice, modes, dict_lists)
+            process_single_values_menu(menu_choice, modes, dict_lists)
             menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
-            #set_values(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
- 
+            
+        #if a group value
+        elif menu_choice in dict_lists:
+            process_group_values_menu(menu_choice, modes, dict_lists)
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        #to toggle the overlay/separate plots
+        elif menu_choice == "each":
+            if each_status:
+                modes["values"].remove("each")
+            else:
+                modes["values"].append("each")
+     
+        #if nonse
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")   
 
@@ -730,9 +737,25 @@ def gen_plotting_boolean(bool_in):
     else:
         out_str="Not Plotting"
     return(out_str)
-
-def process_values_menu(menu_choice, modes, dict_lists):
     
+def gen_overlay_boolean(bool_in):
+    """
+    generates a string which looks better for the status of each
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Separate from"
+    else:
+        out_str="Overlaid upon"
+    return(out_str)
+
+def process_single_values_menu(menu_choice, modes, dict_lists):
+    """
+    this function responds when a single channel value is set in the interactive
+    mode.  It toggles the channel on or off, and if the channel is part of a 
+    group that is set, the group is toggled off and the remaining channels in 
+    the group are toggled on.
+    """
     relevant_group=False
     
     #if the chosen option is currently on, then turn it off
@@ -759,13 +782,81 @@ def process_values_menu(menu_choice, modes, dict_lists):
                 new_list=list(dict_lists[group_list])#makes a copy
                 new_list.remove(menu_choice)
                 
-                #and set them to be on
+                #and set them to on
                 for channel in new_list:
                     if channel not in modes["values"]:
                         modes["values"].append(channel)
     elif False== relevant_group: #was not in a group or single setting
         modes["values"].append(menu_choice) #toggle it on
 
+
+def process_group_values_menu(menu_choice, modes, dict_lists):
+    """
+    this function responds when a group channel value is set in the interactive
+    mode.  If all of the channels in the group are on, it toggles them off,
+    otherwise it toggles the channels on.
+    """
+    #if the menu choice is all, toggle on if any are off
+  
+    dict_set=set_dict(modes,dict_lists)
+    
+    #always drop the groups and to be replaced with individual flags
+    for group in dict_lists:
+        if group in modes["values"]:
+            modes["values"].remove(group)
+    
+    #always clear out the channels to simplify later logic
+    for channel in dict_lists["all"]:
+        if channel in modes["values"]:
+            modes["values"].remove(channel)
+
+
+    small_dict=dict((k, dict_set[k]) for k in (dict_lists[menu_choice]))
+    #if they're all on
+    if all(set_value for set_value in small_dict.values()):
+        #go through the list
+        for channel in dict_lists[menu_choice]:
+            #and turn them off
+            dict_set[channel] = False
+    else:#at least some are off
+        #go through the list
+         for channel in dict_lists[menu_choice]:
+            #and turn them on
+            dict_set[channel] = True
+       
+
+    #goes through the modified dictionary
+    for channel in dict_set:
+        #checks if the flag is set in the dictionary
+        if dict_set[channel]:
+            #adds it to the modes variable
+            modes["values"].append(channel)
+            
+        
+
+            
+def set_dict(modes, dict_lists):
+    
+    """
+    Creates a dictionary of the channels which are set
+    """
+    dict_set={"xx":False,
+              "xy":False,
+              "yy":False,
+              "U":False,
+              "V":False,
+              "I":False,
+              "Q":False}
+        
+    for channel in dict_lists["all"]:
+        if channel in modes["values"]:
+            dict_set[channel]=True
+    for group in dict_lists:
+        if group in modes["values"]:
+            for channel in dict_lists[group]: 
+                dict_set[channel]=True
+
+    return(dict_set)
 #"rmse", "corr", "spectra", 
 #                                 "file",
 #                                 "alt","az","ew", "stn", "split",
