@@ -41,13 +41,16 @@ except ImportError:
       "This may cause subsequent modules to fail")
 
     
-def set_object_coords(modes, name_str=""):
+def set_object_coords(modes):
     '''
     returns a 2-long list of the coordinates of an object identified by name
     Want to replace this with something better at a later point, but this is 
     designed as a module to be replaced.
     '''
     coords=[0.0,0.0]
+    
+    name_str=modes['object_name']
+    
     if name_str == "CasA":
         coords=[350.85,  58.815]
     elif name_str == "CygA":
@@ -57,14 +60,119 @@ def set_object_coords(modes, name_str=""):
     else:
         if modes['verbose'] >=1:
             print("Warning: Object: "+name_str+" not found.  Setting object "+
-              "coordinates to 0,0 which will disable object tracking./n/n" + 
+              "coordinates to 0,0 which will disable object tracking.\n\n" + 
               "for an object at exactly 0,0 set one coordinate to 1e-308")
     #minimum float increment coordinates will not affect the actual results
     #due to precision limits but will pass a =!0 test later in the program
     
     return(coords)
+
+def get_object(modes):
     
-def set_location_coords(modes, name_str=""):
+    """
+    This function prompts the user to enter the coordinates of the target
+    """
+    warn_flag = False
+
+    #sets up the object coordinates
+    if modes['object_name'] != None:
+        modes['object_coords']=set_object_coords(modes)
+      
+    #checks the coordinates are valid
+    
+    #if there are 2  coordinates
+    if len(modes['object_coords']) == 2:
+        
+        #checks the validity of those coordinates
+        warn_flag = check_coords(modes['object_coords'][1], #Dec (N/S)
+                                 modes['object_coords'][0], #RA (E/W)
+                                 modes) #supplied separately for compatibility
+
+    else:
+        if modes['verbose'] >=1:
+            if modes['object_name'] == None:
+                print("Warning: Target: "+ str(modes['object_coords'])+
+                      " incorrectly specified.  ")
+        warn_flag = True    
+    if warn_flag == True:
+        if modes['interactive']>=1:
+            modes = interactive_get_object(modes)
+            modes = get_object(modes)
+        else:
+            if modes['verbose'] >=1:
+                print("Interactivity mode: "+str(modes['interactive'])+"\n"
+                      "Setting site coordinates to 0,0 which will"+
+                      " disable object tracking.")    
+                modes['object_coords']=[0.0, 0.0]
+        #there is no land at lat/long (0,0), so it should be ok to assume no
+        #observations at this object
+    
+    return(modes)
+    
+    
+def interactive_get_object(modes):
+    '''
+    This function prompts the user to specify the coordinates of the Target to 
+    be used and modifies the modes dictionary to correspond to the new setting.
+    '''
+    
+    print("Please specify the target manually")
+
+    choice_continue = True
+    while choice_continue:
+        
+        choice=raw_input("Please enter whether you want to specify the object "+
+                 "by name (N) or by coordinate (C):\n"+
+                 "If you do not wish to specify a target, enter 0:\n\t")
+        
+        if choice in ["N", "n"]:
+            modes['object_name']=raw_input("Please enter the short form target name e.g. CasA:\n")
+            choice_continue = False
+            
+        elif choice in ["C", "c"]:
+            #wipes the name clean
+            modes['object_name']=None
+            #initialises variables
+            l_coords = []
+            coords=["Right Ascension", "Declination"]
+            for coord in coords:
+                f_coord = 0
+                coord_continue = True
+                
+                while coord_continue:
+                    input_coord=raw_input("Please enter the "+coord+" in DECIMAL DEGREES leave blank to stop entering coordinates:\n\t\t")
+                    
+                    if input_coord == "":
+                        coord_continue = False
+                    else:
+                        try:
+                            f_coord=(float(input_coord))
+                            coord_continue = False    
+                            l_coords.append(f_coord)
+                        except ValueError:
+                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
+                            coord_continue = True
+                            
+                
+
+            
+            modes['object_coords']=l_coords
+            choice_continue = False
+        
+        elif choice in ["0", "O", "o"]:#O and o also permitted
+            if modes['verbose'] >=1:
+                print("\tSetting target coordinates to 0,0 which will"+
+                      " disable object tracking.")
+                modes['object_coords']=[0.0, 0.0]
+            choice_continue = False
+        
+        else:
+            print("Warning: Incorrect option specified!")
+            choice_continue = True
+            
+    return(modes)
+    
+def set_location_coords(modes):
     '''
     returns a 3-long list of the coordinates of an observing location 
     identified by name.
@@ -72,13 +180,17 @@ def set_location_coords(modes, name_str=""):
     designed as a module to be replaced.
     '''
     coords=[]
+    
+    name_str=modes['location_name']
+    
     if name_str == "IE613": 
         coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
     elif name_str == "SE607":
         coords=[57.398743, 11.929636, 20.0]
     else:
         if modes['verbose'] >=1:
-            print("Warning: Site: "+name_str+" not found.  " )    
+            print("Warning: Site: "+name_str+" not found.  " )
+            modes['location_name']=None #blanks the name to prevent further use
 
     return(coords)
 
@@ -92,7 +204,7 @@ def get_location(modes):
 
     #sets up the location coordinates
     if modes['location_name'] != None:
-        modes['location_coords']=set_location_coords(modes, modes['location_name'])
+        modes['location_coords']=set_location_coords(modes)
       
     #checks the coordinates are valid
     

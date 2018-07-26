@@ -33,7 +33,7 @@ from analysis_functions import analysis_nd
 
 from graphing_functions import identify_plots
 
-from alt_az_functions import set_object_coords
+from alt_az_functions import get_object
 from alt_az_functions import calc_alt_az
 from alt_az_functions import calc_alt_az_lofar
 from alt_az_functions import get_location
@@ -421,6 +421,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes['location_name']=args.location_name
     modes['location_coords']=args.location_coords
     modes['object_name']=args.object_name
+    modes['object_coords']=args.object_coords
     
     #ensures that whichever spelling of colour is input by the user, only one 
     #needs to be used in the rest of the code.
@@ -467,10 +468,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes=get_location(modes)
     
     #sets up the object coordinates
-    if args.object_name != None:
-        modes['object_coords']=set_object_coords(modes, args.object_name)
-    else:
-        modes['object_coords']=args.object_coords
+    modes=get_object(modes)
     
 
     
@@ -538,6 +536,8 @@ def filter_frequencies(merge_df, modes):
 
 def alt_az_ops(merge_df, modes):
     """
+    This function calculates the Alt-Az coordinates and Station Alt-Az coords 
+    if possible.
     """
     #calculates Alt-Az coordinates if possible
     if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):

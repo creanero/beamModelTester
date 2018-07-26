@@ -6,6 +6,8 @@ Created on Wed Jul 25 14:44:17 2018
 """
 from alt_az_functions import get_location
 from alt_az_functions import interactive_get_location
+from alt_az_functions import get_object
+from alt_az_functions import interactive_get_object
 
 def interactive_operation(modes):
     """
@@ -63,6 +65,9 @@ def interactive_operation(modes):
                 elif 4 == menu_choice:
                     set_coordinate_options(modes)
                     menu_choice="X" #resets the menu choice to restart the loop
+                elif 5 == menu_choice:
+                    set_plotting_options(modes)
+                    menu_choice="X" #resets the menu choice to restart the loop                    
                 else:
                     print("Input: "+str(menu_choice)+" not valid or not implemented.")
                     
@@ -550,14 +555,26 @@ def set_coordinate_options(modes):
     
     while menu_choice not in menu_options:
 
-        print("""
+        print(("""
               COORDINATE MODE MENU
+              Current Location Name: {0} 
+              Current Location Coordinates: Lat: {1} Long: {2} Elev {3}m
+              
+              Current Target Name: {4}
+              Current Target Coordinates: RA: {5}deg Dec: {6}deg
       
       1: Set Observing Location Options
       2: Set Target Coordinate Options
       
       0: Return to previous menu
-              """)
+              """).format(modes['location_name'],
+                          modes['location_coords'][0], #latitude
+                          modes['location_coords'][1], #longitude
+                          modes['location_coords'][2], #height,
+                          modes['object_name'],
+                          modes['object_coords'][0], #RA
+                          modes['object_coords'][1] #Dec
+                          ))
         try:#read in the choice as an int
             menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
             
@@ -573,16 +590,187 @@ def set_coordinate_options(modes):
             modes = get_location(modes)
             menu_choice="X" #resets the menu choice to restart the loop
         elif 2 == menu_choice:
-            set_target_options(modes)
+            modes = interactive_get_object(modes)
+            modes = get_object(modes)
             menu_choice="X" #resets the menu choice to restart the loop            
  
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
             
-            
-def set_target_options(modes):
-    print("Functionality not implmented")
 
+def set_plotting_options(modes):
+    """
+    This function modifies the plotting options in the modes
+    """
+    menu_choice = "X"
+    num_options = 3
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+
+        print("""
+              PLOTTING MODE MENU
+      
+      1: Set graphs to plot
+      2: Set variables to plot
+      
+      0: Return to previous menu
+              """)
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_plotting(modes)
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            set_values(modes)
+            menu_choice="X" #resets the menu choice to restart the loop            
+ 
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")            
+
+def set_plotting(modes):
+    print ("Not implemented, returning")
+    pass
+
+def set_values(modes):
+    """
+    This function modifies the values to plot in the modes
+    """
+    menu_choice = "X"
+
+    menu_options=["all","linear","stokes",
+                  "xx","xy","yy","U","V","I","Q",
+                  "each",
+                  "0"]
+    list_linear=["xx","xy","yy"]
+    list_stokes=["U","V","I","Q"]
+    list_all=["xx","xy","yy","U","V","I","Q"]
+    dict_lists={"linear":list_linear,
+                "stokes":list_stokes,
+                "all":list_all}
+
+    
+    
+    
+    while menu_choice not in menu_options:
+        dict_set={"xx":False,
+              "xy":False,
+              "yy":False,
+              "U":False,
+              "V":False,
+              "I":False,
+              "Q":False}
+        
+        for channel in list_all:
+            if any (setting in modes["values"] for setting in[channel, "all"]):
+                dict_set[channel]=True
+            if channel in list_linear and "linear" in modes["values"]:
+                dict_set[channel]=True
+            if channel in list_stokes and "stokes" in modes["values"]:
+                dict_set[channel]=True
+
+        
+        print(("""
+              CHANNEL SELECTION MENU
+      
+      Linear Polarisations
+      xx: Currently: {0}
+      xy: Currently: {1}
+      yy: Currently: {2}
+      
+      Stokes Parameters
+      U: Currently: {3}
+      V: Currently: {4}
+      I: Currently: {5}
+      Q: Currently: {6}
+      
+      0: Return to previous menu
+              """).format(gen_plotting_boolean(dict_set['xx']),
+                          gen_plotting_boolean(dict_set['xy']),
+                          gen_plotting_boolean(dict_set['yy']),
+                          gen_plotting_boolean(dict_set['U']),
+                          gen_plotting_boolean(dict_set['V']),
+                          gen_plotting_boolean(dict_set['I']),
+                          gen_plotting_boolean(dict_set['Q']),
+                          
+              ))
+
+        menu_choice=raw_input("Please enter your (case sensitive) selection to toggle the option on the menu above:\t")
+            
+            
+        if "0" == menu_choice:
+            pass #finish the loop
+        
+        elif menu_choice in list_all:
+            process_values_menu(menu_choice, modes, dict_lists)
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            #set_values(modes)
+            menu_choice="X" #resets the menu choice to restart the loop            
+ 
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")   
+
+
+def gen_plotting_boolean(bool_in):
+    """
+    generates a string which looks better for the status of a plot
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Plotting"
+    else:
+        out_str="Not Plotting"
+    return(out_str)
+
+def process_values_menu(menu_choice, modes, dict_lists):
+    
+    relevant_group=False
+    
+    #if the chosen option is currently on, then turn it off
+    if menu_choice in modes["values"]:
+        modes["values"].remove(menu_choice)
+    
+    
+    #if any of the groups are set
+    elif any(group_list in modes["values"] for group_list in dict_lists):
+        
+        #go through the groups
+        for group_list in dict_lists:
+            #if a group is set and applies to the menu choice
+            if group_list in modes["values"] and menu_choice in dict_lists[group_list]:
+                #set the flag indicating that the group was relevant
+                relevant_group=True
+
+                #remove the group
+                modes["values"].remove(group_list)
+                
+
+                
+                #create a list of the remaining elements of that collective
+                new_list=list(dict_lists[group_list])#makes a copy
+                new_list.remove(menu_choice)
+                
+                #and set them to be on
+                for channel in new_list:
+                    if channel not in modes["values"]:
+                        modes["values"].append(channel)
+    elif False== relevant_group: #was not in a group or single setting
+        modes["values"].append(menu_choice) #toggle it on
+
+#"rmse", "corr", "spectra", 
+#                                 "file",
+#                                 "alt","az","ew", "stn", "split",
+#                                 "values","model","scope", "diff", 
+#                                 "overlay"
 #looks like this was already done.  Partial version left for records
 #def set_loc_options(modes):
 #    """
