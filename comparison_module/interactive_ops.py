@@ -651,18 +651,20 @@ def set_plotting(modes):
 #                                 "overlay"]
     
     while menu_choice not in menu_options:
-
-        print("""
+        overlay_status="overlay" in modes['plots']
+        spectra_status="spectra" in modes['plots']
+        print(("""
               GRAPH SELECTION MENU
       
       1: Set figure of merit for closeness of fit
       2: Set alt-azimuth plotting options
       3: Set whether to plot model, scope or difference values
-      4: Set single-channel overlay options
-      5: Set time series plots
+      4: Toggle single-channel overlay options.  Currently: {0}
+      5: Toggle time series plots. Currently {1}
           
       0: Return to previous menu
-              """)
+              """).format(gen_plotting_boolean(overlay_status),
+                          gen_plotting_boolean(spectra_status)))
         try:#read in the choice as an int
             menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
             
@@ -683,10 +685,16 @@ def set_plotting(modes):
             set_msd_vals(modes)
             menu_choice="X" #resets the menu choice to restart the loop       
         elif 4 == menu_choice:
-            set_overlay(modes)
+            if overlay_status:
+                modes['plots'].remove("overlay")
+            else:
+                modes['plots'].append("overlay")
             menu_choice="X" #resets the menu choice to restart the loop       
         elif 5 == menu_choice:
-            set_time_series(modes)
+            if spectra_status:
+                modes['plots'].remove("spectra")
+            else:
+                modes['plots'].append("spectra")
             menu_choice="X" #resets the menu choice to restart the loop     
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -763,7 +771,7 @@ def set_alt_az(modes):
       
       1: Toggle Altitude Plotting. Currently: {0}
       2: Toggle Azimuth Plotting. Currently: {1}
-      3: Toggle Plotting Azimuth on an East West basis instea of 0-360. Currently: {2}
+      3: Toggle Plotting Azimuth on an East West basis instead of 0-360. Currently: {2}
       4: Toggle Use of LOFAR Station Coordinates. Currently: {3}
       5: Toggle splitting of looping plots. Currently: {4}
           
@@ -823,13 +831,69 @@ def set_alt_az(modes):
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
 def set_msd_vals(modes):
-    pass
+    """
+    This function sets Whether to plot Model, scope or difference data.
+    """
+    menu_choice = "X"
+    num_options = 6
+    menu_options=range(0,num_options)
+    
+#    ["alt","az","ew", "stn", "split"
+    
+    while menu_choice not in menu_options:
+        model_status="model" in modes['plots']
+        scope_status="scope" in modes['plots']
+        diff_status="diff" in modes['plots']
+      
+        print(("""
+              PLOTTING DATA SELECTION MENU
+      
+      1: Toggle Model Data Plotting. Currently: {0}
+      2: Toggle Scope Data Plotting. Currently: {1}
+      3: Toggle Difference Plotting. Currently: {2}
 
-def set_overlay(modes):
-    pass
+          
+      0: Return to previous menu
+              """).format(gen_plotting_boolean(model_status),
+                          gen_plotting_boolean(scope_status),
+                          gen_plotting_boolean(diff_status)))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            if model_status:
+                modes['plots'].remove("model")
+            else:
+                modes['plots'].append("model")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+        elif 2 == menu_choice:
+            if scope_status:
+                modes['plots'].remove("scope")
+            else:
+                modes['plots'].append("scope")
+            menu_choice="X" #resets the menu choice to restart the loop
+        
+        elif 3 == menu_choice:
+            if diff_status:
+                modes['plots'].remove("diff")
+            else:
+                modes['plots'].append("diff")
+            menu_choice="X" #resets the menu choice to restart the loop
+            
+            
+        else:   
+            menu_choice="X" #resets the menu choice to restart the loop            
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
-def set_time_series(modes):
-    pass
+
 
 def set_values(modes):
     """
