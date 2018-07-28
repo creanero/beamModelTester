@@ -161,17 +161,26 @@ def read_var_file(file_name,modes):
     #if there's no extension, returns the empty string
     except IndexError:
         suffix=""
-        
+    
+    #sets the blank dataframe 
+    out_df=blank_df    
     if '' == file_name:
-        out_df=blank_df
+        pass # return the blank data frame
     elif 'csv'==suffix:
-        out_df=read_dreambeam_csv(file_name, modes)
+        try:
+            out_df=read_dreambeam_csv(file_name, modes)
+        except IOError:
+            print("Error: file "+file_name+" unable to load as DreamBeam CSV")
     elif 'hdf5'==suffix:
-        out_df=read_OSO_h5(file_name, modes)    
+        try:
+            out_df=read_OSO_h5(file_name, modes)    
+        except IOError:
+            print("Error: file "+file_name+" unable to load as OSO HDF5 format")
+            
     else:
         if modes['verbose'] >=1:
             print ("Warning: \""+file_name+"\" is not an appropriate file")
-        out_df=blank_df
+        #out_df=blank_df #no longer needed
     
     if "none" in out_df:
         pass

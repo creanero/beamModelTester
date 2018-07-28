@@ -28,22 +28,32 @@ def prep_out_dir(out_dir=None, modes={"verbose":1}):
             #if it's not possible to make that directory
             except OSError:
                 if modes['verbose'] >=1:
-                    #print a warning and ask the user for new input
-                    out_dir = raw_input("WARNING: output directory not suitable, "
-                                       "please enter a new output directory:\n"
-                                       "Leave blank for output to screen\n\t")
-                    #TODO: Check if this still works after interactive mode
-                    #if they leave the input blank, return a Null value
-                    if out_dir == '':
-                        out_dir = None
-                
-                    #otherwise try this function again
-                    else:
-                        out_dir=prep_out_dir(out_dir)
+                    print("WARNING: output directory specified not suitable!")
+                if modes['interactive']>=1:
+                    out_dir=set_out_dir(modes)
                 else:
                     out_dir = None
     
     return(out_dir)
+
+def set_out_dir(modes):
+    """
+    This is a function that enables interactive input of the output directory
+    """
+    out_dir = None
+    #ask the user for new input
+    out_dir = raw_input("Please enter a new output directory:\n"
+                       "Leave blank for output to screen\n\t")
+    #TODO: Check if this still works after interactive mode
+    #if they leave the input blank, return a Null value
+    if out_dir == '':
+        out_dir = None
+
+    #otherwise try the director testing function function again
+    else:
+        out_dir=prep_out_dir(out_dir)
+    
+    return (out_dir)
     
 def prep_out_file(modes,source="",ind_var="",plot="",dims="",channel="",
                   freq=0.0, plot_name = "",

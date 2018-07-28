@@ -9,7 +9,13 @@ from alt_az_functions import interactive_get_location
 from alt_az_functions import get_object
 from alt_az_functions import interactive_get_object
 
-def interactive_operation(modes):
+from reading_functions import read_var_file
+
+from io_functions import set_out_dir
+
+import os.path
+
+def interactive_operation(modes, model_df, scope_df):
     """
     This function controls interactive elements of the software system and 
     enables iterative use of the system
@@ -36,7 +42,7 @@ def interactive_operation(modes):
         3: Animation/3D Options
         4: Location/Target Options
         5: Plotting Options
-        6: File Output Options
+        6: File Input/Output Options
         7: Frequency Options
         8: Other Options
         
@@ -67,7 +73,16 @@ def interactive_operation(modes):
                     menu_choice="X" #resets the menu choice to restart the loop
                 elif 5 == menu_choice:
                     set_plotting_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop                    
+                    menu_choice="X" #resets the menu choice to restart the loop
+                elif 6 == menu_choice:
+                    set_file_io_options(modes, model_df, scope_df)
+                    menu_choice="X" #resets the menu choice to restart the loop                        
+                elif 7 == menu_choice:
+                    set_frequency_options(modes)
+                    menu_choice="X" #resets the menu choice to restart the loop
+                elif 8 == menu_choice:
+                    set_other_options(modes)
+                    menu_choice="X" #resets the menu choice to restart the loop                            
                 else:
                     print("Input: "+str(menu_choice)+" not valid or not implemented.")
                     
@@ -663,7 +678,7 @@ def set_plotting(modes):
       5: Toggle time series plots. Currently {1}
           
       0: Return to previous menu
-              """).format(gen_plotting_boolean(overlay_status),
+              """).format(gen_overlay_boolean(overlay_status),
                           gen_plotting_boolean(spectra_status)))
         try:#read in the choice as an int
             menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
@@ -1113,11 +1128,451 @@ def set_dict(modes, dict_lists):
                 dict_set[channel]=True
 
     return(dict_set)
-#"rmse", "corr", "spectra", 
-#                                 "file",
-#                                 "alt","az","ew", "stn", "split",
-#                                 "values","model","scope", "diff", 
-#                                 "overlay"
+    
+    
+    
+def set_file_io_options(modes, model_df, scope_df):
+    """
+    This function modifies the File I/O options in the modes
+    """
+    menu_choice = "X"
+    num_options = 6
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+        file_status = "file" in modes["plots"]
+        print(("""
+              CROPPING MODE MENU
+      
+      1: Set Input Model File
+      2: Set Input Scope File
+      3: Set Output File Type
+      4: Set Output File Directory
+      5: Toggle Output data file. Current {0}
+      
+      0: Return to previous menu
+              """).format(gen_plotting_boolean(file_status)))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_in_file(modes, model_df, "model")
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            set_in_file(modes, scope_df, "scope")
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 3 == menu_choice:
+            set_out_file_type(modes)
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 4 == menu_choice:
+            #sets up the output directory based on the input
+            modes['out_dir']=set_out_dir(modes)
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 5 == menu_choice:
+            if file_status:
+                modes['plots'].remove("file")
+            else:
+                modes['plots'].append("file")
+            menu_choice="X" #resets the menu choice to restart the loop
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            
+def set_in_file(modes, in_df, name):
+    """
+    This function reads in a new file specified by the user
+    """
+    out_df=in_df
+    dir_file_name="in_file_"+name
+    chosen_file_name=raw_input("Please enter the file name you want to use for "+name)
+    try:
+        out_df=read_var_file(modes[dir_file_name], modes)
+        modes[dir_file_name] = chosen_file_name
+    except IOError:
+        print("Warning, unable to read file "+ chosen_file_name+", returning original data")
+    
+    return(out_df)
+    
+
+def set_out_file_type(modes):
+    """
+    This function allows the user to choose the file type for output data
+    """
+
+    menu_choice = "X"
+    num_options = 10
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+
+        print(("""
+              OUTPUT FILE TYPE MENU
+              Current: {0}
+      
+      1: .png
+      2: .gif
+      3: .jpeg
+      4: .tiff
+      5: .sgi
+      6: .bmp
+      7: .raw
+      8: .rgba
+      9: .html
+      
+      0: Return to previous menu
+              """).format(modes['image_type']))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            modes['image_type']="png"
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            modes['image_type']="gif"
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 3 == menu_choice:
+            modes['image_type']="jpeg"
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 4 == menu_choice:
+            modes['image_type']="tiff"
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 5 == menu_choice:
+            modes['image_type']="sgi"
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 6 == menu_choice:
+            modes['image_type']="bmp"
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 7 == menu_choice:
+            modes['image_type']="raw"
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 8 == menu_choice:
+            modes['image_type']="rgba"
+            menu_choice="X" #resets the menu choice to restart the loop   
+        elif 9 == menu_choice:
+            modes['image_type']="html"
+            menu_choice="X" #resets the menu choice to restart the loop   
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_frequency_options(modes):
+    """
+    This function allows the user to select frequencies to plot
+    """
+    menu_choice = "X"
+    num_options = 5
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+
+        print("""
+              FREQUENCY SETTINGS MENU
+      
+      1: Set frequencies individually
+      2: Set frequency by file
+
+      0: Return to previous menu
+              """)
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_freq(modes)
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            set_freq_file(modes)
+            menu_choice="X" #resets the menu choice to restart the loop            
+
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_freq(modes):
+    """
+    This function allows the user to manually add frequencies to the list of
+    frequencies to be plotted
+    """
+    
+
+
+    menu_choice = "X"
+    num_options = 5
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+        print("""
+                  FREQUENCY ENTRY MENU
+                  Currently selected frequencies (Hz):
+              """)
+        
+        freq_status = (len(modes["freq"])==1) and (0.0 in modes["freq"])
+            
+        if freq_status:
+            print("None")
+        else:
+            for freq in modes["freq"]:
+                print("\t\t"+str(freq))
+    
+        print("\n\n")
+        print("""
+                    
+      1: Clear frequency selection (all frequencies plotted)
+      2: Add new frequencies to plotting list
+
+      0: Return to previous menu
+              """)
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            modes["freq"]=[0.0]
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            freq_loop=True
+            while freq_loop:
+                input_freq_str =raw_input("Please enter the next frequency in Hz.\n"+
+                                          "Enter \"0\" to stop entering frequencies:\t")
+                if "0" ==input_freq_str:
+                    freq_loop = False
+                else:
+                    try:
+                        input_freq = float(input_freq_str)
+                        modes["freq"].append(input_freq)
+                    except ValueError:
+                        print("Warning: unable to process input frequency: "+input_freq_str)
+            if (len(modes["freq"])>1) and (0.0 in modes["freq"]):
+                modes["freq"].remove(0.0)
+                
+            menu_choice="X" #resets the menu choice to restart the loop            
+
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def set_freq_file(modes):
+    """
+    This function allows the user to input the name of a csv file containing 
+    the frequencies to be filtered
+    """
+    
+    continue_flag = True
+    
+    while continue_flag:
+                
+        print("""
+              FREQUENCY FILE SELECTION MENU
+              Currently selected file for frequencies:
+              {0}
+              
+          At this screen you may
+          Enter a file name in which frequencies may be found
+          Enter "0" to return to the previous menu
+          Enter "X" to remove the frequency file
+            
+            """).format(str(modes["freq_file"]))
+        
+        in_file = raw_input("Please enter your selection now:\n\t")
+        
+        if "0" == in_file:
+            continue_flag = False
+        elif in_file in ["X","x"]:
+            modes["freq_file"]=None
+        elif os.path.isfile(in_file):
+            modes["freq"]=[0.0]#clears the manual entry of frequencies
+            modes["freq_file"]=in_file
+        else:
+            print("ERROR: File \""+in_file+"\" not found.")
+        
+
+def set_other_options(modes):
+    """
+    This function allows the user to set a number of miscellaneous options
+    """
+    menu_choice = "X"
+    num_options = 5
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+
+        print("""
+              MISCELLANEOUS SETTINGS MENU
+      
+      1: Set time offset between scope and frequency
+      2: Set graph and file title prefix
+      3: Set difference mode
+
+      0: Return to previous menu
+              """)
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            set_offset(modes)
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            set_title(modes)
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 2 == menu_choice:
+            set_diff(modes)
+            menu_choice="X" #resets the menu choice to restart the loop   
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+
+def set_offset(modes):
+    """
+    This function allows the user to set the number of seconds of offset that 
+    exists between the start time of the scope and model observations
+    """
+
+    loop_condition=True
+    while loop_condition:
+        print(("""
+              OFFSET MENU
+              Current offset: {0}s
+              
+      Offset is the number of seconds between the start time of the scope and 
+      model observations.  Offset is subtracted from the scope timestamps to
+      allow the scope and model observations to match.
+      
+      Offsets MUST be an integer number of seconds.
+              """).format(modes["offset"]))
+        
+        str_offset=raw_input("\tPlease Enter the offset time in seconds"+
+                             "\n\t\tLeave Blank to return to previous menu:\t")
+        if ""==str_offset:
+            loop_condition=False
+        else:
+            try:
+                offset=int(str_offset)
+                modes["offset"]=offset
+            except ValueError:
+                print('Warning: Value: "'+str_offset+'" not valid.  Please try again!')
+
+def set_title(modes):
+    """
+    This function allows the user to set the titles for graphs and files
+    """
+    
+    continue_flag = True
+    
+    while continue_flag:
+                
+        print("""
+              GRAPH AND FILE TITLE PREFIX MENU
+              Currently selected Title prefix:
+              {0}
+              
+          At this screen you may
+          Enter a title prefix for the graphs
+          Enter "0" to return to the previous menu
+          Enter "X" to remove the frequency file
+            
+            """).format(str(modes["title"]))
+        
+        in_title = raw_input("Please enter your selection now:\n\t")
+        
+        if "0" == in_title:
+            continue_flag = False
+        elif in_title in ["X","x"]:
+            modes["title"]=None
+            modes["title_"]=None
+        else:
+            modes["title"]=in_title
+            modes["title_"]="_".join(in_title.split(" "))
+
+
+def set_diff(modes):
+    """
+    This function allows the user to determine the difference operation to be 
+    used when comparing model with scope.
+    """
+    menu_choice = "X"
+    num_options = 4
+    menu_options=range(0,num_options)
+    
+    while menu_choice not in menu_options:
+
+        print(("""
+              DIFFERENCE MODE MENU
+              Current: {0}
+      
+      1: Subtraction (model-scope)
+      2: Division (model/scope)
+      3: Inverse Division (scope/model)
+      
+      0: Return to previous menu
+              """).format(gen_diff_name(modes["diff"])))
+        try:#read in the choice as an int
+            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+            
+        except ValueError: #can't be converted to an int
+            print("Warning: invalid menu choice.") #print a warning
+            menu_choice="X" #set the option back to default
+            
+        if 0 == menu_choice:
+            pass #finish the loop
+        
+        elif 1 == menu_choice:
+            modes["diff"]="sub"
+            menu_choice="X" #resets the menu choice to restart the loop
+        elif 2 == menu_choice:
+            modes["diff"]="div"
+            menu_choice="X" #resets the menu choice to restart the loop            
+        elif 3 == menu_choice:
+            modes["diff"]="idiv"
+            menu_choice="X" #resets the menu choice to restart the loop   
+
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def gen_diff_name(abbreviation):
+    """
+    This function is used to generate pretty names for the difference options
+    """
+    diff_name = ""
+    if "sub"==abbreviation:
+        diff_name="Subtraction"
+    elif "div"==abbreviation:
+        diff_name="Division"
+    elif "idiv"==abbreviation:
+        diff_name="Inverse Division" 
+    elif ""==abbreviation:
+        diff_name="None"
+    else:
+        print("Warning: Unknown difference name used!")
+    return (diff_name)
 #looks like this was already done.  Partial version left for records
 #def set_loc_options(modes):
 #    """

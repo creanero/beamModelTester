@@ -519,7 +519,7 @@ def filter_frequencies(merge_df, modes):
     """
     if modes['freq'] !=[0.0]:
         if modes['verbose'] >=2:
-            print ("isolating frequencies: "+str(modes['freq']))
+            print ("isolating frequencies: "+str(modes['freq'])+"Hz")
         #drops all frequencies which do not match the filter if applicable
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
         merge_df.reset_index(drop=True, inplace=True)
@@ -527,9 +527,14 @@ def filter_frequencies(merge_df, modes):
     if modes['freq_file'] != "":
         if modes['verbose'] >=2:
             print ("isolating frequencies from file: "+modes['freq_file'])
-        freq_df=pd.read_csv(modes['freq_file'], header=None)
-        merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
-        merge_df.reset_index(drop=True, inplace=True)    
+        try:
+            freq_df=pd.read_csv(modes['freq_file'], header=None)
+            merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
+            merge_df.reset_index(drop=True, inplace=True)
+        except IOError:
+            if modes['verbose'] >=1:
+                print("ERROR: File: "+modes['freq_file']+" inaccessible!")
+                print("\tproceeding without frequency filter.")
     
     return (merge_df)
     
@@ -636,7 +641,8 @@ def operational_loop(model_df, scope_df, modes):
     else:
         if modes['verbose'] >=1:
             print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
-        sys.exit(1)
+        if modes['interactive']<2:
+            sys.exit(1)
         
     
 if __name__ == "__main__":
@@ -656,6 +662,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            iops.interactive_operation(modes)
+            iops.interactive_operation(modes, model_df, scope_df)
             
     
