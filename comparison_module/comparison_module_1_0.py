@@ -67,7 +67,7 @@ def beam_arg_parser():
 ###############################################################################
 
     #adds an optional argument for verbosity
-    parser.add_argument("--verbose","-V", default=1, type=int,
+    parser.add_argument("--verbose","-V", default=2, type=int,
                         choices = (0,1,2),
                              help='''
 sets the level of verbosity for the program outputs.  
@@ -82,7 +82,7 @@ sets the level of verbosity for the program outputs.
 ###############################################################################
 
     #adds an optional argument for interactivity
-    parser.add_argument("--interactive","-I", default=0, type=int,
+    parser.add_argument("--interactive","-I", default=2, type=int,
                         choices = (0,1,2),
                              help='''
 sets the level of interactivity for the program inputs.  
@@ -161,7 +161,7 @@ file types will save animations, and others will save frames.  Default is png.
 ###############################################################################    
     
     #adds an optional argument for normalisation method
-    parser.add_argument("--norm","-n", default='o',
+    parser.add_argument("--norm","-n", default='n',
                         choices=('o',"f","n",'t'), 
                              help='''
 Method for normalising the data 
@@ -171,7 +171,7 @@ t = time (divide by maximum by time/observation)
 n = no normalisation.
                              ''')
     #adds an optional argument for normalisation target
-    parser.add_argument("--norm_data","-N", default="s",
+    parser.add_argument("--norm_data","-N", default="n",
                         choices=("s","m","n","b"), 
                              help='''
 Target data for applying the normalisation to
@@ -206,7 +206,7 @@ multiple of the mean or median, or the percentile level to cut the scope values
     
 
     #adds an optional argument for cropping method
-    parser.add_argument("--crop_basis","-k", default='o',choices=('o',"f","n"), 
+    parser.add_argument("--crop_basis","-k", default='n',choices=('o',"f","n"), 
                              help='''
 Method for cropping the data
 o = overall (crop equally for all data)
@@ -215,7 +215,7 @@ n = no cropping
                              ''')
 
     #adds an optional argument for cropping method
-    parser.add_argument("--crop_data","-K", default="s",
+    parser.add_argument("--crop_data","-K", default="n",
                         choices=("s","m","n","b"), 
                              help='''
 Target data for applying the cropping to
@@ -244,7 +244,7 @@ the difference between the scope and the model.  Default is subtract
 ###############################################################################    
     
     #adds an optional argument for the set of values to analyse and plot
-    parser.add_argument("--values","-v", default=["all"], nargs="*",
+    parser.add_argument("--values","-v", default=[], nargs="*",
                         choices=("all","linear","stokes",
                                  "xx","xy","yy","U","V","I","Q",
                                  "each"),
@@ -260,8 +260,7 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     #adds an optional argument for the plots to show
     parser.add_argument("--plots","-p", nargs="*",
-                        default=["rmse", "corr", "spectra",
-                                 "model","scope", "diff"],
+                        default=[],
                         choices=("rmse", "corr", "spectra", 
                                  "file",
                                  "alt","az","ew", "stn", "split",
@@ -293,7 +292,7 @@ overlay means that for a given channel, the plots will be overlaid
     
     #adds an optional argument for the way to show 3d data
     parser.add_argument("--three_d","-3", default="colour",
-                        choices=("colour","color", "anim", "animf"),
+                        choices=("colour","color", "anim", "animf","contour"),
                         help = '''
 Sets how to show three dimensional plots.  If colour is chosen, then they are 
 plotted as colours.  If anim is chosen, plots the data animated over time.  If 

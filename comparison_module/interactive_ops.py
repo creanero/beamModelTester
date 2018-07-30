@@ -500,7 +500,7 @@ def set_3d_plotting(modes):
     
     while menu_choice not in menu_options:
         
-        if "colour" == modes["three_d"]:
+        if modes["three_d"] in ["colour","color"]:
             current_name="3-D Colour Plots"
         elif "anim" == modes["three_d"]:
             current_name="Animated plots against time"
@@ -514,6 +514,7 @@ def set_3d_plotting(modes):
       1: Plot in 3-d colour plots
       2: Plot animated against time
       3: Plot animated against frequency
+      4: Plot contour 3d plot
       
       0: Return to previous menu
               """).format(current_name))
@@ -536,7 +537,9 @@ def set_3d_plotting(modes):
         elif 3 == menu_choice:
             modes["three_d"]='animf'
             menu_choice="X" #resets the menu choice to restart the loop    
- 
+        elif 4 == menu_choice:
+            modes["three_d"]='contour'
+            menu_choice="X" #resets the menu choice to restart the loop   
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
                     

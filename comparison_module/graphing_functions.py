@@ -24,7 +24,7 @@ from io_functions import prep_out_file
 
 
 
-def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
+def plot_against_freq_time(merge_df, key, modes, source, var_x, var_y):
     '''
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
@@ -40,19 +40,39 @@ def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
 
     graph_title="\n".join([modes['title'],
         ("Plot of the "+gen_pretty_name(source)+" for "+key+
-         "-channel \nover "+gen_pretty_name(x_var)+ " and "+
-         gen_pretty_name(y_var)+".")])
+         "-channel \nover "+gen_pretty_name(var_x)+ " and "+
+         gen_pretty_name(var_y)+".")])
     plt.title(graph_title, wrap=True)
-
-    #plots the channel in a colour based on its name
-    plt.tripcolor(plottable(merge_df,x_var),
-                  plottable(merge_df,y_var),
-                  plottable(merge_df,(key+sep+source)),
-                  cmap=plt.get_cmap(colour_models(key+'_s')))
+    
+    var_z = (key+sep+source)
+    
+    if(modes["three_d"] in ["colour","color"]):
+        try:
+            #plots the channel in a colour based on its name
+            plt.tripcolor(plottable(merge_df,var_x),
+                          plottable(merge_df,var_y),
+                          plottable(merge_df,var_z),
+                          cmap=plt.get_cmap(colour_models(key+'_s')))
+        except RuntimeError:
+            if  modes['verbose'] >=1:
+                print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
+    elif(modes["three_d"] in ["contour"]):
+        try:
+            
+            cols = np.unique(merge_df[var_y]).shape[0]
+            X = np.array(merge_df[var_x]).reshape(-1, cols)
+            Y = np.array(merge_df[var_y]).reshape(-1, cols)
+            Z = np.array(merge_df[var_z]).reshape(-1, cols)
+            plt.contour(X, Y, Z)
+        except:
+            if  modes['verbose'] >=1:
+                print("ERROR: Data not suitable for 3d contour plot.  Possible alternatives: colour/animated plots")
+            
+        
     plt.legend(frameon=False)
     #plots x-label using start time 
-    plt.xlabel(gen_pretty_name(x_var,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
-    plt.ylabel(gen_pretty_name(y_var,units=True), wrap=True)
+    plt.xlabel(gen_pretty_name(var_x,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+    plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
     plt.colorbar()
     #prints or saves the plot
     if modes['out_dir'] == None:
@@ -66,7 +86,7 @@ def plot_against_freq_time(merge_df, key, modes, source, x_var, y_var):
         plt.savefig(plt_file,bbox_inches='tight')
         plt.close()
 
-def animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay):
+def animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -77,10 +97,10 @@ def animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay):
 
     
     if "overlay" in modes['plots']:
-        animated_plot(merge_df, modes, x_var, m_keys, t_var, sources, time_delay)
+        animated_plot(merge_df, modes, var_x, m_keys, t_var, sources, time_delay)
     else:
         for source in sources:
-            animated_plot(merge_df, modes, x_var, m_keys, t_var, [source], time_delay)
+            animated_plot(merge_df, modes, var_x, m_keys, t_var, [source], time_delay)
     return(0)
 
 def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20):
@@ -396,11 +416,40 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     
     
     sep=get_source_separator(source)
+
+
+    try:
+        #plots the channel in a colour based on its name
+        plt.tripcolor(plottable(in_df,var_x),
+                      plottable(in_df,var_y),
+                      plottable(in_df,(var_z+sep+source)), 
+                      cmap=plt.get_cmap(colour_models(var_z+'_s')))
+
+    except RuntimeError:
+        if  modes['verbose'] >=1:
+            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
     
-    plt.tripcolor(plottable(in_df,var_x),
-                  plottable(in_df,var_y),
-                  plottable(in_df,(var_z+sep+source)), 
-                  cmap=plt.get_cmap(colour_models(var_z+'_s')))
+    if(modes["three_d"] in ["colour","color"]):
+        try:
+            #plots the channel in a colour based on its name
+            plt.tripcolor(plottable(in_df,var_x),
+                          plottable(in_df,var_y),
+                          plottable(in_df,var_z),
+                          cmap=plt.get_cmap(colour_models(key+'_s')))
+        except RuntimeError:
+            if  modes['verbose'] >=1:
+                print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
+    elif(modes["three_d"] in ["contour"]):
+        try:
+            
+            cols = np.unique(in_df[var_y]).shape[0]
+            X = np.array(in_df[var_x]).reshape(-1, cols)
+            Y = np.array(in_df[var_y]).reshape(-1, cols)
+            Z = np.array(in_df[var_z]).reshape(-1, cols)
+            plt.contour(X, Y, Z)
+        except:
+            if  modes['verbose'] >=1:
+                print("ERROR: Data not suitable for 3d contour plot.  Possible alternatives: colour/animated plots")
     
     #TODO: fix percentile plotting limits
     plt.clim(np.percentile(plottable(in_df,(var_z+sep+source)),5),
@@ -471,25 +520,25 @@ def plot_spectra_nf(merge_df, m_keys, modes,sources):
     time_delay = 1000.0/modes['frame_rate']
     
        
-    if modes['three_d']=="colour":
+    if modes['three_d'] in ["colour","color","contour"]:
         for source in sources:
             for key in m_keys:
             #creates a plot each of the values of model and scope
-                y_var="Freq"
-                x_var="d_Time"
+                var_y="Freq"
+                var_x="d_Time"
             
                 plot_against_freq_time(merge_df, key, modes, source, 
-                                       x_var, y_var)
+                                       var_x, var_y)
 
-    elif modes['three_d']=="anim" or modes['three_d']=="animf":
+    elif modes['three_d'] in ["animf", "anim"]:
         if modes['three_d']=="anim":
-            x_var = 'Freq'
+            var_x = 'Freq'
             t_var = 'Time'
         elif modes['three_d']=="animf":
-            x_var = 'd_Time'
+            var_x = 'd_Time'
             t_var = 'Freq'
         
-        animated_plots(merge_df, modes, x_var, m_keys, t_var, sources, time_delay)
+        animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay)
 
 
 
@@ -748,14 +797,14 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
     
         elif modes['three_d']=="anim" or modes['three_d']=="animf":
             if modes['three_d']=="anim":
-                x_var = 'Freq'
+                var_x = 'Freq'
                 t_var = x_plots[i][0]
             elif modes['three_d']=="animf":
-                x_var = x_plots[i][0]
+                var_x = x_plots[i][0]
                 t_var = 'Freq'
             
             for j in range(1,len(x_plots[i])):
-                animated_plots(x_plots[i][j], modes, x_var, m_keys, t_var, sources, time_delay)
+                animated_plots(x_plots[i][j], modes, var_x, m_keys, t_var, sources, time_delay)
 #            elif modes['three_d']=="anim":
 #        
 ##                if "alt" in modes['plots']:
