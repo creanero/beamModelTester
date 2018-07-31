@@ -20,21 +20,13 @@ def interactive_operation(modes, model_df, scope_df):
     This function controls interactive elements of the software system and 
     enables iterative use of the system
     """
-    continue_option='o'
+    continue_option=True
     menu_choice = "X"
-    num_options = 9
-    menu_options=range(0,num_options)
     
-    while continue_option not in ["Y", "y", "N", "n"]:
-        continue_option=raw_input("Do you want to continue to analyse the data? (y/n):\t")
-        if continue_option not in ["Y", "y", "N", "n"]:
-            print("Warning, invalid input!")
-        elif continue_option in ["N", "n"]:
-            modes['interactive']=1
-        elif continue_option in ["y", "Y"]:
 
-            while menu_choice not in menu_options:
-                print("""
+
+    while continue_option:
+        print("""
               INTERACTIVE MODE MENU
                 
         1: Cropping Options
@@ -46,55 +38,54 @@ def interactive_operation(modes, model_df, scope_df):
         7: Frequency Options
         8: Other Options
         
-        0: Plot with current options
-                      """)
+        9: Plot with current options
+        
+        0: Exit
+              """)
+    
+
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+
+
+        
+        if "1" == menu_choice:
+            set_crop_options(modes)
+        elif "2" == menu_choice:
+            set_norm_options(modes)
+        elif "3" == menu_choice:
+            set_3d_options(modes)
+        elif "4" == menu_choice:
+            set_coordinate_options(modes)
+        elif "5" == menu_choice:
+            set_plotting_options(modes)
+        elif "6" == menu_choice:
+            set_file_io_options(modes, model_df, scope_df)
+        elif "7" == menu_choice:
+            set_frequency_options(modes)
+        elif "8" == menu_choice:
+            set_other_options(modes)
+
             
-                try:#read in the choice as an int
-                    menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-                    
-                except ValueError: #can't be converted to an int
-                    print("Warning: invalid menu choice.") #print a warning
-                    menu_choice="X" #set the option back to default
-                    
-                if 0 == menu_choice:
-                    pass #finish the loop
-                
-                elif 1 == menu_choice:
-                    set_crop_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 2 == menu_choice:
-                    set_norm_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 3 == menu_choice:
-                    set_3d_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 4 == menu_choice:
-                    set_coordinate_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 5 == menu_choice:
-                    set_plotting_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 6 == menu_choice:
-                    set_file_io_options(modes, model_df, scope_df)
-                    menu_choice="X" #resets the menu choice to restart the loop                        
-                elif 7 == menu_choice:
-                    set_frequency_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop
-                elif 8 == menu_choice:
-                    set_other_options(modes)
-                    menu_choice="X" #resets the menu choice to restart the loop                            
-                else:
-                    print("Input: "+str(menu_choice)+" not valid or not implemented.")
-                    
+        elif "9" == menu_choice:
+            continue_option=False #finish the loop
+            
+                                
+        elif "0" == menu_choice:
+            modes['interactive']=0 #terminates the interactions which will exit
+            continue_option=False #finish the loop
+
+        else:
+            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            
 def set_crop_options(modes):
     """
     This function modifies the cropping options in the modes
     """
     menu_choice = "X"
-    num_options = 5
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               CROPPING MODE MENU
@@ -106,28 +97,26 @@ def set_crop_options(modes):
       
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+
             
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
             
-        if 0 == menu_choice:
-            pass #finish the loop
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
         
-        elif 1 == menu_choice:
+        elif "1" == menu_choice:
             set_crop_level(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_crop_basis(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             set_crop_data(modes)
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 4 == menu_choice:
+               
+        elif "4" == menu_choice:
             set_crop_type(modes)
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
     
@@ -163,10 +152,10 @@ def set_crop_basis(modes):
     This function modifies the cropping basis options in the modes
     """
     menu_choice = "X"
-   
-    menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
+    continue_option=True
+    #menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               CROPPING BASIS MENU
@@ -185,17 +174,17 @@ def set_crop_basis(modes):
         
         
         if '0' == menu_choice:
-            pass #finish the loop
+            continue_option=False #finish the loop
         
         elif menu_choice in ['n', 'N']:
             modes["crop_basis"]='n'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['f', 'F']:
             modes["crop_basis"]='f'
-            menu_choice="X" #resets the menu choice to restart the loop           
+                       
         elif menu_choice in ['o', 'O']:
             modes["crop_basis"]='o'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -205,9 +194,9 @@ def set_crop_data(modes):
     """
     menu_choice = "X"
    
-    menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
-    
-    while menu_choice not in menu_options:
+    #menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
+    continue_option=True
+    while continue_option:
 
         print(("""
               CROPPING DATA MENU
@@ -227,20 +216,20 @@ def set_crop_data(modes):
         
         
         if '0' == menu_choice:
-            pass #finish the loop
+            continue_option=False #finish the loop
         
         elif menu_choice in ['n', 'N']:
             modes["crop_data"]='n'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['s', 'S']:
             modes["crop_data"]='s'
-            menu_choice="X" #resets the menu choice to restart the loop           
+                       
         elif menu_choice in ['m', 'M']:
             modes["crop_data"]='m'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['b', 'B']:
             modes["crop_data"]='b'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -249,10 +238,10 @@ def set_crop_type(modes):
     This function modifies the cropping operation type options in the modes
     """
     menu_choice = "X"
-    num_options = 4
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               CROPPING MODE MENU
@@ -264,25 +253,20 @@ def set_crop_type(modes):
       
       0: Return to previous menu
               """).format(modes["crop_type"]))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
             
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
         
-        elif 1 == menu_choice:
+        elif "1" == menu_choice:
             modes["crop_type"]="median"
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             modes["crop_type"]="mean"
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             modes["crop_type"]="percentile"
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -331,10 +315,10 @@ def set_norm_options(modes):
     This function modifies the cropping options in the modes
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               NORMALISATION MODE MENU
@@ -344,22 +328,17 @@ def set_norm_options(modes):
       
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
             
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
         
-        elif 1 == menu_choice:
+        elif "1" == menu_choice:
             set_norm_basis(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_norm_data(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
  
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -371,9 +350,9 @@ def set_norm_basis(modes):
     """
     menu_choice = "X"
    
-    menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
-    
-    while menu_choice not in menu_options:
+    #menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
+    continue_option=True
+    while continue_option:
 
         print(("""
               NORMALISATION BASIS MENU
@@ -392,17 +371,17 @@ def set_norm_basis(modes):
         
         
         if '0' == menu_choice:
-            pass #finish the loop
+            continue_option=False #finish the loop
         
         elif menu_choice in ['n', 'N']:
             modes["norm"]='n'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['f', 'F']:
             modes["norm"]='f'
-            menu_choice="X" #resets the menu choice to restart the loop           
+                       
         elif menu_choice in ['o', 'O']:
             modes["norm"]='o'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -411,10 +390,10 @@ def set_norm_data(modes):
     This function modifies the normalisation basis options in the modes
     """
     menu_choice = "X"
-   
-    menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
+    continue_option=True
+    #menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               NORMALISATION DATA MENU
@@ -434,20 +413,20 @@ def set_norm_data(modes):
         
         
         if '0' == menu_choice:
-            pass #finish the loop
+            continue_option=False #finish the loop
         
         elif menu_choice in ['n', 'N']:
             modes["norm_data"]='n'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['s', 'S']:
             modes["norm_data"]='s'
-            menu_choice="X" #resets the menu choice to restart the loop           
+                       
         elif menu_choice in ['m', 'M']:
             modes["norm_data"]='m'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         elif menu_choice in ['b', 'B']:
             modes["norm_data"]='b'
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -456,10 +435,10 @@ def set_3d_options(modes):
     This function modifies the 3d plotting options in the modes
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               3D/ANIMATION MODE MENU
@@ -469,22 +448,17 @@ def set_3d_options(modes):
       
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
             
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
         
-        elif 1 == menu_choice:
+        elif "1" == menu_choice:
             set_3d_plotting(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_frame_rate(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
  
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -494,11 +468,11 @@ def set_3d_plotting(modes):
     This function modifies the 3d plotting options in the modes
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     current_name=""
     
-    while menu_choice not in menu_options:
+    while continue_option:
         
         if modes["three_d"] in ["colour","color"]:
             current_name="3-D Colour Plots"
@@ -518,28 +492,25 @@ def set_3d_plotting(modes):
       
       0: Return to previous menu
               """).format(current_name))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             modes["three_d"]='colour'
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             modes["three_d"]='anim'
-            menu_choice="X" #resets the menu choice to restart the loop    
-        elif 3 == menu_choice:
+                
+        elif "3" == menu_choice:
             modes["three_d"]='animf'
-            menu_choice="X" #resets the menu choice to restart the loop    
-        elif 4 == menu_choice:
+                
+        elif "4" == menu_choice:
             modes["three_d"]='contour'
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
                     
@@ -568,10 +539,10 @@ def set_coordinate_options(modes):
     This function modifies the observatory location and target options
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               COORDINATE MODE MENU
@@ -593,24 +564,20 @@ def set_coordinate_options(modes):
                           modes['object_coords'][0], #RA
                           modes['object_coords'][1] #Dec
                           ))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             modes = interactive_get_location(modes)
             modes = get_location(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             modes = interactive_get_object(modes)
             modes = get_object(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
  
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -621,10 +588,10 @@ def set_plotting_options(modes):
     This function modifies the plotting options in the modes
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               PLOTTING MODE MENU
@@ -634,22 +601,18 @@ def set_plotting_options(modes):
       
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             set_plotting(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_values(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
  
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")            
@@ -659,8 +622,8 @@ def set_plotting(modes):
     This functionsets the graphs to be plotted.
     """
     menu_choice = "X"
-    num_options = 6
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
 #    ["rmse", "corr", "spectra", 
 #                                 "file",
@@ -668,7 +631,7 @@ def set_plotting(modes):
 #                                 "values","model","scope", "diff", 
 #                                 "overlay"]
     
-    while menu_choice not in menu_options:
+    while continue_option:
         overlay_status="overlay" in modes['plots']
         spectra_status="spectra" in modes['plots']
         print(("""
@@ -683,37 +646,33 @@ def set_plotting(modes):
       0: Return to previous menu
               """).format(gen_overlay_boolean(overlay_status),
                           gen_plotting_boolean(spectra_status)))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             set_fom(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_alt_az(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             set_msd_vals(modes)
-            menu_choice="X" #resets the menu choice to restart the loop       
-        elif 4 == menu_choice:
+                   
+        elif "4" == menu_choice:
             if overlay_status:
                 modes['plots'].remove("overlay")
             else:
                 modes['plots'].append("overlay")
-            menu_choice="X" #resets the menu choice to restart the loop       
-        elif 5 == menu_choice:
+                   
+        elif "5" == menu_choice:
             if spectra_status:
                 modes['plots'].remove("spectra")
             else:
                 modes['plots'].append("spectra")
-            menu_choice="X" #resets the menu choice to restart the loop     
+                 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -722,12 +681,12 @@ def set_fom(modes):
     This function sets the figures of merit to be plotted.
     """
     menu_choice = "X"
-    num_options = 3
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
 #    ["rmse", "corr" 
     
-    while menu_choice not in menu_options:
+    while continue_option:
         rmse_status="rmse" in modes['plots']
         corr_status="corr" in modes['plots']
         print(("""
@@ -740,32 +699,28 @@ def set_fom(modes):
       0: Return to previous menu
               """).format(gen_plotting_boolean(rmse_status),
                           gen_plotting_boolean(corr_status),))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             if rmse_status:
                 modes['plots'].remove("rmse")
             else:
                 modes['plots'].append("rmse")
-            menu_choice="X" #resets the menu choice to restart the loop
             
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             if corr_status:
                 modes['plots'].remove("corr")
             else:
                 modes['plots'].append("corr")
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
             
         else:
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
 def set_alt_az(modes):
@@ -773,12 +728,12 @@ def set_alt_az(modes):
     This function sets the plotting options for Alt/Az plots.
     """
     menu_choice = "X"
-    num_options = 6
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
 #    ["alt","az","ew", "stn", "split"
     
-    while menu_choice not in menu_options:
+    while continue_option:
         alt_status="alt" in modes['plots']
         az_status="az" in modes['plots']
         ew_status="ew" in modes['plots']
@@ -799,53 +754,49 @@ def set_alt_az(modes):
                           gen_plotting_boolean(ew_status),
                           gen_plotting_boolean(stn_status),
                           gen_plotting_boolean(split_status)))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             if alt_status:
                 modes['plots'].remove("alt")
             else:
                 modes['plots'].append("alt")
-            menu_choice="X" #resets the menu choice to restart the loop
             
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             if az_status:
                 modes['plots'].remove("az")
             else:
                 modes['plots'].append("az")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         
-        elif 3 == menu_choice:
+        elif "3" == menu_choice:
             if ew_status:
                 modes['plots'].remove("ew")
             else:
                 modes['plots'].append("ew")
-            menu_choice="X" #resets the menu choice to restart the loop
             
-        elif 4 == menu_choice:
+            
+        elif "4" == menu_choice:
             if stn_status:
                 modes['plots'].remove("stn")
             else:
                 modes['plots'].append("stn")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         
-        elif 5 == menu_choice:
+        elif "5" == menu_choice:
             if split_status:
                 modes['plots'].remove("split")
             else:
                 modes['plots'].append("split")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             
         else:   
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
 def set_msd_vals(modes):
@@ -853,12 +804,12 @@ def set_msd_vals(modes):
     This function sets Whether to plot Model, scope or difference data.
     """
     menu_choice = "X"
-    num_options = 6
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
 #    ["alt","az","ew", "stn", "split"
     
-    while menu_choice not in menu_options:
+    while continue_option:
         model_status="model" in modes['plots']
         scope_status="scope" in modes['plots']
         diff_status="diff" in modes['plots']
@@ -875,40 +826,36 @@ def set_msd_vals(modes):
               """).format(gen_plotting_boolean(model_status),
                           gen_plotting_boolean(scope_status),
                           gen_plotting_boolean(diff_status)))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             if model_status:
                 modes['plots'].remove("model")
             else:
                 modes['plots'].append("model")
-            menu_choice="X" #resets the menu choice to restart the loop
             
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             if scope_status:
                 modes['plots'].remove("scope")
             else:
                 modes['plots'].append("scope")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         
-        elif 3 == menu_choice:
+        elif "3" == menu_choice:
             if diff_status:
                 modes['plots'].remove("diff")
             else:
                 modes['plots'].append("diff")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             
             
         else:   
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
 
@@ -919,10 +866,7 @@ def set_values(modes):
     """
     menu_choice = "X"
 
-    menu_options=["all","linear","stokes",
-                  "xx","xy","yy","U","V","I","Q",
-                  "each",
-                  "0"]
+
     list_linear=["xx","xy","yy"]
     list_stokes=["U","V","I","Q"]
     list_all=["xx","xy","yy","U","V","I","Q"]
@@ -930,10 +874,10 @@ def set_values(modes):
                 "stokes":list_stokes,
                 "all":list_all}
 
+    continue_option=True
     
     
-    
-    while menu_choice not in menu_options:
+    while continue_option:
         dict_set=set_dict(modes,dict_lists)
         
         if "each" in modes["values"]:
@@ -976,21 +920,21 @@ def set_values(modes):
             
             
         if "0" == menu_choice:
-            pass #finish the loop
+            continue_option=False #finish the loop
         
         #if it's a single value
         elif menu_choice in list_all:
             process_single_values_menu(menu_choice, modes, dict_lists)
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             
         #if a group value
         elif menu_choice in dict_lists:
             process_group_values_menu(menu_choice, modes, dict_lists)
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             
         #to toggle the overlay/separate plots
         elif menu_choice == "each":
-            menu_choice="X" #resets the menu choice to restart the loop
+            
             if each_status:
                 modes["values"].remove("each")
             else:
@@ -1139,10 +1083,10 @@ def set_file_io_options(modes, model_df, scope_df):
     This function modifies the File I/O options in the modes
     """
     menu_choice = "X"
-    num_options = 6
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
         file_status = "file" in modes["plots"]
         print(("""
               CROPPING MODE MENU
@@ -1155,35 +1099,31 @@ def set_file_io_options(modes, model_df, scope_df):
       
       0: Return to previous menu
               """).format(gen_plotting_boolean(file_status)))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             set_in_file(modes, model_df, "model")
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_in_file(modes, scope_df, "scope")
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             set_out_file_type(modes)
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 4 == menu_choice:
+               
+        elif "4" == menu_choice:
             #sets up the output directory based on the input
             modes['out_dir']=set_out_dir(modes)
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 5 == menu_choice:
+               
+        elif "5" == menu_choice:
             if file_status:
                 modes['plots'].remove("file")
             else:
                 modes['plots'].append("file")
-            menu_choice="X" #resets the menu choice to restart the loop
+            
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
             
@@ -1209,10 +1149,10 @@ def set_out_file_type(modes):
     """
 
     menu_choice = "X"
-    num_options = 10
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               OUTPUT FILE TYPE MENU
@@ -1230,43 +1170,39 @@ def set_out_file_type(modes):
       
       0: Return to previous menu
               """).format(modes['image_type']))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             modes['image_type']="png"
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             modes['image_type']="gif"
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             modes['image_type']="jpeg"
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 4 == menu_choice:
+               
+        elif "4" == menu_choice:
             modes['image_type']="tiff"
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 5 == menu_choice:
+               
+        elif "5" == menu_choice:
             modes['image_type']="sgi"
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 6 == menu_choice:
+            
+        elif "6" == menu_choice:
             modes['image_type']="bmp"
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 7 == menu_choice:
+                        
+        elif "7" == menu_choice:
             modes['image_type']="raw"
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 8 == menu_choice:
+               
+        elif "8" == menu_choice:
             modes['image_type']="rgba"
-            menu_choice="X" #resets the menu choice to restart the loop   
-        elif 9 == menu_choice:
+               
+        elif "9" == menu_choice:
             modes['image_type']="html"
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -1275,10 +1211,10 @@ def set_frequency_options(modes):
     This function allows the user to select frequencies to plot
     """
     menu_choice = "X"
-    num_options = 5
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               FREQUENCY SETTINGS MENU
@@ -1288,22 +1224,18 @@ def set_frequency_options(modes):
 
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             set_freq(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_freq_file(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -1317,10 +1249,10 @@ def set_freq(modes):
 
 
     menu_choice = "X"
-    num_options = 5
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
         print("""
                   FREQUENCY ENTRY MENU
                   Currently selected frequencies (Hz):
@@ -1342,20 +1274,16 @@ def set_freq(modes):
 
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             modes["freq"]=[0.0]
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             freq_loop=True
             while freq_loop:
                 input_freq_str =raw_input("Please enter the next frequency in Hz.\n"+
@@ -1371,7 +1299,7 @@ def set_freq(modes):
             if (len(modes["freq"])>1) and (0.0 in modes["freq"]):
                 modes["freq"].remove(0.0)
                 
-            menu_choice="X" #resets the menu choice to restart the loop            
+                        
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -1416,10 +1344,10 @@ def set_other_options(modes):
     This function allows the user to set a number of miscellaneous options
     """
     menu_choice = "X"
-    num_options = 5
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print("""
               MISCELLANEOUS SETTINGS MENU
@@ -1430,25 +1358,21 @@ def set_other_options(modes):
 
       0: Return to previous menu
               """)
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             set_offset(modes)
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             set_title(modes)
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 2 == menu_choice:
+                        
+        elif "2" == menu_choice:
             set_diff(modes)
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
@@ -1522,10 +1446,10 @@ def set_diff(modes):
     used when comparing model with scope.
     """
     menu_choice = "X"
-    num_options = 4
-    menu_options=range(0,num_options)
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while menu_choice not in menu_options:
+    while continue_option:
 
         print(("""
               DIFFERENCE MODE MENU
@@ -1537,25 +1461,21 @@ def set_diff(modes):
       
       0: Return to previous menu
               """).format(gen_diff_name(modes["diff"])))
-        try:#read in the choice as an int
-            menu_choice=int(raw_input("Please enter your selection from the menu above:\t"))
-            
-        except ValueError: #can't be converted to an int
-            print("Warning: invalid menu choice.") #print a warning
-            menu_choice="X" #set the option back to default
-            
-        if 0 == menu_choice:
-            pass #finish the loop
         
-        elif 1 == menu_choice:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+            
+        if "0" == menu_choice:
+            continue_option=False #finish the loop
+        
+        elif "1" == menu_choice:
             modes["diff"]="sub"
-            menu_choice="X" #resets the menu choice to restart the loop
-        elif 2 == menu_choice:
+            
+        elif "2" == menu_choice:
             modes["diff"]="div"
-            menu_choice="X" #resets the menu choice to restart the loop            
-        elif 3 == menu_choice:
+                        
+        elif "3" == menu_choice:
             modes["diff"]="idiv"
-            menu_choice="X" #resets the menu choice to restart the loop   
+               
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -1582,11 +1502,11 @@ def gen_diff_name(abbreviation):
 #    This function modifies the observatory location options
 #    """
 #    menu_choice = "X"
-#    num_options = 3
-#    menu_options=range(0,num_options)
+#    continue_option=True
+#    #menu_options=range(0,num_options)
 #    location_name=""
 #    
-#    while menu_choice not in menu_options:
+#    while continue_option:
 #
 #        print(("""
 #              COORDINATE MODE MENU
@@ -1605,20 +1525,20 @@ def gen_diff_name(abbreviation):
 #            print("Warning: invalid menu choice.") #print a warning
 #            menu_choice="X" #set the option back to default
 #            
-#        if 0 == menu_choice:
-#            pass #finish the loop
+#        if "0" == menu_choice:
+#            continue_option=False #finish the loop
 #        
-#        elif 1 == menu_choice:
+#        elif "1" == menu_choice:
 #            location_name=raw_input("Please enter the station code for the observing location:\t")
 #            modes["location_name"]=location_name
 #            modes=get_location(modes)
-#            menu_choice="X" #resets the menu choice to restart the loop
-#        elif 2 == menu_choice:
+#            
+#        elif "2" == menu_choice:
 #            location_name=""
 #            modes["location_name"]=location_name
 #            modes["location_coords"]=[0]
 #            modes=get_location(modes)
-#            menu_choice="X" #resets the menu choice to restart the loop            
+#                        
 # 
 #        else:
 #            print("Input: "+str(menu_choice)+" not valid or not implemented.")
