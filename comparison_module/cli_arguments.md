@@ -1,4 +1,4 @@
-#Command Line Arguments to comparison_module
+# Command Line Arguments to comparison_module
 
 **positional arguments:**\
   model_p               *The file containing the data from the model (Usually
