@@ -740,7 +740,7 @@ def set_alt_az(modes):
         stn_status="stn" in modes['plots']        
         split_status="split" in modes['plots']        
         print(("""
-              FIGURE OF MERIT SELECTION MENU
+              ALT-AZIMUTH OPTION SELECTION MENU
       
       1: Toggle Altitude Plotting. Currently: {0}
       2: Toggle Azimuth Plotting. Currently: {1}
@@ -1089,7 +1089,7 @@ def set_file_io_options(modes, model_df, scope_df):
     while continue_option:
         file_status = "file" in modes["plots"]
         print(("""
-              CROPPING MODE MENU
+              FILE I/O MENU
       
       1: Set Input Model File
       2: Set Input Scope File
@@ -1370,7 +1370,7 @@ def set_other_options(modes):
         elif "2" == menu_choice:
             set_title(modes)
                         
-        elif "2" == menu_choice:
+        elif "3" == menu_choice:
             set_diff(modes)
                
         else:
@@ -1424,7 +1424,7 @@ def set_title(modes):
           At this screen you may
           Enter a title prefix for the graphs
           Enter "0" to return to the previous menu
-          Enter "X" to remove the frequency file
+          Enter "X" to remove the title prefix
             
             """).format(str(modes["title"]))
         
