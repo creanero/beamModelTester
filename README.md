@@ -11,10 +11,10 @@ There are three major components to this system:
   
 Extraction of data, especially observed data, can be time-consuming.  As a result, separate scripts are provided to 
 [extract the data](https://github.com/creaneroDIAS/beamWrapper/blob/master/data_wrapper.sh) 
-and to [analyse it](https://github.com/creaneroDIAS/beamModelTester/blob/master/comparison_module/comparison_module_1_0.py).
+and to [analyse it](/comparison_module/comparison_module_1_0.py).
 An [overall script](https://github.com/creaneroDIAS/beamWrapper/blob/master/complete_wrapper.sh) 
 which calls all three components of the software is provided, but usually the data extraction routines are carried out once, 
-but the analysis and visualisations are repeated, so the use of this script is deprecated. *Currently bugged*
+but the analysis and visualisations are repeated, so the use of this script is deprecated. *Currently a minor bug in this to be worked out*
 
 ## How to use
 
@@ -28,15 +28,15 @@ Run the [data extraction script](https://github.com/creaneroDIAS/beamWrapper/blo
 with that directory as an argument.\
 e.g ***./beamWrapper/data_wrapper.sh ~/IE613_20180406_091321_rcu3_dur91863_CasA_acc***
 
-This will produce a [HDF5 file](beamModelTester/data_descriptions/OSO_HDF5.md)
-and a [CSV file](beamModelTester/data_descriptions/DreamBeam_Source_data_description.md) which can be used in the next step
+This will produce a [HDF5 file](/data_descriptions/OSO_HDF5.md)
+and a [CSV file](/data_descriptions/DreamBeam_Source_data_description.md) which can be used in the next step
 or otherwise as needed.
 
 ### Data Analysis/Visualisation
-Run the [comparison module](beamModelTester/comparison_module/comparison_module_1_0.py) 
+Run the [comparison module](/comparison_module/comparison_module_1_0.py) 
 and input the HDF5 file as the "scope" parameter and the CSV file as the "model."  
 Select the plots you wish to generate.  This may be carried out interactively using the menu system or by passing command line arguments
-[More complete Documentation on the comparison module may be found here.](beamModelTester/comparison_module/readme.md)
+[More complete Documentation on the comparison module may be found here.](/comparison_module/readme.md)
 
 *Command line version*
 e.g. ***./comparison_module/comparison_module_1_0.py --model ~/IE613_20180406T091321_rcu3_CygA_dur91863_Hamaker_model.csv --scope ~/IE613_20180406T090450_rcu3_CygA_dur91856_ct20171108_acc2bst.hdf5 --values xx yy --plots spectra model scope diff***
