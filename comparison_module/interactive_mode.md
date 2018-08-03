@@ -132,7 +132,7 @@ Type 0 to return to the [Main menu](#MainMenu)
 From this menu, the user can select Frequency filtering options <a name="7_Freq_menu"></a>
 ![Frequency menu](/images/interactive_snips/icm_7_Freq_menu.PNG)
 
-![Frequency menu with selection](/images/interactive_snips/icm_7_Freq_menu2.PNG)
+![Frequency menu with selection](/images/interactive_snips/icm_7_Freq_menu_2.PNG)
 
 Type 0 to return to the [Main menu](#MainMenu)
 
@@ -140,13 +140,14 @@ Type 0 to return to the [Main menu](#MainMenu)
 ![Manual Frequency Entry menu](/images/interactive_snips/icm_7_1_Freq_manual_menu.PNG)
 
 #### Manual Frequency Entries <a name="7_1_2_Freq_manual_entries_menu."></a>
-![Manual Frequency Entries](/images/interactive_snips/icm_7_1_2_Freq_manual_entries_menu..PNG)
+![Manual Frequency Entries](/images/interactive_snips/icm_7_1_2_Freq_manual_entries_menu.PNG)
 
 ### Frequency File Menu <a name="7_2_Freq_file_menu"></a>
 ![Frequency File Menu](/images/interactive_snips/icm_7_2_Freq_file_menu.PNG)
 
-## Miscellaneous Menu
-From this menu, the user can select File I/O options <a name="8_misc_menu"></a>
+## Miscellaneous Menu<a name="8_misc_menu"></a>
+From this menu, the user can the offset in time between model and scope, the Title for plots and the calculation used for differences.
+
 ![Miscellaneous menu](/images/interactive_snips/icm_8_misc_menu.PNG)
 
 Type 0 to return to the [Main menu](#MainMenu)
