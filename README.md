@@ -24,6 +24,8 @@ Acquire ACC Data from LOFAR and store it in a directory with the following name 
 *{STN_ID}_YYYYMMDD_HHMMSS_rcu{RCU_MODE}_dur{DURATION}_{SOURCE}_acc*\
 e.g. *IE613_20180406_091321_rcu3_dur91863_CasA_acc*
 
+A sample of suitable data is available at https://zenodo.org/record/1326532#.W3L8FNVKiUk
+
 Run the [data extraction script](https://github.com/creaneroDIAS/beamWrapper/blob/master/data_wrapper.sh) 
 with that directory as an argument.\
 e.g ***./beamWrapper/data_wrapper.sh ~/IE613_20180406_091321_rcu3_dur91863_CasA_acc***
