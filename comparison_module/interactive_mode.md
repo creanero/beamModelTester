@@ -3,10 +3,12 @@
 In interactive mode, the comparison module presents the user with a series of screens requesting information from them to enable 
 plotting of suitable graphs.
 
+![flowchart](/images/interactive_menu.png)
+
 ## Main Menu <a name="MainMenu"></a>
 From the main menu, the user can access all the futher menus to select plotting options, proceed to plot, or exit the program
 
-![main menu](/images/interactive_snips/icm_main_menu.PNG)
+![main menu](/images/interactive_snips/icm_main_menu.png)
 
 
 Type 0 to exit
