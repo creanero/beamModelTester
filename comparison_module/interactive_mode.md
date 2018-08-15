@@ -138,26 +138,50 @@ From this menu, the user can enter the frame rate per second for any animated pl
 The user enters their preferred frame rate and then presses enter
 
 ## Target/Location Menu <a name="4_coords_menu"></a>
-From this menu, the user can select what a Target or Observing Site
+From this menu, the user can select a Target or Observing Site
 ![Target/Location menu](/images/interactive_snips/icm_4_coords_menu.PNG)
 
+Type 1 to set the [Observing Location](#4_1_coords_loc_menu)\
+Type 2 to set the [Target Object](#3_2_anim_frame_rate_menu) for animated plots\
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Location Menu <a name="4_1_coords_loc_menu"></a>
+From this menu, the user can set the observing location, either by entering the station name or by manually entering the Latitude/Longitude/Altitude coordinates of the station.
+
 ![Location menu](/images/interactive_snips/icm_4_1_coords_loc_menu.PNG)
+
+Type N to enter the location by station name\
+Type C to enter the location by coordinates\
+Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
 #### Enter Location by Name <a name="4_1_coords_loc_menu"></a>
 ![Enter Location by Name](/images/interactive_snips/icm_4_1_1_coords_loc_name_menu.PNG)
+
+On this menu, the user may enter a LOFAR station ID (e.g. IE613) and the coordinates will be automatically set.  Note that station IDs are case sensitive and letters must be UPPERCASE.  Note also that not all station IDs are currently available for use and it may be necessary to submit coordinates manually in that case.
+
 #### Enter Location by Coordinates <a name="4_1_2_coords_loc_coords_menu"></a>
 ![Enter Location by Coordinates](/images/interactive_snips/icm_4_1_2_coords_loc_coords_menu.PNG)
 
+On this menu, the user is prompted to enter first the Latitude coordinate (in decimal degrees), then the Longitude coordinate (in decimal degrees), then the Altitude above sea level in metres.  If the user enters a blank value for any coordinate, then that coordinate and any subsequent coordinates are set to 0, and the screen returns to the previous menu.  If the user submits an invalid coordinate (e.g. non-numeric characters) they are prompted to reenter the coordinate.  The coordinates (Lat: 0, Long: 0) are reserved to indicate no geographical plots are needed. Since there is no land (and no radio telescope) at this location, this is not considered a limitation, but should such a location be needed, an arbitrarily small value (e.g. 1e-308) should be used for one or both of the coordinates.
+
 ### Target Menu <a name="4_2_coords_tar_menu"></a>
+From this menu, the user can set the target object, either by entering the object's name or by manually entering the RA/Dec coordinates of the object.
+
 ![Target menu](/images/interactive_snips/icm_4_2_coords_tar_menu.PNG)
+
+Type N to enter the target by name\
+Type C to enter the target by coordinates\
+Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
 #### Enter Target by Name <a name="4_2_1_coords_tar_name_menu"></a>
 ![Enter Target by Name menu](/images/interactive_snips/icm_4_2_1_coords_tar_name_menu.PNG)
+
+On this menu, the user may enter a target object name (e.g. CasA) and the coordinates will be automatically set.  Note that object names are case sensitive and letters must be in PascalCase.  Note also that relatively few object IDs are currently available for use and it may be necessary to submit coordinates manually in that case.
+
 #### Enter Target by Coordinates <a name="4_2_2_coords_tar_coords_menu"></a>
 ![Enter Target by Name menu](/images/interactive_snips/icm_4_2_2_coords_tar_coords_menu.PNG)
+
+On this menu, the user is prompted to enter first the Right Ascension coordinate (in decimal degrees), then the Declination coordinate (in decimal degrees).  If the user enters a blank value for any coordinate, then that coordinate and any subsequent coordinates are set to 0, and the screen returns to the previous menu.  If the user submits an invalid coordinate (e.g. non-numeric characters) they are prompted to reenter the coordinate.  The coordinates (RA: 0, Dec: 0) are reserved to indicate no Astrometric plots are needed. Should a target at the point of the Vernal Equinox be needed, an arbitrarily small value (e.g. 1e-308) should be used for one or both of the coordinates.
 
 ## Plots and Graphs Menu <a name="5_plot_menu"></a>
 From this menu, the user can select what graphs to plot
