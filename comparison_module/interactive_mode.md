@@ -28,7 +28,7 @@ Type 0 to exit the program without plotting further
 From this menu, the user can select what data to crop to remove outliers.
 ![Cropping menu](/images/interactive_snips/icm_1_crop_menu.PNG)
 
-Type 1 to set the [Numerical value for cropping](1_1_crop_level_menu)\
+Type 1 to set the [Numerical value for cropping](#1_1_crop_level_menu)\
 Type 2 to set the [Crop Basis](#1_2_crop_basis_menu)\
 Type 3 to set the [Crop Data](#1_3_crop_data_menu)\
 Type 4 to set the [Crop Mode](#1_4_crop_mode_menu)\
@@ -111,17 +111,31 @@ Type 0 to return to the [Normalisation Menu](#2_norm_menu)
 
 ## Animation/3D Effects Menu <a name="3_anim_menu"></a>
 From this menu, the user can select options for animating the data or plotting it as a 3-d graph
+
 ![Animation/3D Effects menu](/images/interactive_snips/icm_3_anim_menu.PNG)
 
+Type 1 to set how 3-variable graphs are plotted [(animated or 3d colour/contour plots)](#3_1_anim_colour_menu)\
+Type 2 to set the [Frame Rate](#3_2_anim_frame_rate_menu) for animated plots\
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Animation/3D Selection Menu <a name="3_1_anim_colour_menu"></a>
+From this menu, the user can select how 3-variable graphs are plotted.  They may be plotted as 3-d colour plots, with colour schemes selected based on the data to be plotted, as animated 2-d graphs where time is used to represent the third variable or as 3-d contour plots.
+
 ![Animation/3D Selection menu](/images/interactive_snips/icm_3_1_anim_colour_menu.PNG)
 
+Type 1 to plot 3-d colour graphs\
+Type 2 to plot animated graphs where time represents itself (or orientation when time is not plotted)\
+Type 3 to plot animated graphs where time represents frequency\
+Type 4 to plot 3-d contour graphs
+
+Type 0 to return to the [Cropping Menu](#1_crop_menu)
+
 ### Frame Rate Menu <a name="3_2_anim_frame_rate_menu"></a>
+From this menu, the user can enter the frame rate per second for any animated plots generated.  If there are no animated plots, this value will be ignored.  By default, the frame rate is 60FPS.  If the frame rate exceeds the capability of the device used to generate it, the frame rate will be maximised.
+
 ![Frame Rate menu](/images/interactive_snips/icm_3_2_anim_frame_rate_menu.PNG)
 
-
+The user enters their preferred frame rate and then presses enter
 
 ## Target/Location Menu <a name="4_coords_menu"></a>
 From this menu, the user can select what a Target or Observing Site
