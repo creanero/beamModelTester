@@ -288,15 +288,15 @@ From this screen, the user may select the file type for output image files
 
 ![Output File Type menu](/images/interactive_snips/icm_6_3_FileIO_type_menu.PNG)
 
-Type 1 to switch the file type to png\
-Type 2 to switch the file type to gif\
-Type 3 to switch the file type to jpeg\
-Type 4 to switch the file type to tiff\
-Type 5 to switch the file type to sgi\
-Type 6 to switch the file type to bmp\
-Type 7 to switch the file type to raw\
-Type 8 to switch the file type to rgba\
-Type 9 to switch the file type to html
+Type 1 to switch the file type to Portable Network Graphics (png) \[Default\]\
+Type 2 to switch the file type to Graphics Interchange Format (gif)\
+Type 3 to switch the file type to Joint Photographic Experts Group format (jpeg)\
+Type 4 to switch the file type to Tagged Image File Format (tiff)\
+Type 5 to switch the file type to Silicon Graphics Image (sgi)\
+Type 6 to switch the file type to Bitmap (bmp)\
+Type 7 to switch the file type to Raw Image Format (raw)\
+Type 8 to switch the file type to Red Green Blue Alpha (rgba)\
+Type 9 to switch the file type to HyperText Markup Language (html) \[images stored as png, html controls animation\]
 
 Type 0 to return to the [File I/O menu](#6_1_FileIO_model)
 
