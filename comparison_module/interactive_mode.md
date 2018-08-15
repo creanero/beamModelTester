@@ -150,11 +150,11 @@ From this menu, the user can set the observing location, either by entering the 
 
 ![Location menu](/images/interactive_snips/icm_4_1_coords_loc_menu.PNG)
 
-Type N to enter the location by station name\
-Type C to enter the location by coordinates\
+Type N to enter the location by [station name](#4_1_1_coords_loc_name_menu)\
+Type C to enter the location by [coordinates](#4_1_2_coords_loc_coords_menu)\
 Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
-#### Enter Location by Name <a name="4_1_coords_loc_menu"></a>
+#### Enter Location by Name <a name="4_1_1_coords_loc_name_menu"></a>
 ![Enter Location by Name](/images/interactive_snips/icm_4_1_1_coords_loc_name_menu.PNG)
 
 On this menu, the user may enter a LOFAR station ID (e.g. IE613) and the coordinates will be automatically set.  Note that station IDs are case sensitive and letters must be UPPERCASE.  Note also that not all station IDs are currently available for use and it may be necessary to submit coordinates manually in that case.
@@ -169,8 +169,8 @@ From this menu, the user can set the target object, either by entering the objec
 
 ![Target menu](/images/interactive_snips/icm_4_2_coords_tar_menu.PNG)
 
-Type N to enter the target by name\
-Type C to enter the target by coordinates\
+Type N to enter the target by [name](#4_2_1_coords_tar_name_menu)\
+Type C to enter the target by [coordinates](#4_2_2_coords_tar_coords_menu)\
 Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
 #### Enter Target by Name <a name="4_2_1_coords_tar_name_menu"></a>
