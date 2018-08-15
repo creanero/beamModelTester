@@ -82,14 +82,32 @@ Type 0 to return to the [Cropping Menu](#1_crop_menu)
 From this menu, the user can select how to normalise the data from the sources
 ![Normalisation menu](/images/interactive_snips/icm_2_norm_menu.PNG)
 
+Type 1 to set the [Normalisation Basis](#2_1_norm_basis_menu)\
+Type 2 to set the [Normalisation Data](#2_2_norm_data_menu)\
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Normalisation Basis Menu <a name="2_1_norm_basis_menu"></a>
+At this menu the user may select whether to normalise based on the maximum (post cropping) level for each frequency individually (to attempt to exclude flatten out effects due to instrument sensitivity by frequency) or to normalise based on the overall maximum level after any cropping (if no cropping is present and there is loud RFI on one or more subbands, many other values will be close to zero in this case.)
+
 ![Normalisation Basis menu](/images/interactive_snips/icm_2_1_norm_basis_menu.PNG)
 
+Type n to choose not to normalise any data\
+Type o to choose to normalise data based on overall level\
+Type f to choose to normalise data based on each frequency separately
+
+Type 0 to return to the [Normalisation Menu](#2_norm_menu)
+
 ### Normalisation Data Menu <a name="2_2_norm_data_menu"></a>
+At this menu, the user may select whether to crop scope or model data, or both or neither.
+
 ![Normalisation Data menu](/images/interactive_snips/icm_2_2_norm_data_menu.PNG)
 
+Type n to choose not to normalise any data\
+Type s to choose to normalise scope data only\
+Type m to choose to normalise model data only\
+Type b to choose to normalise both scope and model data
+
+Type 0 to return to the [Normalisation Menu](#2_norm_menu)
 
 ## Animation/3D Effects Menu <a name="3_anim_menu"></a>
 From this menu, the user can select options for animating the data or plotting it as a 3-d graph
