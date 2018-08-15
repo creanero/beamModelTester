@@ -31,7 +31,8 @@ From this menu, the user can select what data to crop to remove outliers.
 Type 1 to set the [Numerical value for cropping](#1_1_crop_level_menu)\
 Type 2 to set the [Crop Basis](#1_2_crop_basis_menu)\
 Type 3 to set the [Crop Data](#1_3_crop_data_menu)\
-Type 4 to set the [Crop Mode](#1_4_crop_mode_menu)\
+Type 4 to set the [Crop Mode](#1_4_crop_mode_menu)
+
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Crop Level Menu <a name="1_1_crop_level_menu"></a>
@@ -83,7 +84,8 @@ From this menu, the user can select how to normalise the data from the sources
 ![Normalisation menu](/images/interactive_snips/icm_2_norm_menu.PNG)
 
 Type 1 to set the [Normalisation Basis](#2_1_norm_basis_menu)\
-Type 2 to set the [Normalisation Data](#2_2_norm_data_menu)\
+Type 2 to set the [Normalisation Data](#2_2_norm_data_menu)
+
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Normalisation Basis Menu <a name="2_1_norm_basis_menu"></a>
@@ -115,7 +117,8 @@ From this menu, the user can select options for animating the data or plotting i
 ![Animation/3D Effects menu](/images/interactive_snips/icm_3_anim_menu.PNG)
 
 Type 1 to set how 3-variable graphs are plotted [(animated or 3d colour/contour plots)](#3_1_anim_colour_menu)\
-Type 2 to set the [Frame Rate](#3_2_anim_frame_rate_menu) for animated plots\
+Type 2 to set the [Frame Rate](#3_2_anim_frame_rate_menu) for animated plots
+
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Animation/3D Selection Menu <a name="3_1_anim_colour_menu"></a>
@@ -142,7 +145,8 @@ From this menu, the user can select a Target or Observing Site
 ![Target/Location menu](/images/interactive_snips/icm_4_coords_menu.PNG)
 
 Type 1 to set the [Observing Location](#4_1_coords_loc_menu)\
-Type 2 to set the [Target Object](#3_2_anim_frame_rate_menu) for animated plots\
+Type 2 to set the [Target Object](#4_2_coords_tar_menu) for animated plots
+
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Location Menu <a name="4_1_coords_loc_menu"></a>
@@ -151,7 +155,8 @@ From this menu, the user can set the observing location, either by entering the 
 ![Location menu](/images/interactive_snips/icm_4_1_coords_loc_menu.PNG)
 
 Type N to enter the location by [station name](#4_1_1_coords_loc_name_menu)\
-Type C to enter the location by [coordinates](#4_1_2_coords_loc_coords_menu)\
+Type C to enter the location by [coordinates](#4_1_2_coords_loc_coords_menu)
+
 Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
 #### Enter Location by Name <a name="4_1_1_coords_loc_name_menu"></a>
@@ -170,7 +175,8 @@ From this menu, the user can set the target object, either by entering the objec
 ![Target menu](/images/interactive_snips/icm_4_2_coords_tar_menu.PNG)
 
 Type N to enter the target by [name](#4_2_1_coords_tar_name_menu)\
-Type C to enter the target by [coordinates](#4_2_2_coords_tar_coords_menu)\
+Type C to enter the target by [coordinates](#4_2_2_coords_tar_coords_menu)
+
 Type 0 to return to the [Target/Location Menu](#4_coords_menu)
 
 #### Enter Target by Name <a name="4_2_1_coords_tar_name_menu"></a>
@@ -184,23 +190,75 @@ On this menu, the user may enter a target object name (e.g. CasA) and the coordi
 On this menu, the user is prompted to enter first the Right Ascension coordinate (in decimal degrees), then the Declination coordinate (in decimal degrees).  If the user enters a blank value for any coordinate, then that coordinate and any subsequent coordinates are set to 0, and the screen returns to the previous menu.  If the user submits an invalid coordinate (e.g. non-numeric characters) they are prompted to reenter the coordinate.  The coordinates (RA: 0, Dec: 0) are reserved to indicate no Astrometric plots are needed. Should a target at the point of the Vernal Equinox be needed, an arbitrarily small value (e.g. 1e-308) should be used for one or both of the coordinates.
 
 ## Plots and Graphs Menu <a name="5_plot_menu"></a>
-From this menu, the user can select what graphs to plot
+From this menu, the user can select between choosing which graphs to plot or which channels to plot them for
+
 ![Plots and Graphs menu](/images/interactive_snips/icm_5_plot_menu.PNG)
+
+Type 1 to set the [graphs to plot](#5_1_graph_plot_menu)\
+Type 2 to select the [Channels to plot](#5_2_graph_values_menu)
 
 Type 0 to return to the [Main menu](#MainMenu)
 
+
 ### Graphs Menu <a name="5_1_graph_plot_menu"></a>
+From this menu, the user may select which graphs to plot.
+
 ![Graphs menu](/images/interactive_snips/icm_5_1_graph_plot_menu.PNG)
 
+Type 1 to select [figures of merit](#5_1_1_graph_plot_fom_menu) of the difference between model and scope\
+Type 2 to select [Alt-Azimuth plotting options](#5_1_2_graph_plot_alt_az_menu)\
+Type 3 to which of the [model, scope or difference](#5_1_3_graph_plot_values_menu) values to plot\
+Type 4 to toggle whether or not to overlay 2-d plots from a single channel\
+Type 5 to toggle whether or not to plot time series plots
+
+Type 0 to return to the [Plots and Graphs Menu](#5_plot_menu)
+
 #### Figure of Merit Menu <a name="5_1_1_graph_plot_fom_menu"></a>
+From this menu, the user may toggle which figures of merit to plot
+
 ![Figure of Merit menu](/images/interactive_snips/icm_5_1_1_graph_plot_fom_menu.PNG)
+
+Type 1 to toggle whether or not to plot Root Mean Square Error (RMSE)\
+Type 2 to toggle whether or not to plot Pearson's Correlation
+
+Type 0 to return to the [Graphs Menu](#5_1_graph_plot_menu)
+
 #### Alt-Azimuth Menu <a name="5_1_2_graph_plot_alt_az_menu"></a>
+From this menu, the user may toggle which variables to plot for Alt/Azimuth plots
+
 ![Alt-Azimuth menu](/images/interactive_snips/icm_5_1_2_graph_plot_alt_az_menu.PNG)
+
+Type 1 to toggle whether or not to plot against Altitude\
+Type 2 to toggle whether or not to plot against Azimuth\
+Type 3 to toggle whether or not to plot Azimuth from -180 to +180 (as opposed to 0 to 360)\
+Type 4 to toggle whether or not to plot using the LOFAR Station coordinate system (instead of the standard horizon)\
+Type 5 to toggle whether or not to split plots which loop in half to avoid aliasing of data
+
+Type 0 to return to the [Graphs Menu](#5_1_graph_plot_menu)
+
 #### Plot values Menu <a name="5_1_3_graph_plot_values_menu"></a>
+From this menu, the user may toggle which variables to plot from model, scope and difference values
+
 ![Plot values menu](/images/interactive_snips/icm_5_1_3_graph_plot_values_menu.PNG)
 
+Type 1 to toggle whether or not to plot Model Data\
+Type 2 to toggle whether or not to plot Scope Data\
+Type 3 to toggle whether or not to plot the Difference between Model and Scope Data
+
+Type 0 to return to the [Graphs Menu](#5_1_graph_plot_menu)
+
 ### Graph Values Menu <a name="5_2_graph_values_menu"></a>
+From this menu, the user may toggle which channels to plot.
+
 ![Graph Values menu](/images/interactive_snips/icm_5_2_graph_values_menu.PNG)
+
+Type the case-sensitive name of the channel to toggle plotting that channel from the list (xx, xy, yy, U, V, I, Q)
+
+Type the name of a group to toggle all channels in that group.  If some but not all members of the group are on, then toggling a group will turn on all members of the group.\
+Group composition:\
+linear (xx, xy, yy)\
+stokes (U, V, I, Q)\
+all (xx, xy, yy, U, V, I, Q)
 
 ## File I/O Menu
 From this menu, the user can select File I/O options <a name="6_FileIO_menu"></a>
