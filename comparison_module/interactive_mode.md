@@ -11,7 +11,6 @@ From the main menu, the user can access all the futher menus to select plotting 
 
 ![main menu](/images/interactive_snips/icm_main_menu.png)
 
-
 Type 1 to set [Cropping options](#1_crop_menu)\
 Type 2 to set [Normalisation options](#2_norm_menu)\
 Type 3 to set [3d Plotting or Animation options](#3_anim_menu)\
@@ -260,22 +259,50 @@ linear (xx, xy, yy)\
 stokes (U, V, I, Q)\
 all (xx, xy, yy, U, V, I, Q)
 
-## File I/O Menu
-From this menu, the user can select File I/O options <a name="6_FileIO_menu"></a>
+## File I/O Menu<a name="6_FileIO_menu"></a>
+From this menu, the user can select File I/O options 
+
 ![File I/O menu](/images/interactive_snips/icm_6_FileIO_menu.PNG)
+
+
+Type 1 to set the [input file for Model Data](#6_1_FileIO_model)\
+Type 2 to set the [input file for Scope Data](#6_2_FileIO_scope)\
+Type 3 to set the [output file type](#6_3_FileIO_type_menu)\
+Type 4 to set the [output data directory](#6_4_FileIO_out_menu)\
+Type 5 to toggle whether or not to output the calculated data to a file
 
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Model File Entry <a name="6_1_FileIO_model"></a>
+From this screen, the user can enter the path to the input file containing model data.
+
 ![Model File Entry](/images/interactive_snips/icm_6_1_FileIO_model.PNG)
 
 ### Scope File Entry <a name="6_2_FileIO_scope"></a>
+From this screen, the user can enter the path to the input file containing scope data.
+
 ![Scope File Entry](/images/interactive_snips/icm_6_2_FileIO_scope.PNG)
 
 ### Output File Type Menu <a name="6_3_FileIO_type_menu"></a>
+From this screen, the user may select the file type for output image files
+
 ![Output File Type menu](/images/interactive_snips/icm_6_3_FileIO_type_menu.PNG)
 
+Type 1 to switch the file type to png\
+Type 2 to switch the file type to gif\
+Type 3 to switch the file type to jpeg\
+Type 4 to switch the file type to tiff\
+Type 5 to switch the file type to sgi\
+Type 6 to switch the file type to bmp\
+Type 7 to switch the file type to raw\
+Type 8 to switch the file type to rgba\
+Type 9 to switch the file type to html
+
+Type 0 to return to the [File I/O menu](#6_1_FileIO_model)
+
 ### Output Directory Menu <a name="6_4_FileIO_out_menu"></a>
+From this screen, the user can enter the path to a directory which will be used to store output data.  If the user leaves this entry blank, output will instead be sent to the screen if possible.
+
 ![Output Directory menu](/images/interactive_snips/icm_6_4_FileIO_out_menu.PNG)
 
 ## Frequency Menu
