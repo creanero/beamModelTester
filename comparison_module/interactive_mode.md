@@ -5,6 +5,7 @@ plotting of suitable graphs.
 
 ![flowchart](/images/interactive_menu.png)
 
+
 ## Main Menu <a name="MainMenu"></a>
 From the main menu, the user can access all the futher menus to select plotting options, proceed to plot, or exit the program
 
@@ -34,22 +35,45 @@ Type 4 to set the [Crop Mode](#1_4_crop_mode_menu)\
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Crop Level Menu <a name="1_1_crop_level_menu"></a>
+At this menu, the user may select the level of crop to apply to discard outliers from the data commonly caused by RFI
+
 ![Crop Level menu](/images/interactive_snips/icm_1_1_crop_level_menu.PNG)
 
-Type 0 to return to the [Cropping Menu](#1_crop_menu)
+Type in a number and hit enter.  This number will inform the level at which to apply cropping.  If crop mode is set to mean or median, this becomes a multiplier for the mean or median, above which all values are excluded.  If crop mode is set to percentile, then this is the percentile above which values are excluded.  If percentile mode is selected and a value over 100% is entered, no cropping will take place.
 
 ### Crop Basis Menu <a name="1_2_crop_basis_menu"></a> 
+At this menu the user may select whether to crop based on the level over each frequency individually (to attempt to exclude transient noise) or to exclude based on the overall level (which will typically exclude frequencies with loud RFI)
+
 ![Crop Basis menu](/images/interactive_snips/icm_1_2_crop_basis_menu.PNG)
+
+Type n to choose not to crop any data\
+Type o to choose to crop data based on overall level\
+Type f to choose to crop data based on each frequency separately
 
 Type 0 to return to the [Cropping Menu](#1_crop_menu)
 
 ### Crop Data Menu <a name="1_3_crop_data_menu"></a>
+At this menu, the user may select whether to crop scope or model data, or both or neither.
+
 ![Crop Data menu](/images/interactive_snips/icm_1_3_crop_data_menu.PNG)
+
+Type n to choose not to crop any data\
+Type s to choose to crop scope data only\
+Type m to choose to crop model data only\
+Type b to choose to crop both scope and model data
 
 Type 0 to return to the [Cropping Menu](#1_crop_menu)
 
 ### Crop Mode Menu <a name="1_4_crop_mode_menu"></a>
+At this menu, the user can select the variable upon which the crop level is calculated
+
+This mode is used with crop level to determine what values are excluded from plotting.  If crop mode is set to mean or median, crop level becomes a multiplier for the mean or median, above which all values are excluded.  If crop mode is set to percentile, then crop level sets is the percentile above which values are excluded.  If percentile mode is selected and a value over 100% is entered, no cropping will take place.
+
 ![Crop Mode menu](/images/interactive_snips/icm_1_4_crop_mode_menu.PNG)
+
+Type 1 to choose to crop data based on median\
+Type 2 to choose to crop data based on mean\
+Type 3 to choose to crop data based on percentile
 
 Type 0 to return to the [Cropping Menu](#1_crop_menu)
 
@@ -67,7 +91,7 @@ Type 0 to return to the [Main menu](#MainMenu)
 ![Normalisation Data menu](/images/interactive_snips/icm_2_2_norm_data_menu.PNG)
 
 
-## Animation/3D Effects Menu <a name="icm_3_anim_menu"></a>
+## Animation/3D Effects Menu <a name="3_anim_menu"></a>
 From this menu, the user can select options for animating the data or plotting it as a 3-d graph
 ![Animation/3D Effects menu](/images/interactive_snips/icm_3_anim_menu.PNG)
 
