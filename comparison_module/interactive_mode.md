@@ -11,16 +11,26 @@ From the main menu, the user can access all the futher menus to select plotting 
 ![main menu](/images/interactive_snips/icm_main_menu.png)
 
 
-Type 0 to exit
+Type 1 to set [Cropping options](#1_crop_menu)\
+Type 2 to set [Normalisation options](#2_norm_menu)\
+Type 3 to set [3d Plotting or Animation options](#3_anim_menu)\
+Type 4 to set [Target or Station Location options](#4_coords_menu)\
+Type 5 to set [Graphing and Plotting options](#5_plot_menu)\
+Type 6 to set [File I/O options](#6_FileIO_menu)\
+Type 7 to set [Select frequencies to plit](#7_Freq_menu)\
+Type 8 to set [Miscellaneous options](#8_misc_menu)
+
+Type 9 to plot the outputs as [shown here](/comparison_module/outputs.md)\
+Type 0 to exit the program without plotting further
 
 ## Cropping Menu <a name="1_crop_menu"></a>
 From this menu, the user can select what data to crop to remove outliers.
 ![Cropping menu](/images/interactive_snips/icm_1_crop_menu.PNG)
 
-Type 1 to set the [numerical value for cropping](1_1_crop_level_menu)\
-Type 2 to set the [Crop Basis](1_2_crop_basis_menu)\
-Type 3 to set the [Crop Data](1_3_crop_data_menu)\
-Type 4 to set the [Crop Mode](1_4_crop_mode_menu)\
+Type 1 to set the [Numerical value for cropping](1_1_crop_level_menu)\
+Type 2 to set the [Crop Basis](#1_2_crop_basis_menu)\
+Type 3 to set the [Crop Data](#1_3_crop_data_menu)\
+Type 4 to set the [Crop Mode](#1_4_crop_mode_menu)\
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Crop Level Menu <a name="1_1_crop_level_menu"></a>
