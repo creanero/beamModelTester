@@ -345,13 +345,36 @@ From this menu, the user can the offset in time between model and scope, the Tit
 
 ![Miscellaneous menu](/images/interactive_snips/icm_8_misc_menu.PNG)
 
+
+Type 1 to set the [offset between model and scope](#8_1_misc_offset_menu)\
+Type 2 to set the [titles for plots and files](#8_2_misc_title_menu)\
+Type 3 to set the [operation used for the difference between model and scope](#8_3_misc_diff_menu)
+
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Offset Entry <a name="8_1_misc_offset_menu"></a>
+At this menu, the user can enter the time in seconds between the model and scope data, where observations do not line up exactly on the same times as one another.  Ideally, this should be the closest possible separation between model and scope
+
 ![Offset Entry](/images/interactive_snips/icm_8_1_misc_offset_menu.PNG)
 
+Instead of entering a time, if the user leaves the time blank, then this will take them back to the [previous menu](8_misc_menu).
+
 ### Title Entry <a name="8_2_misc_title_menu"></a>
+At this scree the user can enter a title for the graphs.  This title will be edited to replace spaces with underscores and used as the prefix for file names.  
+
 ![Title Entry](/images/interactive_snips/icm_8_2_misc_title_menu.PNG)
 
+Instead of entering a title, if the user enters 0, then this will take them back to the [previous menu](8_misc_menu).\
+If the user enters "X" then the current title will be cleared.\
+It is not possible to begin a title with "0" or "X"
+
 ### Difference Type Menu <a name="8_3_misc_diff_menu"></a>
+At this menu, the user may choose the operation used to determine the difference between scope and model data
+
 ![Difference Type menu](/images/interactive_snips/icm_8_3_misc_diff_menu.PNG)
+
+Type 1 to use subtraction (model - scope)\
+Type 2 to use division (model / scope)\
+Type 3 to use inverse division (scope / model)
+
+Type 0 to return to the [previous menu](8_misc_menu)
