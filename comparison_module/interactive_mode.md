@@ -357,14 +357,14 @@ At this menu, the user can enter the time in seconds between the model and scope
 
 ![Offset Entry](/images/interactive_snips/icm_8_1_misc_offset_menu.PNG)
 
-Instead of entering a time, if the user leaves the time blank, then this will take them back to the [previous menu](8_misc_menu).
+Instead of entering a time, if the user leaves the time blank, then this will take them back to the [previous menu](#8_misc_menu).
 
 ### Title Entry <a name="8_2_misc_title_menu"></a>
 At this scree the user can enter a title for the graphs.  This title will be edited to replace spaces with underscores and used as the prefix for file names.  
 
 ![Title Entry](/images/interactive_snips/icm_8_2_misc_title_menu.PNG)
 
-Instead of entering a title, if the user enters 0, then this will take them back to the [previous menu](8_misc_menu).\
+Instead of entering a title, if the user enters 0, then this will take them back to the [previous menu](#8_misc_menu).\
 If the user enters "X" then the current title will be cleared.\
 It is not possible to begin a title with "0" or "X"
 
@@ -377,4 +377,4 @@ Type 1 to use subtraction (model - scope)\
 Type 2 to use division (model / scope)\
 Type 3 to use inverse division (scope / model)
 
-Type 0 to return to the [previous menu](8_misc_menu)
+Type 0 to return to the [previous menu](#8_misc_menu)
