@@ -305,21 +305,39 @@ From this screen, the user can enter the path to a directory which will be used 
 
 ![Output Directory menu](/images/interactive_snips/icm_6_4_FileIO_out_menu.PNG)
 
-## Frequency Menu
-From this menu, the user can select Frequency filtering options <a name="7_Freq_menu"></a>
+## Frequency Menu<a name="7_Freq_menu"></a>
+From this menu, the user can select Frequency filtering options 
+
 ![Frequency menu](/images/interactive_snips/icm_7_Freq_menu.PNG)
 
-![Frequency menu with selection](/images/interactive_snips/icm_7_Freq_menu_2.PNG)
+Type 1 to enter [Frequencies Manually](#7_1_Freq_manual_menu) one at a time\
+Type 2 to set the [input file for Frequencies to select](#7_2_Freq_file_menu)
+
+Type 0 to return to the [Main menu](#MainMenu)
+
+![Frequency menu with selection](/images/interactive_snips/icm_7_Freq_menu_2.PNG)\
+This menu also shows the frequencies that have been selected.
 
 Type 0 to return to the [Main menu](#MainMenu)
 
 ### Manual Frequency Entry Screen <a name="7_1_Freq_manual_menu"></a>
+This menu is used to add or clear frequencies from the selected list.
+
 ![Manual Frequency Entry menu](/images/interactive_snips/icm_7_1_Freq_manual_menu.PNG)
 
-#### Manual Frequency Entries <a name="7_1_2_Freq_manual_entries_menu."></a>
+Type 1 to clear any selected frequencies and go back to plotting all frequencies\
+Type 2 to [start entering frequencies](#7_1_2_Freq_manual_entries_menu)
+
+Type 0 to return to the [Main menu](#MainMenu)
+
+#### Manual Frequency Entries <a name="7_1_2_Freq_manual_entries_menu"></a>
+On this screen, the user is prompted to enter a frequency to be plotted.  Once they do, they are prompted for another.  This repeats until they enter "0" instead of the frequency to plot.  If they enter an invalid value (e.g. non-numeric value, or a value that includes units) then an error will be generated and they will be prompted for a new value.
+
 ![Manual Frequency Entries](/images/interactive_snips/icm_7_1_2_Freq_manual_entries_menu.PNG)
 
 ### Frequency File Menu <a name="7_2_Freq_file_menu"></a>
+From this screen, the user can enter the path to the input file containing a list of frequencies.  Frequencies entered in this way must be stored as one frequency in Hertz per line with no header or separators other than the newlines.
+
 ![Frequency File Menu](/images/interactive_snips/icm_7_2_Freq_file_menu.PNG)
 
 ## Miscellaneous Menu<a name="8_misc_menu"></a>
