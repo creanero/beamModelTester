@@ -1,7 +1,51 @@
 # Command Line Arguments to comparison_module
 
-# positional arguments:<a name="Positional"></a>
+## Table of Contents<a name="ToC"></a>
 
+1.  [Positional Arguments](#Positional)
+    1.  [Positional File I/O Options](#File_IO_p)
+        1.  [Model Filename (Positional)](#model_p)
+        1.  [Scope Filename (Positional)](#scope_p)
+1.  [Optional Arguments](#Optional)
+    1.  [Help](#help)
+    1.  [User Interface Options](#interface)
+        1.  [Verbosity](#verbose)
+        1.  [Interactivity](#interactive)
+    1.  [File I/O Options](#File_IO)
+        1.  [Model Filename (Optional)](#model)
+        1.  [Scope Filename (Optional)](#scope)
+        1.  [Output Directory](#out_dir)
+        1.  [Title](#title)
+        1.  [Output Image File Type](#image_type)
+    1.  [Normalisation and Cropping Options](#corp_and_norm)
+        1.  [Normalisation Basis](#norm)
+        1.  [Normalisation Data](#norm_data)
+        1.  [Crop Type](#crop_type)
+        1.  [Crop Level](#crop)
+        1.  [Cropping Basis](#crop_basis)
+        1.  [Cropping Data](#crop_data)
+    1.  [Difference Options](#difference)
+        1.  [Difference Type](#diff)
+    1.  [Plotting Options](#plotting)
+        1.  [Channels to plot](#values)
+        1.  [Plots](#plots)
+    1.  [Animation and 3-D Plot Options](#anim_3d_plots)
+        1.  [3-d Plot options](#three_d)
+        1.  [Frame Rate](#frame_rate)
+    1.  [Time Settings](#time_opts)
+        1.  [Offset](#offset)
+    1.  [Frequency Settings](#frequency)
+        1.  [Direct Frequency Selection](#freq)
+        1.  [Frequency Selection from File](#freq_file)
+    1.  [Target Object Settings](#target)
+        1.  [Object Name Selection](#object_name)
+        1.  [Object Coordinate Entry](#object_coords)
+    1.  [Location Settings](#location)
+        1.  [Location Name Selection](#location_name)
+        1.  [Location Coordinate Entry](#location_coords)
+
+# Positional Arguments<a name="Positional"></a>
+## Positional File I/O Options <a name="File_IO_p"></a> 
 ### Model Filename (Positional)<a name="model_p"></a>
   model_p               *The file containing the data from the model (Usually
                         DreamBeam)* 
@@ -11,7 +55,7 @@
                         telescope* 
                         Mutually exclusive with [--scope](#scope)
 
-# Optional Arguments:<a name="Optional"></a>
+# Optional Arguments<a name="Optional"></a>
 
 ### Help<a name="help"></a>
   -h, --help            *show this help message and exit*
@@ -140,24 +184,24 @@ multiple of the mean or median, or the percentile level to cut the scope values
   -p {rmse,corr,spectra,file,alt,az,ew,stn,split,values,model,scope,diff,overlay}]\
       Sets which plots will be shown. Default is to show rmse, corr and spectra plots
       
-      **rmse** shows plots of RMSE (overall, per time and per freq as appropriate)\
-      **corr** shows plots of corrlation (overall, per time and per freq as appropriate)\
-      **spectra** shows plots of the spectrum of the channels (by frequency over time as appropriate)\
-      
-      **file** determines whether to output the dataframe to a file for later analyses\
-      
-      **alt** shows plots of value against altitude\
-      **az** shows plots of value against azimuth\
-      **ew** means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)\
-      **stn** means alt/az coordinates are calculated in the station reference frame\
-      **split** means dynamic plots of Alt-Az coordinates are split to avoid aliasing
-      
-      **values** means to plot both model and scope values\
-      **model** means to plot model values\
-      **scope** means to plot scope values\
-      **diff** shows plots of the differences in values of the channels
-      
-      **overlay** means that for a given channel, the plots will be overlaid
+  **rmse** shows plots of RMSE (overall, per time and per freq as appropriate)\
+  **corr** shows plots of corrlation (overall, per time and per freq as appropriate)\
+  **spectra** shows plots of the spectrum of the channels (by frequency over time as appropriate)\
+
+  **file** determines whether to output the dataframe to a file for later analyses\
+
+  **alt** shows plots of value against altitude\
+  **az** shows plots of value against azimuth\
+  **ew** means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)\
+  **stn** means alt/az coordinates are calculated in the station reference frame\
+  **split** means dynamic plots of Alt-Az coordinates are split to avoid aliasing
+
+  **values** means to plot both model and scope values\
+  **model** means to plot model values\
+  **scope** means to plot scope values\
+  **diff** shows plots of the differences in values of the channels
+
+  **overlay** means that for a given channel, the plots will be overlaid
 
 
 ## Animation and 3-D Plot Options <a name="anim_3d_plots"></a> 
