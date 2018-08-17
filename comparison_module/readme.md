@@ -39,6 +39,6 @@ control parameters
 **./comparison_module_1_0.py** (see [this file for walkthrough](/comparison_module/interactive_mode.md))
 
                         
-**Outputs**\
-A variety of graphs plotted either to the screen or to an output file depending on the chosen options (see [here](/comparison_module/outputs.md) for more detials
+## Outputs
+A variety of graphs plotted either to the screen or to an output file depending on the chosen options ([see this link](/comparison_module/outputs.md) for more detials
  
