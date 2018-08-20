@@ -7,7 +7,7 @@ This system is designed to provide a comparison between the output for
 models of telescope performance vs calibration data from real telescopes
 
 **[the main component is the comparison module located at this link](/comparison_module)**\
-**[See the README file for information on use])(/README.md)
+**[See the README file for information on use](/README.md)
 
 **Abstract**
 
