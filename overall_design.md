@@ -1,12 +1,12 @@
 **Testing harness\
-Version 0.3\
-29ᵗʰ March 2018\
+Version 1.0\
+20ᵗʰ August 2018\
 Oisin Creaner**
 
 This system is designed to provide a comparison between the output for
 models of telescope performance vs calibration data from real telescopes
 
-**[the main component is the comparison module located at this link](https://github.com/creaneroDIAS/beamModelTester/tree/master/comparison_module)**
+**[the main component is the comparison module located at this link](/comparison_module)**
 
 **Abstract**
 
