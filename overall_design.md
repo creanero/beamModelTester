@@ -51,7 +51,8 @@ which generates predictions of outputs of a given scope for a given target at a 
         2.  Altitude
         3.  Azimuth
     4.  For each of the above independent variables, plots indicating how the values and figure of merit vary with frequency against that independent variable are calculated
-    5.  Output is produced in a suitable format.Initial elements include:
+    5.  Input is controlled by the user by means of [command line arguments](/comparison_module/cli_arguments.md) or a [text-driven interactive system](/comparison_module/interactive_mode.md)
+    6.  Output is produced in a suitable format.Initial elements include:
         1.  Flexible image File plotting
         2.  Image plots to the screen
         3.  Text output of RMSE and correlation
