@@ -48,11 +48,11 @@
 ## Positional File I/O Options <a name="File_IO_p"></a> 
 ### Model Filename (Positional)<a name="model_p"></a>
   model_p               *The file containing the data from the model (Usually
-                        DreamBeam)* 
+                        DreamBeam)*\
                         Mutually exclusive with [--model](#model)
 ### Scope Filename (Positional)<a name="scope_p"></a>                        
   scope_p               *The file containing the observed data from the
-                        telescope* 
+                        telescope*\
                         Mutually exclusive with [--scope](#scope)
 
 # Optional Arguments<a name="Optional"></a>
@@ -78,12 +78,12 @@
 ## File I/O Options <a name="File_IO"></a> 
 ### Model Filename (Optional)<a name="model"></a>  
   --model MODEL, -m MODEL\
-  *Alternative way of specifying the file containing the data from the model*
+  *Alternative way of specifying the file containing the data from the model*\
   Mutually exclusive with [positional model](#model_p)
 
 ### Scope Filename (Optional)<a name="scope"></a>    
   --scope SCOPE, -s SCOPE\
-  *Alternative way of specifying the file containing the observed data from the telescope*
+  *Alternative way of specifying the file containing the observed data from the telescope*\
   Mutually exclusive with [positional scope](#scope_p)
 
 ### Output Directory<a name="out_dir"></a>  
@@ -235,13 +235,15 @@ multiple of the mean or median, or the percentile level to cut the scope values
 ## Frequency Settings <a name="frequency"></a> 
 ### Direct Frequency Selection <a name="freq"></a>
   --freq [FREQ [FREQ ...]], -f [FREQ [FREQ ...]]\
-*set a frequency filter to and display the channels for.   Must supply a float or collection of floats separated by spaces.*
+*set a frequency filter to and display the channels for.   Must supply a float or collection of floats separated by spaces.*\
+Mutually exclusive with [--freq_file](#freq_file)
 
 
 ### Frequency Selection from File <a name="freq_file"></a>
   --freq_file FREQ_FILE, -F FREQ_FILE\
 *set a file containing multiple frequencies to filter to and display the channels for.\
-The file must contain one float per line in text format.*
+The file must contain one float per line in text format.*\
+Mutually exclusive with [--freq](#freq)
 
 
 ## Target Object Settings <a name="target"></a> 
@@ -249,13 +251,15 @@ The file must contain one float per line in text format.*
   --object_name {,CasA,CygA,VirA}, -X {,CasA,CygA,VirA}
       set a variable for the name of the target object. This
       is used to generate sky coordinates. At present this
-      is enabled only for CasA, CygA and VirA
+      is enabled only for CasA, CygA and VirA\
+Mutually exclusive with [--object_coords](#object_coords)
       
  ### Object Coordinate Entry <a name="object_coords"></a>     
   --object_coords OBJECT_COORDS OBJECT_COORDS, -x OBJECT_COORDS OBJECT_COORDS
       set a variable for the coordinates of the target
       object. Coordinates should be 2 floats: RA and Dec
-      (decimal degrees)
+      (decimal degrees)\
+Mutually exclusive with [--object_name](#object_name)
       
  ## Location Settings <a name="location"></a> 
 ### Location Name Selection <a name="location_name"></a>     
@@ -264,11 +268,13 @@ The file must contain one float per line in text format.*
                         to generate ground coordinates for the oberving
                         location. From this and target coordinates, Alt-Az
                         coordinates can be generated. At present this is only
-                        defined for LOFAR stations IE613 and SE607
+                        defined for LOFAR stations IE613 and SE607\
+Mutually exclusive with [--location_coords](#location_coords)
                         
  ### Location Coordinate Entry <a name="location_coords"></a>   
   --location_coords [LOCATION_COORDS [LOCATION_COORDS ...]], -l [LOCATION_COORDS [LOCATION_COORDS ...]]
                         set a variable for the coordinates of the observing
                         site. Coordinates should be 3 floats: Latitude,
                         longitude (degrees) and height above sea level
-                        (metres). If two coordinates are specified, height
+                        (metres). If two coordinates are specified, height\
+Mutually exclusive with [--location_name](#location_name)
