@@ -9,10 +9,14 @@ There are three major components to this system:
   * Data from the Model
   * Comparison/Analysis
   
+Software Design Documents are available at [This Link](/overall_design.md)
+
+![Design Diagram](images/testHarness_Fig1v3.PNG)
+  
 Extraction of data, especially observed data, can be time-consuming.  As a result, separate scripts are provided to 
-[extract the data](https://github.com/creaneroDIAS/beamWrapper/blob/master/data_wrapper.sh) 
+[extract the data](/data_wrapper.sh) 
 and to [analyse it](/comparison_module/comparison_module_1_0.py).
-An [overall script](https://github.com/creaneroDIAS/beamWrapper/blob/master/complete_wrapper.sh) 
+An [overall script](/complete_wrapper.sh) 
 which calls all three components of the software is provided, but usually the data extraction routines are carried out once, 
 but the analysis and visualisations are repeated, so the use of this script is deprecated. *Currently a minor bug in this to be worked out*
 
