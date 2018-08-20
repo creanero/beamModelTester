@@ -18,7 +18,7 @@ Software design diagrams and descriptions are available at [this link](/comparis
 This (Python) module reads in input from a modelling system and input 
 from a real telescope and compares the two against one another. In its
 current status, this module expects inputs in 
-[dreamBeam output format](/data_descriptions/DreamBeam_Source_data_description.md) or 
+[dreamBeam .CSV output format](/data_descriptions/DreamBeam_Source_data_description.md) or 
 [OSO .HDF5 file format](/data_descriptions/OSO_HDF5.md)
 The outputs of this system are a series of text outputs and
 plots showing the dependence of the different statistical measures of difference
