@@ -18,7 +18,7 @@ of merit regarding the fit of the model to the real data.
 
 **Design diagram**
 
-![Design Diagram](images/testHarness_Fig1v2.PNG)
+![Design Diagram](images/testHarness_Fig1v3.PNG)
 
 **Figure 1: Design of the testing harness system**
 
