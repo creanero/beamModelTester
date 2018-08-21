@@ -4,6 +4,7 @@ Version 0.3\
 23ʳᵈ March 2018\
 Oisin Creaner**
 
+*modifications in progress*
 This set of functions describes the Dataframe merging elements of the [comparison module](/comparison_module/Comparison_Module.md).
 
 **Functions**\
