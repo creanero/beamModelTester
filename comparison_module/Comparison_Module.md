@@ -26,54 +26,24 @@ os
 4.  Inputs will only be provided in the correct format.
 
 **Inputs**\
-Two files each containing 
+Two files each containing one of the following:
+1.  model data in [dreamBeam csv format](/data_descriptions/DreamBeam_Source_data_description.md)  
+2.  scope data in [OSO HDF5 format](/data_descriptions/OSO_HDF5.md)
 
-Either:
-1.  model data in [dreamBeam csv format](beamModelTester/data_descriptions/DreamBeam_Source_data_description.md)  
-2.  scope data in [OSO HDF5 format](beamModelTester/data_descriptions/OSO_HDF5.md)
-
-Command line arguments specifying the following.  
-Detailed inputs available at [this link](/comparison_module/readme.md)
-1.  Normalisation mode
-2.  Cropping (Type, Basis and Value)
-3.  Difference to be employed (subtraction, division, inverse division)
-4.  Values to plot (all, linear, stokes, xx, xy, yy, U, V, I, Q)
-5.  Options to plot (rmse,corr,value,diff)
-6.  Frequency options (single, multiple, file-based)
-7.  Output options: Title, directory for output files
+[Command line arguments](/comparison_module/cli_arguments.md) to control the program\
+**AND\OR**\
+[Interactive input via a menu screen](/comparison_module/interactive_mode.md)
 
 **Outputs**\
-Detailed outputs and links to samples available at [this link](/comparison_module/readme.md).
-
-1.  In [one-frequency mode](/comparison_module/function_docs/analysis_1d.md), the outputs are
-    1.  A plot of the values of each of the channels for both model and scope over time
-    2.  A plot of the differences between the model and scope for each channel over time
-    3.  A calculation of the correlation coefficient between the model
-        and the scope data for each channel
-    4.  A calculation of the Root Mean Square Error between the model
-        and the scope data for each channel
-
-2.  In [multi-frequency mode](/comparison_module/function_docs/analysis_nd.md), the outputs are
-    1.  A calculation of the correlation coefficient between the model
-        and the scope data for each channel
-    2.  A calculation of the Root Mean Square Error between the model
-        and the scope data for each channel
-    3.  A 3-d colour plot of the values for the model and scope
-        for each channel over time and frequency.  
-    4.  A 3-d colour plot of the differences between the model and scope
-        for each channel over time and frequency.  
-    5.  A plot of the correlations over time between the model and scope for each channel at each frequency
-    6.  A plot of the root mean square error over time between the model and scope for each channel at each frequency        
-    7.  A plot of the correlations over time between the model and scope for each channel at each time
-    8.  A plot of the root mean square error over time between the model and scope for each channel at each time     
+Graphs and charts as detailed at [this link](/comparison_module/outputs.md) either plotted to the screen or output to files according to the user input  
 
 **Outline**
 
 This Python module reads in input from a modelling system and input from a real
 telescope and compares the two against one another. This module assumes
-that the inputs have been brought to a suitable format (so far dreamBeam CSV 
-or OSO HDF5 formats are supported), with common
-independent variables (e.g. position, time, frequency) and at least one
+that the inputs have been brought to a suitable format (so far [dreamBeam CSV](/data_descriptions/DreamBeam_Source_data_description.md) 
+or [OSO HDF5](/data_descriptions/OSO_HDF5.md) formats are supported), with common
+independent variables (e.g. sky position, time, frequency) and at least one
 common dependent variable to be compared. Outputs include a plot of the
 variation of the dependent variable between the "scope" and the "model" files, 
 a calculated value of Root
@@ -82,7 +52,7 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Design Diagram**
 
-![Design Diagram](../images/comparison_module_fig1_v5.PNG)
+![Design Diagram](/images/comparison_module_fig1_v5.PNG)
 
 **Figure 1: Outline of the Comparison Module**
 
@@ -97,23 +67,9 @@ and store the contents in a dataframe
 3.  Read in the data from the telescope file using the same variable reader function and store the contents in a
     dataframe
 
-4.  Merge the dataframes using an inner join to ensure only data points
-    where a common value(s) for the independent variable(s) exists using 
-    the flexible dataframe merger function, 
-    [merge_dfs](/comparison_module/function_docs/merge_dfs.md)
-    1.  (*Option: consider including statistics of this operation in the outputs?*)
-
-    2.  As part of this process, the difference between the two sets of values for the dependent
-        variable(s) (either p- and q-channels or xx, xy and yy channels) 
-        is calculated and stored as a column in the merged dataframe
-5.  Depending on whether the user has specified a frequency filter (as a file or parameter)
-    1.  Drop all frequencies from the dataframe except those specified.
-6.  Depending on whether there is a single value for frequency or multiple values, 
-    the program will perform slightly different analyses.  
-    1.  [one-frequency mode](/comparison_module/function_docs/analysis_1d.md) 
-    produces outputs suitable for single frequency operations 
-    2.  [multi-frequency mode](/comparison_module/function_docs/analysis_nd.md)
-        produces outputs suitable for multiple frequency operations 
-7.  If the user has specified an output directory, the merged data is written to an output file.
-   
+4.  If the program is in low-interactivity modes:
+    1.  Run the [Operational Loop](/comparison_module/operational_loop.md) of the program once
+5.  In fully interactive mode, do the following until the user enters the command to stop
+    1.  Run the [Operational Loop](/comparison_module/operational_loop.md).
+    2.  Run the [Interactive Operation](/comparison_module/interactive_operation.md) to allow the user to set the parameters for the program
 
