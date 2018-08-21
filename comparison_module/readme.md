@@ -28,8 +28,8 @@ compared with another model or with a real scope input.
 
 ## Inputs
 model file [(DreamBeam.csv file)](/data_descriptions/DreamBeam_Source_data_description.md)\
-scope file (DreamBeam.csv file or [OSO .HDF5 file](/data_descriptions/OSO_HDF5.md))
-control parameters
+scope file (DreamBeam.csv file or [OSO .HDF5 file](/data_descriptions/OSO_HDF5.md))\
+control parameters either as command line arguments or via an interactive menu
 
 ## Usage:
 
