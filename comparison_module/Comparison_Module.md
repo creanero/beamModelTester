@@ -52,7 +52,7 @@ the variables. (*These outputs can be expanded in Future*)
 
 **Design Diagram**
 
-![Design Diagram](/images/comparison_module_fig1_v5.PNG)
+![Design Diagram](/images/comparison_module_fig1_v6.PNG)
 
 **Figure 1: Outline of the Comparison Module**
 
