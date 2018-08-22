@@ -1,6 +1,6 @@
 # Comparison Module 
 ## Dataframe merging functions
-**Version 0.3\
+**Version 1.0\
 22 August 2018\
 Oisin Creaner**
 
