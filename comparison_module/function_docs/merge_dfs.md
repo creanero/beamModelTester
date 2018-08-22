@@ -1,5 +1,5 @@
 # Comparison Module 
-## Dataframe merging functions\
+## Dataframe merging functions
 **Version 0.3\
 22 August 2018\
 Oisin Creaner**
@@ -30,7 +30,7 @@ Depending on the dataframe content provided, the system uses one of several (cur
 to process the data from two existing dataframes suitable for futher processing.
 
 ## Design Diagram
-![Design diagram](/images/comparison_module_merge_dfs_fig1_v4.PNG) \
+![Design diagram](/images/comparison_module_merge_dfs_fig1_v5.PNG) \
 **Figure 1: Schematic representation of merge software.**
 
 ## Operations
