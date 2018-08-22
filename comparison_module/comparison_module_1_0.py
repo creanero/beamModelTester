@@ -310,7 +310,7 @@ to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
 ###############################################################################
 #Timing options
 ###############################################################################
-    #adds an optional argument for a time offset between model and scoep
+    #adds an optional argument for a time offset between model and scope
     parser.add_argument("--offset","-O", default = 0, type=int,
                         help = '''
 Sets an offset for the scope.  This is the amount of time (in seconds) that the
