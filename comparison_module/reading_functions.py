@@ -284,15 +284,6 @@ def merge_dfs(model_df,scope_df,modes):
     merge_df=pd.merge(model_df_clean,scope_df_clean,on=('Time','Freq'),
                       suffixes=('_model','_scope'))
     if len(merge_df) > 0:
-        #checks if the stokes parameters have been calculated
-        sources = []
-        if "Q_model" not in merge_df:
-            sources.append("model")
-        if "Q_model" not in scope_df:
-            sources.append("scope")
-        #and if not, calculates them
-        merge_df=calc_stokes(merge_df,modes,sources)
-        
         #calculates differences between model and scope values for each channel
         for channel in ["xx","xy","yy","U","V","I","Q"]:
             calc_diff(merge_df, modes, channel)
