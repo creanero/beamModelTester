@@ -33,6 +33,9 @@ to process the data from two existing dataframes suitable for futher processing.
 ![Design diagram](/images/comparison_module_merge_dfs_fig1_v5.PNG) \
 **Figure 1: Schematic representation of merge software.**
 
+![crop_operation](/images/comparison_module_crop_operation_fig1_v1.PNG) \
+**Figure 2: Schematic representation of crop_operation.**
+
 ## Operations
 1.  Crops and normalises the model and scope dataframes using crop_and_norm
     1.  if crop_data is set for the origin (scope or model) then crops the data using crop_vals
