@@ -7,7 +7,7 @@ Created on Mon Mar  5 13:39:28 2018
 """
 
 import pandas as pd
-import numpy as np
+
 
 
 import argparse
@@ -20,8 +20,7 @@ import interactive_ops as iops
 
 #modules of this project
 from reading_functions import read_var_file
-from reading_functions import merge_dfs 
-from reading_functions import crop_and_norm
+from reading_functions import merge_crop_test
 
 from utility_functions import get_df_keys
 
@@ -31,7 +30,7 @@ from io_functions import prep_out_file
 from analysis_functions import analysis_1d
 from analysis_functions import analysis_nd
 
-from graphing_functions import identify_plots
+
 
 from alt_az_functions import get_object
 from alt_az_functions import calc_alt_az
@@ -311,7 +310,7 @@ to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
 ###############################################################################
 #Timing options
 ###############################################################################
-    #adds an optional argument for a time offset between model and scoep
+    #adds an optional argument for a time offset between model and scope
     parser.add_argument("--offset","-O", default = 0, type=int,
                         help = '''
 Sets an offset for the scope.  This is the amount of time (in seconds) that the
@@ -474,42 +473,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     
     return(modes)
 
-def merge_crop_test(model_df, scope_df, modes):
-    """
-    This function takes in the model and scope data frames, and based on 
-    whether they have contents, returns a merge_df which is either the 
-    result of merging the two dataframes or the contents of the only DF if only
-    one has been supplied.
-    
-    It also returns sources, which defines whether the model, the scope or the
-    difference is to be plotted.  When only one file is provided, sources is 
-    a list containing the empty string, which means values are plotted from the
-    only dataframe that was loaded with no suffix
-    """
-    if "none" not in scope_df:        
-        #adjusts for the offset if needed (e.g. comparing two observations)
-        offset=np.timedelta64(modes['offset'],'s')
-        scope_df.Time=scope_df.Time-offset
-  
-    if "none" not in model_df and "none" not in scope_df:
-        #merges the dataframes
-        merge_df=merge_dfs(model_df, scope_df, modes)
-        
-        #identifies the sources required
-        sources = identify_plots(modes)
-        
-    #if only scope is valid
-    elif "none" in model_df and "none" not in scope_df:
-        merge_df=crop_and_norm(scope_df,modes,"s")
-        sources = [""]#sets the source to blank as there are no differentiators
-    elif "none" not in model_df and "none" in scope_df:
-        merge_df=crop_and_norm(model_df,modes,"m")
-        sources = [""]
-    else: #Both blank
-        if modes['verbose'] >=1:
-            print("ERROR: No data available in either file")
-        sys.exit(1)
-    return(merge_df, sources)
+
 
 def filter_frequencies(merge_df, modes):
     """
@@ -640,8 +604,10 @@ def operational_loop(model_df, scope_df, modes):
     #otherwise gives an error
     else:
         if modes['verbose'] >=1:
-            print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
+            print("ERROR: NO DATA AVAILABLE TO ANALYSE!")
         if modes['interactive']<2:
+            if modes['verbose'] >=1:
+                print("EXITING!")
             sys.exit(1)
         
     

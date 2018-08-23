@@ -9,7 +9,7 @@ plotting of suitable graphs.
 ## Main Menu <a name="MainMenu"></a>
 From the main menu, the user can access all the futher menus to select plotting options, proceed to plot, or exit the program
 
-![main menu](/images/interactive_snips/icm_main_menu.png)
+![main menu](/images/interactive_snips/icm_main_menu.PNG)
 
 Type 1 to set [Cropping options](#1_crop_menu)\
 Type 2 to set [Normalisation options](#2_norm_menu)\
