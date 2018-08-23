@@ -17,7 +17,7 @@ numpy
 
 ## Inputs
 Two data frames containing model or scope data\
-argument *norm_mode* which describes the desired normalisation mode to use
+modes dictionary which describes the desired normalisation and cropping modes to use
 
 ## Outputs
 One merged dataframe containing data for model, scope and differences
@@ -33,23 +33,11 @@ to process the data from two existing dataframes suitable for futher processing.
 ![Design diagram](/images/comparison_module_merge_dfs_fig1_v5.PNG) \
 **Figure 1: Schematic representation of merge software.**
 
-![crop_operation](/images/comparison_module_crop_operation_fig1_v1.PNG) \
-**Figure 2: Schematic representation of crop_operation.**
-
 ## Operations
 1.  Crops and normalises the model and scope dataframes using crop_and_norm
     1.  if crop_data is set for the origin (scope or model) then crops the data using crop_vals
-        1.  If the crop basis is set to "overall," runs crop_operation on the whole dataframe
-        2.  If the crop basis is set to "frequency," creates subset dataframes corresponding to each unique frequency and runs crop_operation on each of these in turn
-            1.  crop_operation makes a copy of the input data frame
-            2.  For each dependent variable in the dataframe
-                1.  Drops all rows with value equal to zero.
-                2.  Sets a maximum limit for the value in that column based on
-                    1.  if the crop_mode is median, multiplies the median value for that column by the crop value
-                    2.  if the crop_mode is mean, multiplies the mean value for that column by the crop value
-                    3.  if the crop_mode is percentile, calculates that percentile value for the column
-                3.  Drops all rows with value greater than the maximum
-            3.  Returns the modified data frame                
+        1.  If the crop basis is set to "overall," runs [crop_operation](/comparison_module/function_docs/crop_operation.md) on the whole dataframe
+        2.  If the crop basis is set to "frequency," creates subset dataframes corresponding to each unique frequency and runs [crop_operation](/comparison_module/function_docs/crop_operation.md) on the whole dataframe on each of these in turn                
     2.  if norm_data is set for the origin (scope or model) then:
         1.  normalises the data for each linear channel (xx, xy and yy) using normalise_data
             1.  If norm is set to overall, then it divides all values for that channel by the maximum for that channel
