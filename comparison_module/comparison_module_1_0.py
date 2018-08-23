@@ -297,6 +297,7 @@ overlay means that for a given channel, the plots will be overlaid
 Sets how to show three dimensional plots.  If colour is chosen, then they are 
 plotted as colours.  If anim is chosen, plots the data animated over time.  If 
 animf is chosen, plots the data animated over frequency 
+ If contour is chosen, plots the data as a 3-D Contour plot
                         ''')     
     
     #adds an optional argument for the framerate of animations
@@ -352,7 +353,7 @@ channels for.  The file must contain one float per line in text format.
                         choices=("","CasA", "CygA", "VirA"), 
                             help = '''
 set a variable for the name of the target object.  This is used to generate sky
-coordinates.  At present this is enabled only for CasA and CygA
+coordinates.  At present this is enabled only for CasA, CygA and VirA
                             ''')        
     #adds an optional argument for target object
     group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
