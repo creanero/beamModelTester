@@ -378,8 +378,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     if modes['out_dir'] == None:
         plt.show()
     else:
-        plt_file=prep_out_file(modes,plot="vals",dims="1d",
-                               channel=channel_maker(m_keys),
+        plt_file=prep_out_file(modes,plot="vals",dims="1d",ind_var=var_str,
+                               channel=channel_maker(m_keys, modes),
                                freq=min(merge_df.Freq),
                                out_type="png")
         if modes['verbose'] >=2:
@@ -418,24 +418,24 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     sep=get_source_separator(source)
 
 
-    try:
-        #plots the channel in a colour based on its name
-        plt.tripcolor(plottable(in_df,var_x),
-                      plottable(in_df,var_y),
-                      plottable(in_df,(var_z+sep+source)), 
-                      cmap=plt.get_cmap(colour_models(var_z+'_s')))
-
-    except RuntimeError:
-        if  modes['verbose'] >=1:
-            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
+#    try:
+#        #plots the channel in a colour based on its name
+#        plt.tripcolor(plottable(in_df,var_x),
+#                      plottable(in_df,var_y),
+#                      plottable(in_df,(var_z+sep+source)), 
+#                      cmap=plt.get_cmap(colour_models(var_z+'_s')))
+#
+#    except RuntimeError:
+#        if  modes['verbose'] >=1:
+#            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
     
     if(modes["three_d"] in ["colour","color"]):
         try:
             #plots the channel in a colour based on its name
             plt.tripcolor(plottable(in_df,var_x),
                           plottable(in_df,var_y),
-                          plottable(in_df,var_z),
-                          cmap=plt.get_cmap(colour_models(key+'_s')))
+                          plottable(in_df,(var_z+sep+source)),
+                          cmap=plt.get_cmap(colour_models(var_z+'_s')))
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -445,7 +445,7 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
             cols = np.unique(in_df[var_y]).shape[0]
             X = np.array(in_df[var_x]).reshape(-1, cols)
             Y = np.array(in_df[var_y]).reshape(-1, cols)
-            Z = np.array(in_df[var_z]).reshape(-1, cols)
+            Z = np.array(in_df[(var_z+sep+source)]).reshape(-1, cols)
             plt.contour(X, Y, Z)
         except:
             if  modes['verbose'] >=1:

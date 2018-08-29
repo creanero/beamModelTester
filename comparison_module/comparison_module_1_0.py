@@ -543,7 +543,7 @@ def analysis(merge_df, modes, m_keys, sources):
         #if only one frequency, does one-dimensional analysis
         if "each" in modes['values']: #if the plots are to be separate
             for key in m_keys: #analyses them one at a time
-                analysis_1d(merge_df,modes, [key],sources)
+                ind_dfs=analysis_1d(merge_df,modes, [key],sources)
         else: #allows plots to be overlaid 
             ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
     else: #otherwise does multi-dimensional analysis
