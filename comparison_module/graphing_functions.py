@@ -352,6 +352,10 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
         title=add_key(title, m_keys, key)
         
     title=title+"-channels over "+gen_pretty_name(var_str)
+    freq_in = modes['freq'][0]
+    freq_MHz = freq_in/1e6
+    
+    title=title+"\nat a Frequency of {:7.3f} MHz".format(freq_MHz)
     
     if modes['verbose'] >=2:
         print(title)

@@ -481,6 +481,16 @@ def filter_frequencies(merge_df, modes):
     of frequencies, and drops any rows which do not correspond to that 
     frequency.
     """
+    if modes['freq_file'] != "":
+        if modes['verbose'] >=2:
+            print ("isolating frequencies from file: "+modes['freq_file'])
+        try:
+            freq_df=pd.read_csv(modes['freq_file'], header=None)
+            modes['freq']=list(freq_df[0])
+        except IOError:
+            if modes['verbose'] >=1:
+                print("ERROR: File: "+modes['freq_file']+" inaccessible!")
+                print("\tproceeding without frequency filter.")
     if modes['freq'] !=[0.0]:
         if modes['verbose'] >=2:
             print ("isolating frequencies: "+str(modes['freq'])+"Hz")
@@ -488,17 +498,7 @@ def filter_frequencies(merge_df, modes):
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
         merge_df.reset_index(drop=True, inplace=True)
     
-    if modes['freq_file'] != "":
-        if modes['verbose'] >=2:
-            print ("isolating frequencies from file: "+modes['freq_file'])
-        try:
-            freq_df=pd.read_csv(modes['freq_file'], header=None)
-            merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
-            merge_df.reset_index(drop=True, inplace=True)
-        except IOError:
-            if modes['verbose'] >=1:
-                print("ERROR: File: "+modes['freq_file']+" inaccessible!")
-                print("\tproceeding without frequency filter.")
+
     
     return (merge_df)
     
