@@ -130,6 +130,9 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     
     if var_t == "Time":
         var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    elif var_t == "Freq":
+        freq_MHz=var_t_val/1e6
+        var_t_string = "{:7.3f} MHz".format(freq_MHz)
     else:
         var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
         
@@ -236,6 +239,9 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
     
     if var_t == "Time":
         var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    elif var_t == "Freq":
+        freq_MHz=var_t_val/1e6
+        var_t_string = "{:7.3f} MHz".format(freq_MHz)
     else:
         var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
         
@@ -566,52 +572,52 @@ def add_key(title, m_keys, key):
 
 
     
-def plot_diff_values_1f(merge_df, m_keys, modes):
-    '''
-    This function takes a merged dataframe as an argument and 
-    plots the differences in various channel values over time
-    
-    This plot is only usable and valid if the data is ordered in time and has 
-    only a single frequency
-    '''
-    if modes['verbose'] >=2:
-        print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
-    plt.figure()
-    
-    graph_title = "\n".join([modes['title'],"Plot of the differences in "])
-    for key in m_keys:
-        plt.plot(plottable(merge_df,"Time"),
-                 plottable(merge_df,(key+'_diff')), 
-                 label=r'$\Delta $'+key,
-                 color=colour_models(key))
-        graph_title=add_key(graph_title, m_keys, key)
-    
-    #calculates and adds title with frequency in MHz
-    
-    graph_title=graph_title+"-channels over time at %.2f MHz"%(min(merge_df.Freq)/1e6)    
-    
-    
-
-
-    
-    #plots the axis labels rotated so they're legible
-    plt.xticks(rotation=90)
-
-    plt.title(graph_title, wrap=True)
-    plt.legend(frameon=False)
-    plt.xlabel(gen_pretty_name('Time',units=True), wrap=True)
-    
-    #prints or saves the plot
-    if modes['out_dir'] == None:
-        plt.show()
-    else:
-        plt_file=prep_out_file(modes,plot="diff",dims="1d",
-                               out_type=modes['image_type'])
-        if modes['verbose'] >=2:
-            print("Saving: "+plt_file)
-        plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
-    return(0)
+#def plot_diff_values_1f(merge_df, m_keys, modes):
+#    '''
+#    This function takes a merged dataframe as an argument and 
+#    plots the differences in various channel values over time
+#    
+#    This plot is only usable and valid if the data is ordered in time and has 
+#    only a single frequency
+#    '''
+#    if modes['verbose'] >=2:
+#        print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
+#    plt.figure()
+#    
+#    graph_title = "\n".join([modes['title'],"Plot of the differences in "])
+#    for key in m_keys:
+#        plt.plot(plottable(merge_df,"Time"),
+#                 plottable(merge_df,(key+'_diff')), 
+#                 label=r'$\Delta $'+key,
+#                 color=colour_models(key))
+#        graph_title=add_key(graph_title, m_keys, key)
+#    
+#    #calculates and adds title with frequency in MHz
+#    
+#    graph_title=graph_title+"-channels over time at %.2f MHz"%(min(merge_df.Freq)/1e6)    
+#    
+#    
+#
+#
+#    
+#    #plots the axis labels rotated so they're legible
+#    plt.xticks(rotation=90)
+#
+#    plt.title(graph_title, wrap=True)
+#    plt.legend(frameon=False)
+#    plt.xlabel(gen_pretty_name('Time',units=True), wrap=True)
+#    
+#    #prints or saves the plot
+#    if modes['out_dir'] == None:
+#        plt.show()
+#    else:
+#        plt_file=prep_out_file(modes,plot="diff",dims="1d",
+#                               out_type=modes['image_type'])
+#        if modes['verbose'] >=2:
+#            print("Saving: "+plt_file)
+#        plt.savefig(plt_file,bbox_inches='tight')
+#        plt.close()
+#    return(0)
 
 
 

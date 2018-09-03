@@ -59,7 +59,7 @@ def interactive_operation(modes, model_df, scope_df):
         elif "5" == menu_choice:
             set_plotting_options(modes)
         elif "6" == menu_choice:
-            set_file_io_options(modes, model_df, scope_df)
+            model_df,scope_df = set_file_io_options(modes, model_df, scope_df)
         elif "7" == menu_choice:
             set_frequency_options(modes)
         elif "8" == menu_choice:
@@ -76,6 +76,8 @@ def interactive_operation(modes, model_df, scope_df):
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
+    
+    return (modes, model_df, scope_df)
             
 def set_crop_options(modes):
     """
@@ -361,6 +363,7 @@ def set_norm_basis(modes):
       n: No Normalisation
       o: Normalisation Overall
       f: Normalisation by Frequency
+      t: Normalisation by Time
       
       
       0: Return to previous menu
@@ -378,7 +381,8 @@ def set_norm_basis(modes):
             
         elif menu_choice in ['f', 'F']:
             modes["norm"]='f'
-                       
+        elif menu_choice in ['t', 'T']:
+            modes["norm"]='T'                       
         elif menu_choice in ['o', 'O']:
             modes["norm"]='o'
             
@@ -644,7 +648,7 @@ def set_plotting(modes):
       5: Toggle time series plots. Currently {1}
           
       0: Return to previous menu
-              """).format(gen_overlay_boolean(overlay_status),
+              """).format(gen_overlay_boolean(not(overlay_status)),
                           gen_plotting_boolean(spectra_status)))
         
         menu_choice=raw_input("Please enter your selection from the menu above:\t")
@@ -1106,10 +1110,10 @@ def set_file_io_options(modes, model_df, scope_df):
             continue_option=False #finish the loop
         
         elif "1" == menu_choice:
-            set_in_file(modes, model_df, "model")
+            model_df=set_in_file(modes, model_df, "model")
             
         elif "2" == menu_choice:
-            set_in_file(modes, scope_df, "scope")
+            scope_df=set_in_file(modes, scope_df, "scope")
                         
         elif "3" == menu_choice:
             set_out_file_type(modes)
@@ -1126,6 +1130,8 @@ def set_file_io_options(modes, model_df, scope_df):
             
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
+    
+    return (model_df, scope_df)
             
 def set_in_file(modes, in_df, name):
     """
@@ -1133,10 +1139,11 @@ def set_in_file(modes, in_df, name):
     """
     out_df=in_df
     dir_file_name="in_file_"+name
-    chosen_file_name=raw_input("Please enter the file name you want to use for "+name)
+    chosen_file_name=raw_input("Please enter the file name you want to use for "+name+":\n")
     try:
-        out_df=read_var_file(modes[dir_file_name], modes)
         modes[dir_file_name] = chosen_file_name
+        out_df=read_var_file(modes[dir_file_name], modes)
+        
     except IOError:
         print("Warning, unable to read file "+ chosen_file_name+", returning original data")
     

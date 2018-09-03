@@ -439,7 +439,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.model != None:
         modes['in_file_model']=args.model
     else:
-        if modes['interactive']>=1:
+        if modes['interactive']==1:#should only occur in interactive mode 1
             modes['in_file_model']=raw_input("No model filename specified:\n"
                                     "Please enter the model filename:\n")
         else:
@@ -452,7 +452,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.scope != None:
         modes['in_file_scope']=args.scope
     else:
-        if modes['interactive']>=1:
+        if modes['interactive']==1:#should only occur in interactive mode 1
             modes['in_file_scope']=raw_input("No filename specified for observed"+
                                      " data from the telescope:\n"
                                      "Please enter the telescope filename:\n")
@@ -628,6 +628,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            iops.interactive_operation(modes, model_df, scope_df)
+            (modes, model_df, scope_df)=iops.interactive_operation(modes, model_df, scope_df)
             
     
