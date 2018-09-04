@@ -413,13 +413,13 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     var_z must be one of the dependent variables
     '''
     if modes['verbose'] >=2:
-        print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
+        print("Plotting "+gen_pretty_name(source)+"\nfor "+gen_pretty_name(var_z)+\
           " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
           " and "+ gen_pretty_name(var_y2, plot_name)+" against "+gen_pretty_name(var_x))
     plt.figure()
     plt.subplot(211)
     upper_title=("Plot of "+gen_pretty_name(source)+\
-                 " for "+gen_pretty_name(var_z)+" against "+\
+                 "\nfor "+gen_pretty_name(var_z)+" against "+\
                  gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y))
     label = "\n".join([modes["title"],upper_title])
     plt.title(label, wrap=True)

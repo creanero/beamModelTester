@@ -78,7 +78,7 @@ def add_units(key,units):
     '''
     minor function that adds units in brackets after the key provided
     '''
-    new_key = key+' ('+units+')'
+    new_key = key+'\n('+units+')'
     return(new_key)
     
 ###############################################################################
