@@ -7,7 +7,7 @@ Created on Mon Mar  5 13:39:28 2018
 """
 
 import pandas as pd
-import numpy as np
+
 
 
 import argparse
@@ -20,8 +20,7 @@ import interactive_ops as iops
 
 #modules of this project
 from reading_functions import read_var_file
-from reading_functions import merge_dfs 
-from reading_functions import crop_and_norm
+from reading_functions import merge_crop_test
 
 from utility_functions import get_df_keys
 
@@ -31,7 +30,7 @@ from io_functions import prep_out_file
 from analysis_functions import analysis_1d
 from analysis_functions import analysis_nd
 
-from graphing_functions import identify_plots
+
 
 from alt_az_functions import get_object
 from alt_az_functions import calc_alt_az
@@ -297,6 +296,7 @@ overlay means that for a given channel, the plots will be overlaid
 Sets how to show three dimensional plots.  If colour is chosen, then they are 
 plotted as colours.  If anim is chosen, plots the data animated over time.  If 
 animf is chosen, plots the data animated over frequency 
+ If contour is chosen, plots the data as a 3-D Contour plot
                         ''')     
     
     #adds an optional argument for the framerate of animations
@@ -310,7 +310,7 @@ to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
 ###############################################################################
 #Timing options
 ###############################################################################
-    #adds an optional argument for a time offset between model and scoep
+    #adds an optional argument for a time offset between model and scope
     parser.add_argument("--offset","-O", default = 0, type=int,
                         help = '''
 Sets an offset for the scope.  This is the amount of time (in seconds) that the
@@ -352,7 +352,7 @@ channels for.  The file must contain one float per line in text format.
                         choices=("","CasA", "CygA", "VirA"), 
                             help = '''
 set a variable for the name of the target object.  This is used to generate sky
-coordinates.  At present this is enabled only for CasA and CygA
+coordinates.  At present this is enabled only for CasA, CygA and VirA
                             ''')        
     #adds an optional argument for target object
     group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
@@ -439,7 +439,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.model != None:
         modes['in_file_model']=args.model
     else:
-        if modes['interactive']>=1:
+        if modes['interactive']==1:#should only occur in interactive mode 1
             modes['in_file_model']=raw_input("No model filename specified:\n"
                                     "Please enter the model filename:\n")
         else:
@@ -452,7 +452,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     elif args.scope != None:
         modes['in_file_scope']=args.scope
     else:
-        if modes['interactive']>=1:
+        if modes['interactive']==1:#should only occur in interactive mode 1
             modes['in_file_scope']=raw_input("No filename specified for observed"+
                                      " data from the telescope:\n"
                                      "Please enter the telescope filename:\n")
@@ -473,42 +473,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     
     return(modes)
 
-def merge_crop_test(model_df, scope_df, modes):
-    """
-    This function takes in the model and scope data frames, and based on 
-    whether they have contents, returns a merge_df which is either the 
-    result of merging the two dataframes or the contents of the only DF if only
-    one has been supplied.
-    
-    It also returns sources, which defines whether the model, the scope or the
-    difference is to be plotted.  When only one file is provided, sources is 
-    a list containing the empty string, which means values are plotted from the
-    only dataframe that was loaded with no suffix
-    """
-    if "none" not in scope_df:        
-        #adjusts for the offset if needed (e.g. comparing two observations)
-        offset=np.timedelta64(modes['offset'],'s')
-        scope_df.Time=scope_df.Time-offset
-  
-    if "none" not in model_df and "none" not in scope_df:
-        #merges the dataframes
-        merge_df=merge_dfs(model_df, scope_df, modes)
-        
-        #identifies the sources required
-        sources = identify_plots(modes)
-        
-    #if only scope is valid
-    elif "none" in model_df and "none" not in scope_df:
-        merge_df=crop_and_norm(scope_df,modes,"s")
-        sources = [""]#sets the source to blank as there are no differentiators
-    elif "none" not in model_df and "none" in scope_df:
-        merge_df=crop_and_norm(model_df,modes,"m")
-        sources = [""]
-    else: #Both blank
-        if modes['verbose'] >=1:
-            print("ERROR: No data available in either file")
-        sys.exit(1)
-    return(merge_df, sources)
+
 
 def filter_frequencies(merge_df, modes):
     """
@@ -516,6 +481,16 @@ def filter_frequencies(merge_df, modes):
     of frequencies, and drops any rows which do not correspond to that 
     frequency.
     """
+    if modes['freq_file'] != "":
+        if modes['verbose'] >=2:
+            print ("isolating frequencies from file: "+modes['freq_file'])
+        try:
+            freq_df=pd.read_csv(modes['freq_file'], header=None)
+            modes['freq']=list(freq_df[0])
+        except IOError:
+            if modes['verbose'] >=1:
+                print("ERROR: File: "+modes['freq_file']+" inaccessible!")
+                print("\tproceeding without frequency filter.")
     if modes['freq'] !=[0.0]:
         if modes['verbose'] >=2:
             print ("isolating frequencies: "+str(modes['freq'])+"Hz")
@@ -523,17 +498,7 @@ def filter_frequencies(merge_df, modes):
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
         merge_df.reset_index(drop=True, inplace=True)
     
-    if modes['freq_file'] != "":
-        if modes['verbose'] >=2:
-            print ("isolating frequencies from file: "+modes['freq_file'])
-        try:
-            freq_df=pd.read_csv(modes['freq_file'], header=None)
-            merge_df=merge_df[merge_df['Freq'].isin(freq_df[0])]
-            merge_df.reset_index(drop=True, inplace=True)
-        except IOError:
-            if modes['verbose'] >=1:
-                print("ERROR: File: "+modes['freq_file']+" inaccessible!")
-                print("\tproceeding without frequency filter.")
+
     
     return (merge_df)
     
@@ -578,7 +543,7 @@ def analysis(merge_df, modes, m_keys, sources):
         #if only one frequency, does one-dimensional analysis
         if "each" in modes['values']: #if the plots are to be separate
             for key in m_keys: #analyses them one at a time
-                analysis_1d(merge_df,modes, [key],sources)
+                ind_dfs=analysis_1d(merge_df,modes, [key],sources)
         else: #allows plots to be overlaid 
             ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
     else: #otherwise does multi-dimensional analysis
@@ -639,8 +604,10 @@ def operational_loop(model_df, scope_df, modes):
     #otherwise gives an error
     else:
         if modes['verbose'] >=1:
-            print("ERROR: NO DATA AVAILABLE TO ANALYSE!\nEXITING")
+            print("ERROR: NO DATA AVAILABLE TO ANALYSE!")
         if modes['interactive']<2:
+            if modes['verbose'] >=1:
+                print("EXITING!")
             sys.exit(1)
         
     
@@ -661,6 +628,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            iops.interactive_operation(modes, model_df, scope_df)
+            (modes, model_df, scope_df)=iops.interactive_operation(modes, model_df, scope_df)
             
     

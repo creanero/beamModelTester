@@ -130,6 +130,9 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     
     if var_t == "Time":
         var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    elif var_t == "Freq":
+        freq_MHz=var_t_val/1e6
+        var_t_string = "{:7.3f} MHz".format(freq_MHz)
     else:
         var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
         
@@ -236,6 +239,9 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
     
     if var_t == "Time":
         var_t_string = str(var_t_val).rstrip('0').rstrip('.')
+    elif var_t == "Freq":
+        freq_MHz=var_t_val/1e6
+        var_t_string = "{:7.3f} MHz".format(freq_MHz)
     else:
         var_t_string = ("%.4f"%var_t_val).rstrip('0').rstrip('.')
         
@@ -352,6 +358,10 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
         title=add_key(title, m_keys, key)
         
     title=title+"-channels over "+gen_pretty_name(var_str)
+    freq_in = modes['freq'][0]
+    freq_MHz = freq_in/1e6
+    
+    title=title+"\nat a Frequency of {:7.3f} MHz".format(freq_MHz)
     
     if modes['verbose'] >=2:
         print(title)
@@ -378,8 +388,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     if modes['out_dir'] == None:
         plt.show()
     else:
-        plt_file=prep_out_file(modes,plot="vals",dims="1d",
-                               channel=channel_maker(m_keys),
+        plt_file=prep_out_file(modes,plot="vals",dims="1d",ind_var=var_str,
+                               channel=channel_maker(m_keys, modes),
                                freq=min(merge_df.Freq),
                                out_type="png")
         if modes['verbose'] >=2:
@@ -403,13 +413,13 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     var_z must be one of the dependent variables
     '''
     if modes['verbose'] >=2:
-        print("Plotting "+gen_pretty_name(source)+" for "+gen_pretty_name(var_z)+\
+        print("Plotting "+gen_pretty_name(source)+"\nfor "+gen_pretty_name(var_z)+\
           " against "+gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y)+\
           " and "+ gen_pretty_name(var_y2, plot_name)+" against "+gen_pretty_name(var_x))
     plt.figure()
     plt.subplot(211)
     upper_title=("Plot of "+gen_pretty_name(source)+\
-                 " for "+gen_pretty_name(var_z)+" against "+\
+                 "\nfor "+gen_pretty_name(var_z)+" against "+\
                  gen_pretty_name(var_x)+ " and "+gen_pretty_name(var_y))
     label = "\n".join([modes["title"],upper_title])
     plt.title(label, wrap=True)
@@ -418,24 +428,24 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     sep=get_source_separator(source)
 
 
-    try:
-        #plots the channel in a colour based on its name
-        plt.tripcolor(plottable(in_df,var_x),
-                      plottable(in_df,var_y),
-                      plottable(in_df,(var_z+sep+source)), 
-                      cmap=plt.get_cmap(colour_models(var_z+'_s')))
-
-    except RuntimeError:
-        if  modes['verbose'] >=1:
-            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
+#    try:
+#        #plots the channel in a colour based on its name
+#        plt.tripcolor(plottable(in_df,var_x),
+#                      plottable(in_df,var_y),
+#                      plottable(in_df,(var_z+sep+source)), 
+#                      cmap=plt.get_cmap(colour_models(var_z+'_s')))
+#
+#    except RuntimeError:
+#        if  modes['verbose'] >=1:
+#            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
     
     if(modes["three_d"] in ["colour","color"]):
         try:
             #plots the channel in a colour based on its name
             plt.tripcolor(plottable(in_df,var_x),
                           plottable(in_df,var_y),
-                          plottable(in_df,var_z),
-                          cmap=plt.get_cmap(colour_models(key+'_s')))
+                          plottable(in_df,(var_z+sep+source)),
+                          cmap=plt.get_cmap(colour_models(var_z+'_s')))
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -445,7 +455,7 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
             cols = np.unique(in_df[var_y]).shape[0]
             X = np.array(in_df[var_x]).reshape(-1, cols)
             Y = np.array(in_df[var_y]).reshape(-1, cols)
-            Z = np.array(in_df[var_z]).reshape(-1, cols)
+            Z = np.array(in_df[(var_z+sep+source)]).reshape(-1, cols)
             plt.contour(X, Y, Z)
         except:
             if  modes['verbose'] >=1:
@@ -562,52 +572,52 @@ def add_key(title, m_keys, key):
 
 
     
-def plot_diff_values_1f(merge_df, m_keys, modes):
-    '''
-    This function takes a merged dataframe as an argument and 
-    plots the differences in various channel values over time
-    
-    This plot is only usable and valid if the data is ordered in time and has 
-    only a single frequency
-    '''
-    if modes['verbose'] >=2:
-        print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
-    plt.figure()
-    
-    graph_title = "\n".join([modes['title'],"Plot of the differences in "])
-    for key in m_keys:
-        plt.plot(plottable(merge_df,"Time"),
-                 plottable(merge_df,(key+'_diff')), 
-                 label=r'$\Delta $'+key,
-                 color=colour_models(key))
-        graph_title=add_key(graph_title, m_keys, key)
-    
-    #calculates and adds title with frequency in MHz
-    
-    graph_title=graph_title+"-channels over time at %.2f MHz"%(min(merge_df.Freq)/1e6)    
-    
-    
-
-
-    
-    #plots the axis labels rotated so they're legible
-    plt.xticks(rotation=90)
-
-    plt.title(graph_title, wrap=True)
-    plt.legend(frameon=False)
-    plt.xlabel(gen_pretty_name('Time',units=True), wrap=True)
-    
-    #prints or saves the plot
-    if modes['out_dir'] == None:
-        plt.show()
-    else:
-        plt_file=prep_out_file(modes,plot="diff",dims="1d",
-                               out_type=modes['image_type'])
-        if modes['verbose'] >=2:
-            print("Saving: "+plt_file)
-        plt.savefig(plt_file,bbox_inches='tight')
-        plt.close()
-    return(0)
+#def plot_diff_values_1f(merge_df, m_keys, modes):
+#    '''
+#    This function takes a merged dataframe as an argument and 
+#    plots the differences in various channel values over time
+#    
+#    This plot is only usable and valid if the data is ordered in time and has 
+#    only a single frequency
+#    '''
+#    if modes['verbose'] >=2:
+#        print("Plotting the differences in "+channel_maker(m_keys,modes,", "))
+#    plt.figure()
+#    
+#    graph_title = "\n".join([modes['title'],"Plot of the differences in "])
+#    for key in m_keys:
+#        plt.plot(plottable(merge_df,"Time"),
+#                 plottable(merge_df,(key+'_diff')), 
+#                 label=r'$\Delta $'+key,
+#                 color=colour_models(key))
+#        graph_title=add_key(graph_title, m_keys, key)
+#    
+#    #calculates and adds title with frequency in MHz
+#    
+#    graph_title=graph_title+"-channels over time at %.2f MHz"%(min(merge_df.Freq)/1e6)    
+#    
+#    
+#
+#
+#    
+#    #plots the axis labels rotated so they're legible
+#    plt.xticks(rotation=90)
+#
+#    plt.title(graph_title, wrap=True)
+#    plt.legend(frameon=False)
+#    plt.xlabel(gen_pretty_name('Time',units=True), wrap=True)
+#    
+#    #prints or saves the plot
+#    if modes['out_dir'] == None:
+#        plt.show()
+#    else:
+#        plt_file=prep_out_file(modes,plot="diff",dims="1d",
+#                               out_type=modes['image_type'])
+#        if modes['verbose'] >=2:
+#            print("Saving: "+plt_file)
+#        plt.savefig(plt_file,bbox_inches='tight')
+#        plt.close()
+#    return(0)
 
 
 
