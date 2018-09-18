@@ -4,6 +4,8 @@ Created on Fri Jun 15 13:40:49 2018
 
 @author: User
 """
+import matplotlib
+matplotlib.use('agg')
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
