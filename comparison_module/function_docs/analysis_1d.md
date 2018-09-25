@@ -1,4 +1,4 @@
-# Comparison Module \
+# Comparison Module
 **1 dimensional analysis functions\
 Version 1.0\
 25ᵗʰ September 2018\
