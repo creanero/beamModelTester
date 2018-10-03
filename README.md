@@ -5,8 +5,8 @@ using said telescope to enable evaluation of the model and guide improvements.  
 of results from a single station observation on a variety of parameters.
 
 There are three major components to this system:
-  * Data from the Telescope (Currently LOFAR)
-  * Data from the Model
+  * Data from the Telescope (Currently LOFAR ACC files converted to HDF5 by [iLiSA](https://github.com/2baOrNot2ba/iLiSA))
+  * Data from the Model (Currently Hamaker as output from [dreamBeam](https://github.com/2baOrNot2ba/dreamBeam))
   * Comparison/Analysis
   
 Software Design Documents are available at [This Link](/overall_design.md)
