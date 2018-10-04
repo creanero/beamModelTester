@@ -26,7 +26,7 @@ from io_functions import prep_out_file
 
 
 
-def plot_against_freq_time(merge_df, key, modes, source, var_x, var_y):
+def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
     '''
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
@@ -539,8 +539,7 @@ def plot_spectra_nf(merge_df, m_keys, modes,sources):
                 var_y="Freq"
                 var_x="d_Time"
             
-                plot_against_freq_time(merge_df, key, modes, source, 
-                                       var_x, var_y)
+                plot_3d_graph(merge_df, key, modes, source, var_x, var_y)
 
     elif modes['three_d'] in ["animf", "anim"]:
         if modes['three_d']=="anim":
