@@ -341,7 +341,7 @@ def crop_operation (in_df,modes):
     #goes through all the columns of the data
     for col in out_df:
         #targets the dependent variables
-        if col not in ['Time','Freq','d_Time','original_Time']:
+        if col not in ['Time','Freq','d_Time', 'original_Time']:
             #drops all zero values from the data
             out_df.drop(out_df[out_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data

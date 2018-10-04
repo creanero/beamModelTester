@@ -318,8 +318,18 @@ scope is believed to be ahead of the model.  This will be subtracted from the
 time of the scope data.  Default is no offset.  Offsets may only be given in
 whole seconds
                              ''')
-       
 
+         
+                 
+###############################################################################
+#Scale options
+###############################################################################
+    #adds an optional argument for a time offset between model and scope
+    parser.add_argument("--scale","-S", default = 'linear',
+                        choices=("linear","log"),
+                        help = '''
+Sets whether to plot on logarithmic or linear scales
+                             ''')
 
 ###############################################################################
 #Frequencies
@@ -421,6 +431,7 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes['location_coords']=args.location_coords
     modes['object_name']=args.object_name
     modes['object_coords']=args.object_coords
+    modes['scale']=args.scale
     
     #ensures that whichever spelling of colour is input by the user, only one 
     #needs to be used in the rest of the code.
