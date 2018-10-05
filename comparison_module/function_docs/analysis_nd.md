@@ -21,20 +21,19 @@ matplotlib.pyplot\
 scipy.stats.stats.pearsonr
 
 ## Inputs
-A merged data frame containing model and scope data
+A merged data frame containing model and scope data\
+Modes control dictionary\
+list of channels\
+list of sources (model, scope, difference) to plot
 
 ## Outputs
 *All outputs are optional based on user input contained in the modes dictionary*
-1.  A calculation of the correlation coefficient between the model
-    and the scope data for each channel
-2.  A calculation of the Root Mean Square Error between the model
-    and the scope data for each channel
-3.  A plot of the values of the model and scope for each channel over time and frequency
-4.  A plot of the differences between the model and scope for each channel over time and frequency
-4.  A plot and dataframe of the how the correlation coefficient between the model
-    and the scope data for each channel varies over each independent variable
-5.  A plot and dataframe of the how the Root Mean Square Error between the model
-    and the scope data for each channel varies over each independent variable
+[Link to non-exhaustive sample outputs](/comparison_module/outputs.md#MultiFreq)
+All of these outputs are optional as controlled by the modes dictionary
+1.  A plot or animation of the values of each of the channels for model and scope and the difference between them over time
+2.  A plot or animation of the values of each of the channels for model and scope and the difference between them over Altitude and/or Azimuth
+3.  A plot or animation of the values of each of the figures of merit for each channel (currently: Correlation and RMSE) over time and frequency
+4.  A calculation of a set of figures of merit for each channel (currently: Correlation and RMSE)
     
     
 ## Outline
