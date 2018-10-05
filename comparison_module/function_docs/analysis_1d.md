@@ -71,7 +71,7 @@ recorded in the input.
     1.  if "corr" is to be plotted, adds it to the list of figures of merit
     2.  if "rmse" is to be plotted, adds it to the list of figures of merit
     3.  for each figure of merit to be plotted
-        1.  Calculates the list of values for that figure of merit
+        1.  Calculates the list of values for that figure of merit using calc_fom_1d
         2.  for each channel
             1.  prints the value for the figure of merit
             2.    if output file generation is set by inputting an out_dir
