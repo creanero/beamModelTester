@@ -26,6 +26,7 @@ modes dictionary
 
 ## Outputs
 All of these outputs are optional as controlled by the modes dictionary
+[Link to non-exhaustive sample outputs](/comparison_module/outputs.md#SingleFreq)
 1.  A plot of the values of each of the channels for model and scope and the difference between them over time
 2.  A plot of the values of each of the channels for model and scope and the difference between them over Altitude and/or Azimuth
 3.  A calculation of a set of figures of merit for each channel (currently: Correlation and RMSE)
