@@ -1,6 +1,6 @@
 # Outputs from comparison_module
 
-*Single Frequency Mode*\
+## Single Frequency Mode <a name="SingleFreq"></a>
 A plot of the Channel values over time for the model and the scope\
 (Samples: 
 [xx](https://zenodo.org/record/1212523/files/se_607_HBA_150MHz_24h_xx_vals_1f.png),
@@ -85,7 +85,7 @@ A plot of the Channel values over LOFAR Station Azimuth for the scope\
 [I](https://zenodo.org/record/1405636/files/_vals_1d_I_stn_az_ew_125000000-0Hz.png),
 [Q](https://zenodo.org/record/1405636/files/_vals_1d_Q_stn_az_ew_125000000-0Hz.png))
 
-*Multi Frequency Mode*\
+## Multi Frequency Mode <a name="MultiFreq"></a>
 A print of the Pearson R correlation between model and scope for each of the Channels \
 (Samples: [all](https://zenodo.org/record/1212523/files/se_607_HBA_24h_nd_corr.txt))
 
