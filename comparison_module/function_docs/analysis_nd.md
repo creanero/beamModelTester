@@ -44,13 +44,35 @@ This element produces outputs for each polarisation for which there is a differe
 recorded in the input.  
 
 ## Design Diagram
-![Design diagram](/images/comparison_module_analysis_nf_fig1_v2.PNG)
+![Design diagram](/images/comparison_module_analysis_nf_fig1_v3.PNG)
 
 ## Operation
 1.  If "spectra" is set in plots
     1.  calls plot_spectra_nf to plot the variation of the sources against frequency and time
+        1.  If the 3-d mode is set to colour or contour, calls plot_3d_graph with time on the x-axis and frequency on the y-axis
+        2.  If the 3-d mode is set to anim, calls plot_3d_graph with time on the t-axis and frequency on the x-axis
+        3.  If the 3-d mode is set to animf, calls plot_3d_graph with time on the x-axis and frequency on the t-axis
 2.  If "alt" or "az" are set in plots 
     1.  if Alt/az coordinates have been calculated, calls plot_altaz_values_nf to plot the variation of the sources against frequency and Altitude or Azimuth
+        1.  Calls get_alt_az_var to identify the correct variables for altitude and azimuth
+        2.  adds the Alt and Az parameters from the modes directory to a list of variables to plot as the x-axes and corresponding variables to act as y-axes
+        3.  Splits the Alt and Az x-axis parameters and the dataframe between East and West, North and South if requested using split_df
+        4.  For each of the x-axis sets,
+            1.  If the 3-d mode is set to colour:
+                1.  For each source
+                    1.  For each channel
+                        1.  For each split (East/West, North/South) if requested
+                            1.  Calls four_var_plot with 
+                                1.  the split data frame as  in_df
+                                2.  the modes dictionary
+                                3.  the altitude/azimuth variable as var_x
+                                4.  Frequency as var_y
+                                5.  the channel as var_z
+                                6.  The counterpart to the alt/azimuth variable as var_y2
+                                7.  The source as source
+                                8.  The name of the split (E/W/N/S) as plot_name
+            2.  If the 3-d mode is set to anim, calls plot_3d_graph with alt/az variable on the t-axis and frequency on the x-axis
+            3.  If the 3-d mode is set to animf, calls plot_3d_graph with alt/az variable on the x-axis and frequency on the t-axis
     2.  Otherwise returns an error
 3.  If a difference has been calculated (i.e. there are two inputs to compare)
     1.  if "corr" is to be plotted, adds it to the list of figures of merit
