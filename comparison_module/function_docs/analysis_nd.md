@@ -1,29 +1,29 @@
-**Comparison Module \
-multi dimensional analysis functions\
-Version 0.3\
-28ᵗʰ March 2018\
+# Comparison Module 
+**multi dimensional analysis functions\
+Version 1.0\
+5ᵗʰ October 2018\
 Oisin Creaner**
 
 This set of functions describes the multi-dimensional analysis elements of the 
 [comparison module](/comparison_module/Comparison_Module.md).
 
-**Functions**\
+## Functions
 plot_diff_values_nf\
 calc_corr_1d\
 calc_rmse_1d\
 calc_corr_nd\
 calc_rmse_nd
 
-**Dependencies**\
+## Dependencies
 pandas\
 numpy\
 matplotlib.pyplot\
 scipy.stats.stats.pearsonr
 
-**Inputs**\
+## Inputs
 A merged data frame containing model and scope data
 
-**Outputs**\
+## Outputs
 *All outputs are optional based on user input contained in the modes dictionary*
 1.  A calculation of the correlation coefficient between the model
     and the scope data for each channel
@@ -37,17 +37,17 @@ A merged data frame containing model and scope data
     and the scope data for each channel varies over each independent variable
     
     
-**Outline**\
+## Outline
 These functions form the multi-dimensional analysis elements of the 
 [comparison module](/comparison_module/Comparison_Module.md) of 
 [beamModelTester](/README.md)
 This element produces outputs for each polarisation for which there is a difference
 recorded in the input.  
 
-**Design Diagram**\
-![Design diagram](/images/comparison_module_analysis_nf_fig1_v1.PNG)
+## Design Diagram
+![Design diagram](/images/comparison_module_analysis_nf_fig1_v2.PNG)
 
-**Operation**
+## Operation
 1.  If the modes dictionary includes "corr" in plots
     1.calculates the pearson correlation coefficient between scope and model using calc_corr_1d
         1.  for each channel prints the correlation 
