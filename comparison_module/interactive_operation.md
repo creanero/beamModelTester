@@ -10,7 +10,7 @@ An instruction guide to this system is available at [this link](/comparison_modu
 os
 
 ## Design Diagram
-![Overall Flowchart of Interactive Operations](/images/interactive_menu_v3.png)
+![Overall Flowchart of Interactive Operations](/images/interactive_menu_functions_v1.png)
 
 ## Inputs
 modes dictionary\
