@@ -1,7 +1,8 @@
 # Interactive mode operations of comparison_module
 
 In interactive mode, the comparison module presents the user with a series of screens requesting information from them to enable 
-plotting of suitable graphs.
+plotting of suitable graphs. 
+Software design for this system is available at [this link](/comparison_module/interactive_operation.md)
 
 ![flowchart](/images/interactive_menu_v2.png)
 
