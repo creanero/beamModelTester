@@ -67,7 +67,7 @@ and store the contents in a dataframe
     dataframe
 4.  If the program is in low-interactivity modes:
     1.  Run the [Operational Loop](/comparison_module/operational_loop.md) of the program once
-5.  In fully interactive mode, do the following until the user enters the command to stop
+5.  In fully interactive mode, do the following until the user enters the command to stop<a name="MainLoop"></a>
     1.  Run the [Operational Loop](/comparison_module/operational_loop.md).
     2.  Run the [Interactive Operation](/comparison_module/interactive_operation.md) to allow the user to set the parameters for the program
 
