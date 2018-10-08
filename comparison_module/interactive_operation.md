@@ -1,1 +1,1 @@
-![Placeholder Image](/images/interactive_menu.png)
+![Placeholder Image](/images/interactive_menu_v2.png)
