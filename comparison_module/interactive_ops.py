@@ -1362,9 +1362,10 @@ def set_other_options(modes):
       1: Set time offset between scope and frequency
       2: Set graph and file title prefix
       3: Set difference mode
+      4: Toggle log/linear plotting.  Currently {0}
 
       0: Return to previous menu
-              """)
+              """).format(modes['scale'])
         
         menu_choice=raw_input("Please enter your selection from the menu above:\t")
             
@@ -1379,6 +1380,11 @@ def set_other_options(modes):
                         
         elif "3" == menu_choice:
             set_diff(modes)
+        elif "4" == menu_choice:
+            if "linear" == modes['scale']:
+                modes['scale'] = "log"
+            else:
+                modes['scale'] = "linear"
                
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
