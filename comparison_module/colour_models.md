@@ -121,7 +121,7 @@ I_s -> winter
 'alt_dark','stn_alt_dark'-> darkslategrey
 
 ### alt-channel 3d plots
-![alt channels](/images/colour_models/alt_s.png)\
+![alt channels](/images/colour_models/alt_s.PNG)\
 'alt_s','stn_alt_s'-> Greys
 
 
@@ -132,7 +132,7 @@ I_s -> winter
 'az_dark','stn_az_dark'-> saddlebrown
 
 ### az-channel 3d plots
-![az channels](/images/colour_models/az_s.png)\
+![az channels](/images/colour_models/az_s.PNG)\
 'az_s','stn_az_s'-> copper
 
 ### OTHER
@@ -141,5 +141,5 @@ I_s -> winter
 '*_dark','*_scope'-> darkslategrey
 
 ### other-channel 3d plots
-![other channels](/images/colour_models/other_s.png)\
+![other channels](/images/colour_models/other_s.PNG)\
 '*_s'-> Greys
