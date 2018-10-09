@@ -136,10 +136,12 @@ I_s -> winter
 'az_s','stn_az_s'-> copper
 
 ### OTHER
-![other channels](/images/colour_models/other_3.PNG)\any other variable -> black\
-'*_light','*_model' -> grey\
-'*_dark','*_scope'-> darkslategrey
+Used as a default if the user has entered an unrecognised channel.  A Warning message is also displayed.
+
+![other channels](/images/colour_models/other_3.PNG)\* -> black\
+'\*_light','\*_model' -> grey\
+'\*_dark','\*_scope'-> darkslategrey
 
 ### other-channel 3d plots
 ![other channels](/images/colour_models/other_s.PNG)\
-'*_s'-> Greys
+'\*_s'-> Greys
