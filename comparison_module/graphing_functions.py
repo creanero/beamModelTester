@@ -72,8 +72,15 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             
         
     plt.legend(frameon=False)
-    #plots x-label using start time 
-    plt.xlabel(gen_pretty_name(var_x,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+
+
+    if var_x in ['d_Time']:
+        #plots x-label using start time
+        plt.xlabel(gen_pretty_name(var_x,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+    else:
+        plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
+
+
     plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
     plt.colorbar()
     #prints or saves the plot

@@ -49,9 +49,7 @@ def read_dreambeam_csv(in_file,modes):
     # 2. yx not included in scope data (presumably because of 1.)
     #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     '''
-    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
-    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
-    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    out_df=calc_xy(out_df)
     
     if 'd_Time' not in out_df:
         #creates a variable to hold the time since the start of the plot
@@ -364,10 +362,17 @@ def crop_operation (in_df,modes):
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
             
     return(out_df)
+
     
+def calc_xy(in_df):
+    out_df = in_df.copy()
+    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
+    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
+    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    return(out_df)
 
 
-def calc_stokes(in_df,modes,sources=[""]):
+def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     '''
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
