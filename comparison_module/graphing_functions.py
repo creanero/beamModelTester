@@ -182,18 +182,19 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             line, = ax.plot(var_x_vals, var_y_vals, 
                             color=colour_models(var_y+sep+source))
             lines.append(line)
-                #code to set x and y limits.  
-            #Really want to get a sensible way of doing this
-            if plottable(merge_df[(var_ys[i]+sep+source)]).min() < 0:
-                local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
-            else:
-                local_min_y = 0
+
+            # code to set x and y limits.
+            local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
+
+
             min_y=min(min_y,local_min_y)
             #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
             local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),100-percentile_gap)*multiplier
             max_y=max(max_y,local_max_y)
-    
-    #ax.set_ylim(min_y,max_y)
+
+    if min_y > 0 and modes['scale']=='linear':
+        min_y = 0
+    ax.set_ylim(min_y,max_y)
     
 
     ax.set_xlabel(gen_pretty_name(var_x,units=True), wrap=True)
