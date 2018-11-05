@@ -32,7 +32,7 @@ The signal from these RCUs is processed into 512 subbands, each of width
 The ACC file records the covariance of each RCU with each other RCU for
 each subband into a matrix.  The diagonal of this matrix is thus the variance of the signal from each RCU
 
-![Design Diagram](images/ACC_Source_Fig1.PNG)
+![Design Diagram](/images/ACC_Source_Fig1.PNG)
 
 **Figure 1: Structure of an ACC file**
 

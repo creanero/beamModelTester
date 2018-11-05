@@ -78,7 +78,7 @@ def add_units(key,units):
     '''
     minor function that adds units in brackets after the key provided
     '''
-    new_key = key+' ('+units+')'
+    new_key = key+'\n('+units+')'
     return(new_key)
     
 ###############################################################################
@@ -200,12 +200,12 @@ def colour_models(colour_id):
         return('brown')
     if colour_id in ['az_light','az_ew_light','stn_az_light','stn_az_ew_light',
                      'az_model','stn_az_model','az_ew_model','stn_az_ew_model']:
-        return('chocolatebrown')
+        return('chocolate')
     if colour_id in ['az_dark','az_ew_dark','stn_az_dark','stn_az_ew_dark',
                      'az_scope','stn_az_scope','az_ew_scope','stn_az_ew_scope']:
         return('saddlebrown')
     if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
-        return('Copper')     
+        return('copper')     
 
     #TODO: see if there's a way to make this generic but enable suppression of 
     #warnings if user requested.

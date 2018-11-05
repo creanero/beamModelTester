@@ -12,6 +12,11 @@ import numpy as np
 from utility_functions import plottable
 from utility_functions import get_source_separator
 
+from graphing_functions import identify_plots
+
+import sys
+
+
 def read_dreambeam_csv(in_file,modes):
     '''
     This function reads in csv files output by dreambeam into a formatted 
@@ -44,9 +49,7 @@ def read_dreambeam_csv(in_file,modes):
     # 2. yx not included in scope data (presumably because of 1.)
     #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     '''
-    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
-    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
-    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    out_df=calc_xy(out_df)
     
     if 'd_Time' not in out_df:
         #creates a variable to hold the time since the start of the plot
@@ -211,6 +214,52 @@ def crop_and_norm(in_df,modes,origin):
         #recalculates the Stokes Parameters for the normalised values
         calc_stokes(out_df,modes)
     return(out_df)
+
+def merge_crop_test(model_df, scope_df, modes):
+    """
+    This function takes in the model and scope data frames, and based on 
+    whether they have contents, returns a merge_df which is either the 
+    result of merging the two dataframes or the contents of the only DF if only
+    one has been supplied.
+    
+    It also returns sources, which defines whether the model, the scope or the
+    difference is to be plotted.  When only one file is provided, sources is 
+    a list containing the empty string, which means values are plotted from the
+    only dataframe that was loaded with no suffix
+    """
+    if "none" not in scope_df:        
+        #adjusts for the offset if needed (e.g. comparing two observations)
+        #creates a backup of the time
+	if "original_Time" not in scope_df.columns.values:
+	    scope_df["original_Time"]=scope_df.Time.copy()
+        #then changes the time value based on the offset
+        offset=np.timedelta64(modes['offset'],'s')
+        scope_df.Time=scope_df.original_Time-offset
+  
+    if "none" not in model_df and "none" not in scope_df:
+        #merges the dataframes
+        merge_df=merge_dfs(model_df, scope_df, modes)
+        
+        #identifies the sources required
+        sources = identify_plots(modes)
+        
+    #if only scope is valid
+    elif "none" in model_df and "none" not in scope_df:
+        merge_df=crop_and_norm(scope_df,modes,"s")
+        sources = [""]#sets the source to blank as there are no differentiators
+    elif "none" not in model_df and "none" in scope_df:
+        merge_df=crop_and_norm(model_df,modes,"m")
+        sources = [""]
+    else: #Both blank
+        if modes['verbose'] >=1:
+            print("ERROR: No data available in either file")
+        if modes['interactive']<=1: #in low interactivity modes
+            sys.exit(1)
+        else:
+            merge_df=pd.DataFrame(data={"none":[]})
+            sources=[""]
+            #in high interactivity modes, will be able to create new data later
+    return(merge_df, sources)
     
     
 def merge_dfs(model_df,scope_df,modes):
@@ -237,15 +286,6 @@ def merge_dfs(model_df,scope_df,modes):
     merge_df=pd.merge(model_df_clean,scope_df_clean,on=('Time','Freq'),
                       suffixes=('_model','_scope'))
     if len(merge_df) > 0:
-        #checks if the stokes parameters have been calculated
-        sources = []
-        if "Q_model" not in merge_df:
-            sources.append("model")
-        if "Q_model" not in scope_df:
-            sources.append("scope")
-        #and if not, calculates them
-        merge_df=calc_stokes(merge_df,modes,sources)
-        
         #calculates differences between model and scope values for each channel
         for channel in ["xx","xy","yy","U","V","I","Q"]:
             calc_diff(merge_df, modes, channel)
@@ -256,7 +296,7 @@ def merge_dfs(model_df,scope_df,modes):
             merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
     else:
         if modes['verbose'] >=1:
-            print("ERROR: NO MATCHING DATA: CLOSING")
+            print("ERROR: NO MATCHING DATA")
     return(merge_df)        
 
 def crop_vals(in_df,modes):
@@ -299,7 +339,7 @@ def crop_operation (in_df,modes):
     #goes through all the columns of the data
     for col in out_df:
         #targets the dependent variables
-        if col not in ['Time','Freq','d_Time']:
+        if col not in ['Time','Freq','d_Time', 'original_Time']:
             #drops all zero values from the data
             out_df.drop(out_df[out_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data
@@ -322,10 +362,17 @@ def crop_operation (in_df,modes):
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
             
     return(out_df)
+
     
+def calc_xy(in_df):
+    out_df = in_df.copy()
+    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
+    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
+    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    return(out_df)
 
 
-def calc_stokes(in_df,modes,sources=[""]):
+def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     '''
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe

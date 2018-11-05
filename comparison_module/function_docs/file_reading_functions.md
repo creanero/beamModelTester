@@ -14,7 +14,7 @@ read_OSO_h5
 **Dependencies**\
 pandas\
 h5py\
-Numpy
+numpy
 
 **Outline**\
 These functions form the file entry component of the 
@@ -24,7 +24,7 @@ Depending on the file type provided, the system uses one of several (currently t
 to read the file into memory as a dataframe suitable for futher processing.
 
 **Design Diagram**\
-![Design Diagram](/images/comparison_module_read_functions_fig1_v2.PNG)
+![Design Diagram](/images/comparison_module_read_functions_fig1_v3.PNG)
 
 **Operation**
 
@@ -35,8 +35,11 @@ to read the file into memory as a dataframe suitable for futher processing.
         1.  converters to read in the Jones matrix elements as complex numbers
         2.  A date parser for the Time column
         3.  An argument to specify to skip initial spaces if needed.
-    3.  Each of the linear polarisation channels are calculated.
-    4.  This function returns the dataframe containing the output from dreamBeam
+    3.  Each of the linear polarisation channels (xx, xy, yy) are calculated.
+        1.  XX= (J11 * conj(J11))+ (J12 * conj(J12))
+        2.  XY= (J11 * conj(J21))+ (J12 * conj(J22))
+        3.  YY= (J21 * conj(J21))+ (J22 * conj(J22))
+    4.  Returns the Dataframe to read_var_file
 3.  If the suffix is "hdf5", execute read_OSO_h5:
     1.  This means the data must be of [OSO HDF5 format](/data_descriptions/OSO_HDF5.md)
     2.  Call the h5py File method in read mode
@@ -52,10 +55,11 @@ to read the file into memory as a dataframe suitable for futher processing.
             4.  Reads the XX, XY and YY values from the file by the indices and appends them to their respective lists
             5.  Increments the Frequency index
         3.  Increments the Time index
-    7.  If the modes are set to crop this particular dataframe
-        1.  Crop the data using the crop_vals function
-    8.  If the modes are set to normalise this particular dataframe
-        1.  Crop the data using the normalise_data function
-    9.  Creates a dataframe from the lists
-    10. Returns the Dataframe
-4. Returns the Dataframe
+    7.  Creates a dataframe from the lists
+    8.  Returns the Dataframe to read_var_file
+4.  Calculates the Stokes Parameters (U, V, I and Q) for the dataframe using calc_stokes
+    1.  U= real(xy)
+    2.  V= imaginary(xy)
+    3.  I= xx+yy
+    4.  Q= xx-yy
+5.  Returns the Dataframe to the function that called read_var_file
