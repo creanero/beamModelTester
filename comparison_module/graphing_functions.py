@@ -4,6 +4,8 @@ Created on Fri Jun 15 13:40:49 2018
 
 @author: User
 """
+import matplotlib
+matplotlib.use('agg')
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -24,7 +26,7 @@ from io_functions import prep_out_file
 
 
 
-def plot_against_freq_time(merge_df, key, modes, source, var_x, var_y):
+def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
     '''
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
@@ -70,8 +72,15 @@ def plot_against_freq_time(merge_df, key, modes, source, var_x, var_y):
             
         
     plt.legend(frameon=False)
-    #plots x-label using start time 
-    plt.xlabel(gen_pretty_name(var_x,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+
+
+    if var_x in ['d_Time']:
+        #plots x-label using start time
+        plt.xlabel(gen_pretty_name(var_x,units=True)+"\nStart Time: "+str(min(merge_df.Time)), wrap=True)
+    else:
+        plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
+
+
     plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
     plt.colorbar()
     #prints or saves the plot
@@ -173,22 +182,28 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             line, = ax.plot(var_x_vals, var_y_vals, 
                             color=colour_models(var_y+sep+source))
             lines.append(line)
-                #code to set x and y limits.  
-            #Really want to get a sensible way of doing this
-            if plottable(merge_df[(var_ys[i]+sep+source)]).min() < 0:
-                local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
-            else:
-                local_min_y = 0
+
+            # code to set x and y limits.
+            local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
+
+
             min_y=min(min_y,local_min_y)
             #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
             local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),100-percentile_gap)*multiplier
             max_y=max(max_y,local_max_y)
-    
+
+    if min_y > 0 and modes['scale']=='linear':
+        min_y = 0
     ax.set_ylim(min_y,max_y)
     
 
     ax.set_xlabel(gen_pretty_name(var_x,units=True), wrap=True)
     ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)", wrap=True)    
+
+
+    #sets the y axis scale to logarithmic if requested.
+    if modes['scale'] == 'log':
+        ax.set_yscale('log')   
  
     ax.legend(frameon=False)
     
@@ -266,6 +281,11 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
     
     var_x_vals =plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
                           var_x)
+
+
+    #sets the y axis scale to logarithmic if requested.
+    if modes['scale'] == 'log':
+        ax.set_yscale('log')   
     
     no_sources = len(sources)
     for y_index in range(len(var_ys)):
@@ -280,7 +300,7 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
     ax.set_aspect('auto')
     #plt.tight_layout()
 
-
+"""
 def plot_values_1f(merge_df, m_keys, modes):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
@@ -317,6 +337,10 @@ def plot_values_1f(merge_df, m_keys, modes):
         #plots the axis labels rotated so they're legible
         plt.xticks(rotation=90)
         plt.xlabel(gen_pretty_name('Time',units=True))
+
+        #sets the y axis scale to logarithmic if requested.
+        if modes['scale'] == 'log':
+            plt.yscale('log')
         
         #prints or saves the plot
         if modes['out_dir'] == None:
@@ -330,7 +354,7 @@ def plot_values_1f(merge_df, m_keys, modes):
             plt.savefig(plt_file,bbox_inches='tight',pad_inches=1)
             plt.close()
     return(0)
-  
+"""  
 def plots_1f(merge_df, m_keys, modes,var_str,sources):
     '''
     This function takes a merged dataframe as an argument and plots a graph of
@@ -383,13 +407,21 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     #plots the axis labels rotated so they're legible
     plt.xticks(rotation=90)
     plt.xlabel(gen_pretty_name(var_str,units=True))
-    
+
+
+
+    #sets the y axis scale to logarithmic if requested.
+    if modes['scale'] == 'log':
+        plt.yscale('log')            
+
     #prints or saves the plot
     if modes['out_dir'] == None:
         plt.show()
     else:
+        str_sources = channel_maker(sources,modes)
         plt_file=prep_out_file(modes,plot="vals",dims="1d",ind_var=var_str,
                                channel=channel_maker(m_keys, modes),
+                               source=str_sources,
                                freq=min(merge_df.Freq),
                                out_type="png")
         if modes['verbose'] >=2:
@@ -537,8 +569,7 @@ def plot_spectra_nf(merge_df, m_keys, modes,sources):
                 var_y="Freq"
                 var_x="d_Time"
             
-                plot_against_freq_time(merge_df, key, modes, source, 
-                                       var_x, var_y)
+                plot_3d_graph(merge_df, key, modes, source, var_x, var_y)
 
     elif modes['three_d'] in ["animf", "anim"]:
         if modes['three_d']=="anim":

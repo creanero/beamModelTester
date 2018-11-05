@@ -349,8 +349,17 @@ def check_coords(ns, ew, modes={"verbose":1}): #default value gives responses
     return(warn_flag)
 
 
+def calc_alt_az_all_sky(in_df, modes):
+    """
+    This function uses astropy to calculate a set of altitude and azimuth coordinates from a set of RA/Dec coordinates
+    from an all-sky analysis.
 
-
+    :param merge_df:
+    :param modes:
+    :return:
+    """
+    out_df=in_df.copy()
+    return(out_df)
 
 
 def calc_alt_az(merge_df,modes):

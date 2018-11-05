@@ -128,14 +128,14 @@ def analysis_nd(merge_df,modes, m_keys,sources):
     #return values are stored as possible future outputs
 
     ind_dfs = {}
-    foms=[]
-    if "corr" in modes["plots"]:
-        foms.append("corr")
-    if "rmse" in modes["plots"]:
-        foms.append("rmse")
 
         #checks to see if there are differences to analyse
     if (any ("diff" in col_name for col_name in merge_df.columns)):     
+        foms=[]
+        if "corr" in modes["plots"]:
+            foms.append("corr")
+        if "rmse" in modes["plots"]:
+            foms.append("rmse")
  
 
         for fom in foms:

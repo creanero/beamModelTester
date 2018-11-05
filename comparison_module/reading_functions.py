@@ -49,9 +49,7 @@ def read_dreambeam_csv(in_file,modes):
     # 2. yx not included in scope data (presumably because of 1.)
     #merge_df['yx_model']=merge_df.J21*np.conj(merge_df.J11)+merge_df.J22*np.conj(merge_df.J12)
     '''
-    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
-    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
-    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    out_df=calc_xy(out_df)
     
     if 'd_Time' not in out_df:
         #creates a variable to hold the time since the start of the plot
@@ -231,8 +229,12 @@ def merge_crop_test(model_df, scope_df, modes):
     """
     if "none" not in scope_df:        
         #adjusts for the offset if needed (e.g. comparing two observations)
+        #creates a backup of the time
+	if "original_Time" not in scope_df.columns.values:
+	    scope_df["original_Time"]=scope_df.Time.copy()
+        #then changes the time value based on the offset
         offset=np.timedelta64(modes['offset'],'s')
-        scope_df.Time=scope_df.Time-offset
+        scope_df.Time=scope_df.original_Time-offset
   
     if "none" not in model_df and "none" not in scope_df:
         #merges the dataframes
@@ -337,7 +339,7 @@ def crop_operation (in_df,modes):
     #goes through all the columns of the data
     for col in out_df:
         #targets the dependent variables
-        if col not in ['Time','Freq','d_Time']:
+        if col not in ['Time','Freq','d_Time', 'original_Time']:
             #drops all zero values from the data
             out_df.drop(out_df[out_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data
@@ -360,10 +362,17 @@ def crop_operation (in_df,modes):
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
             
     return(out_df)
+
     
+def calc_xy(in_df):
+    out_df = in_df.copy()
+    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
+    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
+    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    return(out_df)
 
 
-def calc_stokes(in_df,modes,sources=[""]):
+def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     '''
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe

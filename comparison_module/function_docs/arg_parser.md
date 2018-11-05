@@ -101,5 +101,5 @@ Options: {"colour","color", "anim", "animf","contour"}
 17.  Returns the dictionary mode
 
 ## Usage and arguments
-This function is only used as part of the comparison module. Detailed usage notes at [this link](beamModelTester/comparison_module/readme.md)
+This function is only used as part of the comparison module. Detailed usage notes at [this link for command line](/comparison_module/cli_arguments.md) and [this link for interactive use](/comparison_module/interactive_mode.md)
 

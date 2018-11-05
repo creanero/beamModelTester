@@ -1,9 +1,10 @@
 # Interactive mode operations of comparison_module
 
 In interactive mode, the comparison module presents the user with a series of screens requesting information from them to enable 
-plotting of suitable graphs.
+plotting of suitable graphs. 
+Software design for this system is available at [this link](/comparison_module/interactive_operation.md)
 
-![flowchart](/images/interactive_menu.png)
+![flowchart](/images/interactive_menu_v2.png)
 
 
 ## Main Menu <a name="MainMenu"></a>
@@ -349,6 +350,7 @@ From this menu, the user can the offset in time between model and scope, the Tit
 Type 1 to set the [offset between model and scope](#8_1_misc_offset_menu)\
 Type 2 to set the [titles for plots and files](#8_2_misc_title_menu)\
 Type 3 to set the [operation used for the difference between model and scope](#8_3_misc_diff_menu)
+Type 4 to toggle between linear and logarithmic plots
 
 Type 0 to return to the [Main menu](#MainMenu)
 
