@@ -82,7 +82,7 @@ sets the level of verbosity for the program outputs.
 
     #adds an optional argument for interactivity
     parser.add_argument("--interactive","-I", default=2, type=int,
-                        choices = (0,1,2),
+                        choices = (0,1,2,3),
                              help='''
 sets the level of interactivity for the program inputs.  
 0 indicates non-interactive mode
@@ -205,11 +205,13 @@ multiple of the mean or median, or the percentile level to cut the scope values
     
 
     #adds an optional argument for cropping method
-    parser.add_argument("--crop_basis","-k", default='n',choices=('o',"f","n"), 
+    parser.add_argument("--crop_basis","-k", default='n',
+                        choices=('o',"f","n",'t'), 
                              help='''
 Method for cropping the data
 o = overall (crop equally for all data)
 f = frequency (crop by frequency/subband)
+t = time
 n = no cropping
                              ''')
 

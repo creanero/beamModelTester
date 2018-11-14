@@ -322,9 +322,19 @@ def crop_vals(in_df,modes):
         for col in in_df:
             out_df[col]=out_df[col].astype(in_df[col].dtypes.name)
         for unique_val in unique_vals:
-            unique_df=in_df.loc[(in_df.Freq==unique_val),:].copy()
+            unique_df=in_df.loc[(in_df[var_str]==unique_val),:].copy()
             out_df=out_df.append(crop_operation (unique_df,modes))
-        
+    elif 't' in modes["crop_basis"]:
+        if modes['verbose'] >=2:
+            print("Crop basis: Time")
+        var_str='Time'
+        unique_vals=in_df[var_str].unique()
+        out_df= pd.DataFrame(columns=in_df.columns)
+        for col in in_df:
+            out_df[col]=out_df[col].astype(in_df[col].dtypes.name)
+        for unique_val in unique_vals:
+            unique_df=in_df.loc[(in_df[var_str]==unique_val),:].copy()
+            out_df=out_df.append(crop_operation (unique_df,modes))        
     else:
         out_df=crop_operation (in_df,modes)
         

@@ -15,6 +15,168 @@ from io_functions import set_out_dir
 
 import os.path
 
+import Tkinter  as tk
+
+def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
+             exit_prompt=""):
+    """
+    This function produces a text menu on the screen for use with command line
+    execution of the program
+    """
+    #creates a menu option for the user to input
+    menu_choice = "X"
+    
+    #if the title isn't blank
+    if menu_title!="":
+        #prints the title
+        print(menu_title+"\n")
+    
+    #if an overall menu status is provided
+    if menu_status != "":
+        if callable(menu_status):
+            #if so, call it and record its return value in status
+            status=("Current: {0}\n").format(menu_status())
+        else:
+            #otherwise, return its value
+            status=("Current: {0}\n").format(menu_status)
+        #prints the status
+        print(status)
+    
+    #prints a warning if there's no menu options
+    if 0==len(menu_list):
+        print("Menu Empty")
+    
+    for i in range(len(menu_list)):
+        #creates a menu number
+        menu_number = i + 1
+        
+        #reads in the menu prompt
+        option=menu_list[i]["option"]
+        
+        #attempts to read the status corresponding to that menu item
+        #if the menu item has a status variable
+        if ('status' in menu_list[i].keys()):
+            #check if it is a function
+            if callable(menu_list[i]["status"]):
+                #if so, call it and record its return value in status
+                status=("Current: {0}").format(menu_list[i]["status"]())
+            else:
+                #otherwise, return its value
+                status=("Current: {0}").format(menu_list[i]["status"])
+        #if the menu item does not have a status variable
+        else:
+            #generate an empty string for the status
+            status=""
+        
+        #prints the menu number
+        print(("\t{0}: {1} {2}").format(menu_number, option,status))
+        
+    if ""==exit_prompt:
+        exit_prompt="Return to previous menu"
+    print(("\n\t0: {}").format(exit_prompt))
+    
+    #uses a default prompt if no better prompt is given
+    if ""==menu_prompt:
+        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+    else:
+        menu_choice=raw_input(menu_prompt)
+   
+    return(menu_choice)
+
+def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
+             exit_prompt=""):
+    
+    #Creates an interactive window
+    root = tk.Tk()
+    
+    #sets up a variable that will eventually set the output
+    var = tk.StringVar()
+    
+    #if the title isn't blank
+    if menu_title!="":
+        #prints the title as a label
+        title = tk.Label(root,text=menu_title)
+        title.pack()    
+    
+    #if an overall menu status is provided
+    if menu_status != "":
+        #if it is provided as a function/method
+        if callable(menu_status):
+            #call it and record its return value in status
+            status=("Current: {0}").format(menu_status())
+        else:
+            #otherwise, return its value
+            status=("Current: {0}").format(menu_status)
+        #prints the status as a Label
+        status_label = tk.Label(root,text=status)
+        status_label.pack()    
+    
+    
+    #prints a warning as a label if there's no menu options
+    if 0==len(menu_list):
+        warning_label = tk.Label(root,text="Menu_empty")
+        warning_label.pack() 
+    
+    #iterates over the menu list
+    for i in range(len(menu_list)):
+        #creates a menu number
+        menu_number = i + 1
+        
+        #reads in the menu option
+        option=menu_list[i]["option"]
+        
+        #attempts to read the status corresponding to that menu item
+        #if the menu item has a status variable
+        if ('status' in menu_list[i].keys()):
+            #check if it is a function
+            if callable(menu_list[i]["status"]):
+                #if so, call it and record its return value in status
+                status=("(Current: {0})").format(menu_list[i]["status"]())
+            else:
+                #otherwise, return its value
+                status=("(Current: {0})").format(menu_list[i]["status"])
+        #if the menu item does not have a status variable
+        else:
+            #generate an empty string for the status
+            status=""
+        
+        #Createsa string which contains the option and its status
+        button_string=("{0} {1}").format(option,status)
+        
+        #produces a radiobutton for each option
+        R=tk.Radiobutton(root, text=button_string, variable=var, value=menu_number)
+        R.pack( anchor = tk.W )
+    
+    #if the exit/up a level prompt is not provided
+    if ""==exit_prompt:
+        #produces a default prompt
+        exit_prompt="Return to previous menu"
+    
+    #and creates a corresponding radio button
+    exit_button=tk.Radiobutton(root, text=exit_prompt, variable=var, value=0)
+    exit_button.pack( anchor = tk.W )
+ 
+    #uses a default instruction if no better prompt is given
+    if ""==menu_prompt:
+        menu_prompt="Please click your selection from the menu above:\t"
+
+    #and prints the instructions as a label   
+    prompt = tk.Label(root,text=menu_prompt)
+    prompt.pack() 
+    
+    #creates a "confirm" button which kills root when it is called
+    submit=tk.Button(root, text="Click to confirm", command=root.destroy)
+    submit.pack()
+    
+    #runs the mainloop
+    root.mainloop()
+    
+    #creates an ordinary string from the variable
+    out_choice=str(var.get())
+    
+    #returns the choice string.
+    return(out_choice)
+
 def interactive_operation(modes, model_df, scope_df):
     """
     This function controls interactive elements of the software system and 
@@ -26,28 +188,57 @@ def interactive_operation(modes, model_df, scope_df):
 
 
     while continue_option:
-        print("""
-              INTERACTIVE MODE MENU
+        #sets up the menu options for cli or gui use
+        menu_title ="INTERACTIVE MODE MENU"
+        
+        #creates a list of menu items
+        menu_list = []
                 
-        1: Cropping Options
-        2: Normalisation Options
-        3: Animation/3D Options
-        4: Location/Target Options
-        5: Plotting Options
-        6: File Input/Output Options
-        7: Frequency Options
-        8: Other Options
+        #each menu item has an option title.
+        #status can be blank, a function or constant
+        opt_name={"option":"Cropping Options"}
+        menu_list.append(opt_name)
         
-        9: Plot with current options
+        opt_name={"option":"Normalisation Options"}
+        menu_list.append(opt_name)
         
-        0: Exit
-              """)
+        opt_name={"option":"Animation/3D Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Location/Target Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Plotting Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"File Input/Output Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Frequency Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Other Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Plot with current options"}
+        menu_list.append(opt_name)
+        
+
+        exit_prompt="Exit"
     
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 exit_prompt=exit_prompt)
 
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 exit_prompt=exit_prompt)
 
 
-        
+        #this setion handles the responses
         if "1" == menu_choice:
             set_crop_options(modes)
         elif "2" == menu_choice:
@@ -89,20 +280,35 @@ def set_crop_options(modes):
     
     while continue_option:
 
-        print("""
-              CROPPING MODE MENU
+        #sets up the menu options for cli or gui use
+        menu_title ="CROPPING MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant     
+        opt_name={"option":"Set Crop Level"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Crop Basis (Frequency/Overall)"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Crop Data (Model/Scope)"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Crop Operation Type"}
+        menu_list.append(opt_name)
+        
       
-      1: Set Crop Level
-      2: Set Crop Basis (Frequency/Overall)
-      3: Set Crop Data (Model/Scope)
-      4: Set Crop Operation Type
-      
-      0: Return to previous menu
-              """)
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
 
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
-
-            
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -127,7 +333,7 @@ def set_crop_level(modes):
     This function modifies the cropping level options in the modes variable
     """
     crop_level = 0.0
-
+    #TODO: create non-list menu options
 
     print(("""
               CROPPING LEVEL MENU
@@ -159,33 +365,58 @@ def set_crop_basis(modes):
     
     while continue_option:
 
-        print(("""
-              CROPPING BASIS MENU
-              Current: {0}
+        #sets up the menu options for cli or gui use
+        menu_title ="CROPPING BASIS MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+
               
-      n: No Cropping
-      o: Crop Overall
-      f: Crop by Frequency
-      
-      
-      0: Return to previous menu
-              """).format(modes["crop_basis"]))
+        opt_name={"option":"No Cropping"}
+        menu_list.append(opt_name)
         
+        opt_name={"option":"Crop Overall"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Crop by Frequency"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Crop by Time"}
+        menu_list.append(opt_name)        
+      
+
+        menu_status=gen_basis_name(modes["crop_basis"])
+        
+      
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
         
         
         if '0' == menu_choice:
             continue_option=False #finish the loop
         
-        elif menu_choice in ['n', 'N']:
+        elif menu_choice in ['1']:
             modes["crop_basis"]='n'
-            
-        elif menu_choice in ['f', 'F']:
-            modes["crop_basis"]='f'
                        
-        elif menu_choice in ['o', 'O']:
+        elif menu_choice in ['2']:
             modes["crop_basis"]='o'
+            
+        elif menu_choice in ['3']:
+            modes["crop_basis"]='f'
+            
+        elif menu_choice in ['4']:
+            modes["crop_basis"]='t'
             
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
@@ -200,36 +431,55 @@ def set_crop_data(modes):
     continue_option=True
     while continue_option:
 
-        print(("""
-              CROPPING DATA MENU
-              Current: {0}
-              
-      n: Crop Neither
-      s: Crop Scope
-      m: Crop Model
-      b: Crop Both
-      
-      
-      0: Return to previous menu
-              """).format(modes["crop_data"]))
+        #sets up the menu options for cli or gui use
+        menu_title ="CROPPING DATA MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":"Crop Neither"}
+        menu_list.append(opt_name)
         
+        opt_name={"option":"Crop Scope"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Crop Model"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Crop Both"}
+        menu_list.append(opt_name)
+        
+      
+
+        menu_status=gen_source_name(modes["crop_data"])
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
         
         
         if '0' == menu_choice:
             continue_option=False #finish the loop
         
-        elif menu_choice in ['n', 'N']:
+        elif menu_choice in ['1']:
             modes["crop_data"]='n'
             
-        elif menu_choice in ['s', 'S']:
+        elif menu_choice in ['2']:
             modes["crop_data"]='s'
                        
-        elif menu_choice in ['m', 'M']:
+        elif menu_choice in ['3']:
             modes["crop_data"]='m'
             
-        elif menu_choice in ['b', 'B']:
+        elif menu_choice in ['4']:
             modes["crop_data"]='b'
             
         else:
@@ -245,17 +495,38 @@ def set_crop_type(modes):
     
     while continue_option:
 
-        print(("""
-              CROPPING MODE MENU
-              Current: {0}
+        #sets up the menu options for cli or gui use
+        menu_title ="CROPPING MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"Median"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Mean"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Percentile"}
+        menu_list.append(opt_name)
+        
       
-      1: Median
-      2: Mean
-      3: Percentile
-      
-      0: Return to previous menu
-              """).format(modes["crop_type"]))
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+
+        menu_status=modes["crop_type"]
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
+        
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -273,7 +544,7 @@ def set_crop_type(modes):
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
-
+#TODO: Work out what this function is for
 def validate_options(user_input, valid_options, permit_partial=True):
     """
     This function is used to validate options input by the user to interactive 
@@ -322,15 +593,31 @@ def set_norm_options(modes):
     
     while continue_option:
 
-        print("""
-              NORMALISATION MODE MENU
+        #sets up the menu options for cli or gui use
+        menu_title ="NORMALISATION MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"Set Normalisation Basis (Frequency/Overall)"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Set Normalisation Data (Model/Scope)"}
+        menu_list.append(opt_name)
+        
+
       
-      1: Set Normalisation Basis (Frequency/Overall)
-      2: Set Normalisation Data (Model/Scope)
-      
-      0: Return to previous menu
-              """)
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
+        
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -352,83 +639,114 @@ def set_norm_basis(modes):
     """
     menu_choice = "X"
    
-    #menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
     continue_option=True
     while continue_option:
 
-        print(("""
-              NORMALISATION BASIS MENU
-              Current: {0}
-              
-      n: No Normalisation
-      o: Normalisation Overall
-      f: Normalisation by Frequency
-      t: Normalisation by Time
+        #sets up the menu options for cli or gui use
+        menu_title ="NORMALISATION BASIS MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"No Normalisation"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Normalisation Overall"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Normalisation by Frequency"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Normalisation by Time"}
+        menu_list.append(opt_name)
       
-      
-      0: Return to previous menu
-              """).format(modes["norm"]))
+
+        menu_status=gen_basis_name(modes["norm_basis"])
         
-        
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
-        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
         
         if '0' == menu_choice:
             continue_option=False #finish the loop
         
-        elif menu_choice in ['n', 'N']:
+        elif menu_choice in ['1']:
             modes["norm"]='n'
-            
-        elif menu_choice in ['f', 'F']:
+        elif menu_choice in ['2']:
+            modes["norm"]='o'            
+        elif menu_choice in ['3']:
             modes["norm"]='f'
-        elif menu_choice in ['t', 'T']:
-            modes["norm"]='T'                       
-        elif menu_choice in ['o', 'O']:
-            modes["norm"]='o'
+        elif menu_choice in ['4']:
+            modes["norm"]='t'                       
+
             
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
 
 def set_norm_data(modes):
     """
-    This function modifies the normalisation basis options in the modes
+    This function modifies the normalisation data options in the modes
     """
     menu_choice = "X"
     continue_option=True
-    #menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
     
     while continue_option:
 
-        print(("""
-              NORMALISATION DATA MENU
-              Current: {0}
-              
-      n: Normalise Neither
-      s: Normalise Scope
-      m: Normalise Model
-      b: Normalise Both
-      
-      
-      0: Return to previous menu
-              """).format(modes["norm_data"]))
+        #sets up the menu options for cli or gui use
+        menu_title ="NORMALISATION DATA MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"Normalise Neither"}
+        menu_list.append(opt_name)
         
+        opt_name={"Normalise Scope"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"Normalise Model"}
+        menu_list.append(opt_name)
         
+        opt_name={"Normalise Both"}
+        menu_list.append(opt_name)
+        
+        menu_status=gen_source_name(modes["norm_data"])
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
         
         if '0' == menu_choice:
             continue_option=False #finish the loop
         
-        elif menu_choice in ['n', 'N']:
+        elif menu_choice in ['1']:
             modes["norm_data"]='n'
             
-        elif menu_choice in ['s', 'S']:
+        elif menu_choice in ['2']:
             modes["norm_data"]='s'
                        
-        elif menu_choice in ['m', 'M']:
+        elif menu_choice in ['3']:
             modes["norm_data"]='m'
             
-        elif menu_choice in ['b', 'B']:
+        elif menu_choice in ['4']:
             modes["norm_data"]='b'
             
         else:
@@ -444,15 +762,28 @@ def set_3d_options(modes):
     
     while continue_option:
 
-        print("""
-              3D/ANIMATION MODE MENU
-      
-      1: Set 3d plotting Options
-      2: Set frame rate
-      
-      0: Return to previous menu
-              """)
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #sets up the menu options for cli or gui use
+        menu_title ="3D/ANIMATION MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"Set 3d plotting Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Set frame rate"}
+        menu_list.append(opt_name)
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -478,27 +809,40 @@ def set_3d_plotting(modes):
     
     while continue_option:
         
-        if modes["three_d"] in ["colour","color"]:
-            current_name="3-D Colour Plots"
-        elif "anim" == modes["three_d"]:
-            current_name="Animated plots against time"
-        elif "animf" == modes["three_d"]:
-            current_name="Animated plots against frequency"            
-        
-        print(("""
-              3D/ANIMATION PLOTTING MENU
-              Current: {0}
-      
-      1: Plot in 3-d colour plots
-      2: Plot animated against time
-      3: Plot animated against frequency
-      4: Plot contour 3d plot
-      
-      0: Return to previous menu
-              """).format(current_name))
         
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #sets up the menu options for cli or gui use
+        menu_title ="3D/ANIMATION PLOTTING MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"Plot 3-d colour plots"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Plot animated against time"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Plot animated against frequency"}
+        menu_list.append(opt_name)
+        
+        opt_name={"Plot 3-d contour plots"}
+        menu_list.append(opt_name)
+        
+        menu_status=gen_three_d_name(modes['three_d'])
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -523,7 +867,7 @@ def set_frame_rate(modes):
     This function modifies the cropping level options in the modes variable
     """
     frame_rate = 0.0
-
+    #TODO implement GUI for this
 
     print(("""
           FRAME RATE MENU
@@ -545,7 +889,7 @@ def set_coordinate_options(modes):
     menu_choice = "X"
     continue_option=True
     #menu_options=range(0,num_options)
-    
+        #TODO implement GUI for this
     while continue_option:
 
         print(("""
@@ -1509,6 +1853,50 @@ def gen_diff_name(abbreviation):
     else:
         print("Warning: Unknown difference name used!")
     return (diff_name)
+
+def gen_basis_name(abbreviation):
+    basis_name = ""
+    if "o"==abbreviation:
+        basis_name="Overall"
+    elif "f"==abbreviation:
+        basis_name="Frequency"
+    elif "t"==abbreviation:
+        basis_name="Time" 
+    elif abbreviation in ["","n"]:
+        basis_name="None"
+    else:
+        print("Warning: Unknown basis name used!")
+    return (basis_name)
+
+def gen_source_name(abbreviation):
+    source_name = ""
+    if "b"==abbreviation:
+        source_name="Both"
+    elif "m"==abbreviation:
+        source_name="Model"
+    elif "s"==abbreviation:
+        source_name="Scope" 
+    elif abbreviation in ["","n"]:
+        source_name="None"
+    else:
+        print("Warning: Unknown source name used!")
+    return (source_name)
+
+def gen_three_d_name(abbreviation):
+    three_d_name=""
+    if abbreviation in ["colour","color"]:
+        three_d_name="3-D Colour Plots"
+    elif "anim" == abbreviation:
+        three_d_name="Animated Plots against Time"
+    elif "animf" == abbreviation:
+        three_d_name="Animated Plots against Frequency"
+    elif "contour" == abbreviation:
+        three_d_name="3-D Contour Plots"
+    else:
+        print("Warning: Unknown 3-D name used!")
+    return(three_d_name)
+
+
 #looks like this was already done.  Partial version left for records
 #def set_loc_options(modes):
 #    """
