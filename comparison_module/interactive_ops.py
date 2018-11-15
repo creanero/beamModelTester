@@ -95,6 +95,7 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     #if the title isn't blank
     if menu_title!="":
         #prints the title as a label
+        root.title(menu_title)
         title = tk.Label(root,text=menu_title)
         title.pack()    
     
