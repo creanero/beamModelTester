@@ -503,13 +503,13 @@ def set_crop_type(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"Median"}
+        opt_name={"option":"Median"}
         menu_list.append(opt_name)
         
-        opt_name={"Mean"}
+        opt_name={"option":"Mean"}
         menu_list.append(opt_name)
         
-        opt_name={"Percentile"}
+        opt_name={"option":"Percentile"}
         menu_list.append(opt_name)
         
       
@@ -601,10 +601,10 @@ def set_norm_options(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"Set Normalisation Basis (Frequency/Overall)"}
+        opt_name={"option":"Set Normalisation Basis (Frequency/Overall)"}
         menu_list.append(opt_name)
         
-        opt_name={"Set Normalisation Data (Model/Scope)"}
+        opt_name={"option":"Set Normalisation Data (Model/Scope)"}
         menu_list.append(opt_name)
         
 
@@ -650,20 +650,20 @@ def set_norm_basis(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"No Normalisation"}
+        opt_name={"option":"No Normalisation"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalisation Overall"}
+        opt_name={"option":"Normalisation Overall"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalisation by Frequency"}
+        opt_name={"option":"Normalisation by Frequency"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalisation by Time"}
+        opt_name={"option":"Normalisation by Time"}
         menu_list.append(opt_name)
       
 
-        menu_status=gen_basis_name(modes["norm_basis"])
+        menu_status=gen_basis_name(modes["norm"])
         
         #Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
@@ -709,16 +709,16 @@ def set_norm_data(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"Normalise Neither"}
+        opt_name={"option":"Normalise Neither"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalise Scope"}
+        opt_name={"option":"Normalise Scope"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalise Model"}
+        opt_name={"option":"Normalise Model"}
         menu_list.append(opt_name)
         
-        opt_name={"Normalise Both"}
+        opt_name={"option":"Normalise Both"}
         menu_list.append(opt_name)
         
         menu_status=gen_source_name(modes["norm_data"])
@@ -770,10 +770,10 @@ def set_3d_options(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"Set 3d plotting Options"}
+        opt_name={"option":"Set 3d plotting Options"}
         menu_list.append(opt_name)
         
-        opt_name={"Set frame rate"}
+        opt_name={"option":"Set frame rate"}
         menu_list.append(opt_name)
         
         #Runs with GUI or CLI depending on mode.
@@ -805,7 +805,7 @@ def set_3d_plotting(modes):
     menu_choice = "X"
     continue_option=True
     #menu_options=range(0,num_options)
-    current_name=""
+
     
     while continue_option:
         
@@ -819,16 +819,16 @@ def set_3d_plotting(modes):
                 
         #each menu item has an option title.
         #status can be blank, a function or constant 
-        opt_name={"Plot 3-d colour plots"}
+        opt_name={"option":"Plot 3-d colour plots"}
         menu_list.append(opt_name)
         
-        opt_name={"Plot animated against time"}
+        opt_name={"option":"Plot animated against time"}
         menu_list.append(opt_name)
         
-        opt_name={"Plot animated against frequency"}
+        opt_name={"option":"Plot animated against frequency"}
         menu_list.append(opt_name)
         
-        opt_name={"Plot 3-d contour plots"}
+        opt_name={"option":"Plot 3-d contour plots"}
         menu_list.append(opt_name)
         
         menu_status=gen_three_d_name(modes['three_d'])
@@ -890,20 +890,31 @@ def set_coordinate_options(modes):
     continue_option=True
     #menu_options=range(0,num_options)
         #TODO implement GUI for this
-    while continue_option:
+    while continue_option:        
+        #sets up the menu options for cli or gui use
+        menu_title ="3D/ANIMATION PLOTTING MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":"Set Observing Location Options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Target Coordinate Options"}
+        menu_list.append(opt_name)
+        
+      
 
-        print(("""
-              COORDINATE MODE MENU
+        menu_status=(("""
               Current Location Name: {0} 
               Current Location Coordinates: Lat: {1} Long: {2} Elev {3}m
               
               Current Target Name: {4}
               Current Target Coordinates: RA: {5}deg Dec: {6}deg
       
-      1: Set Observing Location Options
-      2: Set Target Coordinate Options
-      
-      0: Return to previous menu
+
               """).format(modes['location_name'],
                           modes['location_coords'][0], #latitude
                           modes['location_coords'][1], #longitude
@@ -913,7 +924,17 @@ def set_coordinate_options(modes):
                           modes['object_coords'][1] #Dec
                           ))
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -939,18 +960,30 @@ def set_plotting_options(modes):
     continue_option=True
     #menu_options=range(0,num_options)
     
-    while continue_option:
-
-        print("""
-              PLOTTING MODE MENU
-      
-      1: Set graphs to plot
-      2: Set variables to plot
-      
-      0: Return to previous menu
-              """)
+    while continue_option:        
+        #sets up the menu options for cli or gui use
+        menu_title ="PLOTTING MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":"Set graphs to plot"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Set variables to plot"}
+        menu_list.append(opt_name)
+        
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -980,22 +1013,46 @@ def set_plotting(modes):
 #                                 "overlay"]
     
     while continue_option:
+        #checks the current status of overlaid plots
         overlay_status="overlay" in modes['plots']
-        spectra_status="spectra" in modes['plots']
-        print(("""
-              GRAPH SELECTION MENU
-      
-      1: Set figure of merit for closeness of fit
-      2: Set alt-azimuth plotting options
-      3: Set whether to plot model, scope or difference values
-      4: Toggle single-channel overlay options.  Currently: {0}
-      5: Toggle time series plots. Currently {1}
-          
-      0: Return to previous menu
-              """).format(gen_overlay_boolean(not(overlay_status)),
-                          gen_plotting_boolean(spectra_status)))
+        #checks the current status of time series plots
+        spectra_status="spectra" in modes['plots']   
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #sets up the menu options for cli or gui use
+        menu_title ="GRAPH SELECTION MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+      
+        opt_name={"option":"Set figure of merit for closeness of fit"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set alt-azimuth plotting options"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set whether to plot model, scope or difference values"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle single-channel overlay options",
+                  "status":(gen_overlay_boolean(not(overlay_status)))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle time series plots.",
+                  "status":(gen_plotting_boolean(spectra_status))}
+        menu_list.append(opt_name)
+        
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1035,20 +1092,40 @@ def set_fom(modes):
 #    ["rmse", "corr" 
     
     while continue_option:
+        #checks whether RMSE is currently being used
         rmse_status="rmse" in modes['plots']
+        
+        #checks whether correlation plots are currently requested
         corr_status="corr" in modes['plots']
-        print(("""
-              FIGURE OF MERIT SELECTION MENU
+  
+        
+        #sets up the menu options for cli or gui use
+        menu_title ="FIGURE OF MERIT SELECTION MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
       
-      1: Toggle Root Mean Squared Error Plotting. Currently: {0}
-      2: Toggle Pearson's Correlation Plotting. Currently: {1}
+        opt_name={"option":"Toggle Root Mean Squared Error Plotting.",
+                  "status":(gen_plotting_boolean(rmse_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle Pearson's Correlation Plotting.",
+                  "status":(gen_plotting_boolean(corr_status))}
+        menu_list.append(opt_name)
+        
 
           
-      0: Return to previous menu
-              """).format(gen_plotting_boolean(rmse_status),
-                          gen_plotting_boolean(corr_status),))
-        
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1077,33 +1154,60 @@ def set_alt_az(modes):
     """
     menu_choice = "X"
     continue_option=True
-    #menu_options=range(0,num_options)
-    
-#    ["alt","az","ew", "stn", "split"
+
     
     while continue_option:
+        #checks whether plots against altitude have been specified
         alt_status="alt" in modes['plots']
+        #checks whether plots against azimuth have been specified
         az_status="az" in modes['plots']
+        #checks whether azimuth is specified east/west or 0-360
         ew_status="ew" in modes['plots']
+        #checks whether geo or station coordinates are used
         stn_status="stn" in modes['plots']        
-        split_status="split" in modes['plots']        
-        print(("""
-              ALT-AZIMUTH OPTION SELECTION MENU
-      
-      1: Toggle Altitude Plotting. Currently: {0}
-      2: Toggle Azimuth Plotting. Currently: {1}
-      3: Toggle Plotting Azimuth on an East West basis instead of 0-360. Currently: {2}
-      4: Toggle Use of LOFAR Station Coordinates. Currently: {3}
-      5: Toggle splitting of looping plots. Currently: {4}
-          
-      0: Return to previous menu
-              """).format(gen_plotting_boolean(alt_status),
-                          gen_plotting_boolean(az_status),
-                          gen_plotting_boolean(ew_status),
-                          gen_plotting_boolean(stn_status),
-                          gen_plotting_boolean(split_status)))
+        #checks whether looping plots are split
+        split_status="split" in modes['plots'] 
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        
+        #sets up the menu options for cli or gui use
+        menu_title ="ALT-AZIMUTH OPTION SELECTION MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":"Toggle Altitude Plotting.",
+                  "status":(gen_plotting_boolean(alt_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle Azimuth Plotting.",
+                  "status":(gen_plotting_boolean(az_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle how Azimuth is displayed (E/W or 0-360).",
+                  "status":(gen_ew_boolean(ew_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle use of LOFAR Station Coordinates.",
+                  "status":(gen_use_boolean(stn_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle splitting of looping plots.",
+                  "status":(gen_split_boolean(split_status))}
+        menu_list.append(opt_name)
+        
+
+          
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
+            
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1158,24 +1262,44 @@ def set_msd_vals(modes):
 #    ["alt","az","ew", "stn", "split"
     
     while continue_option:
+        #checks if model plotting is requested
         model_status="model" in modes['plots']
+        #checks if scope plotting is requested
         scope_status="scope" in modes['plots']
+        #checks if difference plotting is requested
         diff_status="diff" in modes['plots']
       
-        print(("""
-              PLOTTING DATA SELECTION MENU
-      
-      1: Toggle Model Data Plotting. Currently: {0}
-      2: Toggle Scope Data Plotting. Currently: {1}
-      3: Toggle Difference Plotting. Currently: {2}
 
-          
-      0: Return to previous menu
-              """).format(gen_plotting_boolean(model_status),
-                          gen_plotting_boolean(scope_status),
-                          gen_plotting_boolean(diff_status)))
+        #sets up the menu options for cli or gui use
+        menu_title ="PLOTTING DATA SELECTION MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+      
+        opt_name={"option":"Toggle Model Data Plotting."}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Toggle Scope Data Plotting",
+                  "status":(gen_plotting_boolean(scope_status))}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle Difference Plotting.",
+                  "status":(gen_plotting_boolean(diff_status))}
+        menu_list.append(opt_name)
+        
+
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
+            
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1214,6 +1338,7 @@ def set_values(modes):
     """
     menu_choice = "X"
 
+    #TODO: GUI and CLI friendly implementation of this
 
     list_linear=["xx","xy","yy"]
     list_stokes=["U","V","I","Q"]
@@ -1226,7 +1351,7 @@ def set_values(modes):
     
     
     while continue_option:
-        dict_set=set_dict(modes,dict_lists)
+        dict_set=gen_channels_dict(modes,dict_lists)
         
         if "each" in modes["values"]:
             each_status = True
@@ -1293,27 +1418,6 @@ def set_values(modes):
             print("Input: "+str(menu_choice)+" not valid or not implemented.")   
 
 
-def gen_plotting_boolean(bool_in):
-    """
-    generates a string which looks better for the status of a plot
-    """
-    out_str = ""
-    if bool_in:
-        out_str="Plotting"
-    else:
-        out_str="Not Plotting"
-    return(out_str)
-    
-def gen_overlay_boolean(bool_in):
-    """
-    generates a string which looks better for the status of each
-    """
-    out_str = ""
-    if bool_in:
-        out_str="Separate from"
-    else:
-        out_str="Overlaid upon"
-    return(out_str)
 
 def process_single_values_menu(menu_choice, modes, dict_lists):
     """
@@ -1364,7 +1468,7 @@ def process_group_values_menu(menu_choice, modes, dict_lists):
     """
     #if the menu choice is all, toggle on if any are off
   
-    dict_set=set_dict(modes,dict_lists)
+    dict_set=gen_channels_dict(modes,dict_lists)
     
     #always drop the groups and to be replaced with individual flags
     for group in dict_lists:
@@ -1400,29 +1504,6 @@ def process_group_values_menu(menu_choice, modes, dict_lists):
             
         
 
-            
-def set_dict(modes, dict_lists):
-    
-    """
-    Creates a dictionary of the channels which are set
-    """
-    dict_set={"xx":False,
-              "xy":False,
-              "yy":False,
-              "U":False,
-              "V":False,
-              "I":False,
-              "Q":False}
-        
-    for channel in dict_lists["all"]:
-        if channel in modes["values"]:
-            dict_set[channel]=True
-    for group in dict_lists:
-        if group in modes["values"]:
-            for channel in dict_lists[group]: 
-                dict_set[channel]=True
-
-    return(dict_set)
     
     
     
@@ -1433,22 +1514,45 @@ def set_file_io_options(modes, model_df, scope_df):
     menu_choice = "X"
     continue_option=True
     #menu_options=range(0,num_options)
-    
+    #todo: finish this
     while continue_option:
+        #checks if data file output is requested
         file_status = "file" in modes["plots"]
-        print(("""
-              FILE I/O MENU
-      
-      1: Set Input Model File
-      2: Set Input Scope File
-      3: Set Output File Type
-      4: Set Output File Directory
-      5: Toggle Output data file. Current {0}
-      
-      0: Return to previous menu
-              """).format(gen_plotting_boolean(file_status)))
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        #sets up the menu options for cli or gui use
+        menu_title ="FILE I/O MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+      
+        opt_name={"option":"Set Input Model File"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Input Scope File"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Output File Type"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set Output File Directory"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle Output data file.",
+                  "status":(gen_use_boolean(file_status))}
+        menu_list.append(opt_name)
+      
+          
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1481,6 +1585,7 @@ def set_in_file(modes, in_df, name):
     """
     This function reads in a new file specified by the user
     """
+    #TODO: GUI friendly file entry
     out_df=in_df
     dir_file_name="in_file_"+name
     chosen_file_name=raw_input("Please enter the file name you want to use for "+name+":\n")
@@ -1505,24 +1610,55 @@ def set_out_file_type(modes):
     
     while continue_option:
 
-        print(("""
-              OUTPUT FILE TYPE MENU
-              Current: {0}
-      
-      1: .png
-      2: .gif
-      3: .jpeg
-      4: .tiff
-      5: .sgi
-      6: .bmp
-      7: .raw
-      8: .rgba
-      9: .html
-      
-      0: Return to previous menu
-              """).format(modes['image_type']))
+        #sets up the menu options for cli or gui use
+        menu_title ="OUTPUT FILE TYPE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":".png"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":".gif"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".jpeg"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".tiff"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".sgi"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".bmp"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".raw"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".rgba"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":".html"}
+        menu_list.append(opt_name)
+        
+        #determines the currently selected graphics format
+        menu_status=modes['image_type']
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
+            
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1566,17 +1702,31 @@ def set_frequency_options(modes):
     #menu_options=range(0,num_options)
     
     while continue_option:
-
-        print("""
-              FREQUENCY SETTINGS MENU
+        #sets up the menu options for cli or gui use
+        menu_title ="FREQUENCY SETTINGS MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
       
-      1: Set frequencies individually
-      2: Set frequency by file
-
-      0: Return to previous menu
-              """)
+        opt_name={"option":"Set frequencies individually"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Set frequency by file"}
+        menu_list.append(opt_name)
+        
+
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
+            
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1596,7 +1746,7 @@ def set_freq(modes):
     This function allows the user to manually add frequencies to the list of
     frequencies to be plotted
     """
-    
+    #TODO: Develop GUI version
 
 
     menu_choice = "X"
@@ -1661,6 +1811,8 @@ def set_freq_file(modes):
     the frequencies to be filtered
     """
     
+    #TODO: Develop GUI version (create file selector?)
+    
     continue_flag = True
     
     while continue_flag:
@@ -1699,19 +1851,37 @@ def set_other_options(modes):
     #menu_options=range(0,num_options)
     
     while continue_option:
-
-        print("""
-              MISCELLANEOUS SETTINGS MENU
+        #sets up the menu options for cli or gui use
+        menu_title ="MISCELLANEOUS SETTINGS MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
       
-      1: Set time offset between scope and frequency
-      2: Set graph and file title prefix
-      3: Set difference mode
-      4: Toggle log/linear plotting.  Currently {0}
-
-      0: Return to previous menu
-              """).format(modes['scale'])
+        opt_name={"option":"Set time offset between scope and frequency"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Set graph and file title prefix"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Set difference mode"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Toggle log/linear plotting.  Currently {0}",
+                  "status":(modes['scale'])}
+        menu_list.append(opt_name)
+
+
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1739,7 +1909,7 @@ def set_offset(modes):
     This function allows the user to set the number of seconds of offset that 
     exists between the start time of the scope and model observations
     """
-
+    #TODO: Create GUI friendly version
     loop_condition=True
     while loop_condition:
         print(("""
@@ -1770,7 +1940,7 @@ def set_title(modes):
     """
     
     continue_flag = True
-    
+    #TODO: Create GUI friendly version
     while continue_flag:
                 
         print("""
@@ -1808,18 +1978,36 @@ def set_diff(modes):
     
     while continue_option:
 
-        print(("""
-              DIFFERENCE MODE MENU
-              Current: {0}
-      
-      1: Subtraction (model-scope)
-      2: Division (model/scope)
-      3: Inverse Division (scope/model)
-      
-      0: Return to previous menu
-              """).format(gen_diff_name(modes["diff"])))
+        #sets up the menu options for cli or gui use
+        menu_title ="DIFFERENCE MODE MENU"
+         
+        #creates a list of menu items
+        menu_list = []
+                
+        #each menu item has an option title.
+        #status can be blank, a function or constant 
+        opt_name={"option":"Subtraction (model-scope)"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name={"option":"Division (model/scope)"}
+        menu_list.append(opt_name)
+        
+        opt_name={"option":"Inverse Division (scope/model)"}
+        menu_list.append(opt_name)
+        
+              
+        menu_status=gen_diff_name(modes["diff"])
+        
+        #Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice=gui_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)
+
+        else:    
+            menu_choice=cli_menu(menu_title=menu_title,
+                                 menu_list=menu_list,
+                                 menu_status=menu_status)  
             
         if "0" == menu_choice:
             continue_option=False #finish the loop
@@ -1836,6 +2024,66 @@ def set_diff(modes):
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+
+def gen_plotting_boolean(bool_in):
+    """
+    generates a string which looks better for the status of a plot
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Plotting"
+    else:
+        out_str="Not Plotting"
+    return(out_str)
+    
+def gen_ew_boolean(bool_in):
+    """
+    generates a string which looks better for the status of East/West plots
+    """
+    out_str = ""
+    if bool_in:
+        out_str="East/West"
+    else:
+        out_str="0-360"
+    return(out_str)
+  
+    
+def gen_use_boolean(bool_in):
+    """
+    generates a string which looks better for the status of use
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Using"
+    else:
+        out_str="Not Using"
+    return(out_str)
+
+    
+def gen_split_boolean(bool_in):
+    """
+    generates a string which looks better for the status of East/West plots
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Splitting"
+    else:
+        out_str="Not Splitting"
+    return(out_str)
+    
+
+    
+def gen_overlay_boolean(bool_in):
+    """
+    generates a string which looks better for the status of each
+    """
+    out_str = ""
+    if bool_in:
+        out_str="Separate from"
+    else:
+        out_str="Overlaid upon"
+    return(out_str)
 
 def gen_diff_name(abbreviation):
     """
@@ -1896,6 +2144,30 @@ def gen_three_d_name(abbreviation):
         print("Warning: Unknown 3-D name used!")
     return(three_d_name)
 
+
+            
+def gen_channels_dict(modes, dict_lists):
+    
+    """
+    Creates a dictionary of the channels which are set
+    """
+    dict_set={"xx":False,
+              "xy":False,
+              "yy":False,
+              "U":False,
+              "V":False,
+              "I":False,
+              "Q":False}
+        
+    for channel in dict_lists["all"]:
+        if channel in modes["values"]:
+            dict_set[channel]=True
+    for group in dict_lists:
+        if group in modes["values"]:
+            for channel in dict_lists[group]: 
+                dict_set[channel]=True
+
+    return(dict_set)
 
 #looks like this was already done.  Partial version left for records
 #def set_loc_options(modes):
