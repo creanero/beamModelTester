@@ -83,6 +83,71 @@ def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
    
     return(menu_choice)
 
+
+def cli_entry(menu_title="", menu_status="", menu_prompt="",
+             desc_text="",exit_prompt="",out_type="str", warning=""):
+    out_var = ""
+    
+    #if the warning isn't blank
+    if warning != "":
+        #prints the warning 
+        print(warning +'\n') 
+        
+    #if the title isn't blank
+    if menu_title!="":
+        #prints the title as a label
+        print(menu_title+'\n')
+    
+    #if an overall menu status is provided
+    if menu_status != "":
+        #if it is provided as a function/method
+        if callable(menu_status):
+            #call it and record its return value in status
+            status=("Current: {0}").format(menu_status())
+        else:
+            #otherwise, return its value
+            status=("Current: {0}").format(menu_status)
+        #prints the status as a Label
+        print(status)
+    
+    #if a detailed description is provided
+    if desc_text != "":
+        #if it is provided as a function/method
+        if callable(desc_text):
+            #call it and record its return value in desc
+            desc=desc_text()
+        else:
+            #otherwise, return its value
+            desc=desc_text
+        #prints the desc as a Label
+        print(desc)          
+    
+    
+    #uses a default prompt if no better prompt is given
+    if ""==menu_prompt:
+        out_var=raw_input("Please enter the value required:\t")
+    else:
+        out_var=raw_input(menu_prompt+'\t')
+    
+    if out_type=='float':
+        try:
+            out_var = float(out_var)
+        except ValueError:
+            warning = "Warning: {} is not valid data.  Decimal number required.".format(out_var)
+            out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                desc_text, exit_prompt, out_type, warning)
+    elif out_type=='int':
+        try:
+            out_var = int(out_var)
+        except ValueError:
+            warning = "Warning: {} is not valid data.  Integer required.".format(out_var)
+            out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                desc_text, exit_prompt, out_type, warning)
+    else:
+        pass #out_var=out_var
+    
+    return(out_var)
+
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
              exit_prompt=""):
     
@@ -177,6 +242,105 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     
     #returns the choice string.
     return(out_choice)
+
+def gui_entry(menu_title="", menu_status="", menu_prompt="",
+             desc_text="",exit_prompt="",out_type="str",
+             warning=""):
+    #creates an output variable
+    out_var = ""
+    
+    #Creates an interactive window
+    root = tk.Tk()
+    
+    #sets up a variable that will eventually set the output
+    var = tk.StringVar()
+
+    
+
+    #if the title isn't blank
+    if menu_title!="":
+        #prints the title as a label
+        root.title(menu_title)
+        title = tk.Label(root,text=menu_title)
+        title.pack()    
+    
+    #if an overall menu status is provided
+    if menu_status != "":
+        #if it is provided as a function/method
+        if callable(menu_status):
+            #call it and record its return value in status and the default value
+            var.set(menu_status())
+            status=("Current: {0}").format(menu_status())
+        else:
+            #otherwise, return its value in status and the default value
+            var.set(menu_status)
+            status=("Current: {0}").format(menu_status)
+        #prints the status as a Label
+        status_label = tk.Label(root,text=status)
+        status_label.pack()     
+    else:
+        var.set("")
+    
+    #if a detailed description is provided
+    if desc_text != "":
+        #if it is provided as a function/method
+        if callable(desc_text):
+            #call it and record its return value in desc
+            desc=desc_text()
+        else:
+            #otherwise, return its value
+            desc=desc_text
+        #prints the desc as a Label
+        desc_label = tk.Label(root,text=desc)
+        desc_label.pack()           
+    
+    #uses a default instruction if no better prompt is given
+    if ""==menu_prompt:
+        menu_prompt="Please type your selection in the box below:"
+
+    #if the title isn't blank
+    if warning !="":
+        #prints the warning as a label
+        warning_label = tk.Label(root,text=warning,fg="red")
+        warning_label.pack()    
+
+
+    #and prints the instructions as a label   
+    prompt = tk.Label(root,text=menu_prompt)
+    prompt.pack()   
+    
+    #creates the main data entry box
+    entry_box = tk.Entry(root, textvariable=var)
+    entry_box.pack()
+    
+    
+
+    #creates a "confirm" button which kills root when it is called
+    submit=tk.Button(root, text="Click to confirm", command=root.destroy)
+    submit.pack()
+    
+    #runs the mainloop
+    root.mainloop()
+    
+    if out_type=='float':
+        try:
+            out_var = float(var.get())
+        except ValueError:
+            warning = "Warning: {} is not valid data.  Decimal number required.".format(str(var.get()))
+            out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                desc_text, exit_prompt, out_type, warning)
+    elif out_type=='int':
+        try:
+            out_var = int(var.get())
+        except ValueError:
+            warning = "Warning: {} is not valid data.  Integer required.".format(str(var.get()))
+            out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                desc_text, exit_prompt, out_type, warning)
+    else:
+        out_var=var.get()
+    
+    return(out_var)
+
 
 def interactive_operation(modes, model_df, scope_df):
     """
@@ -350,7 +514,7 @@ def set_crop_level(modes):
       crop to.  Percentiles higher than 100 are ignored
           """).format(modes["crop"]))
     try:#read in the choice as an int
-        crop_level=float(raw_input("Please the crop level desired:\t"))
+        crop_level=float(raw_input("Please enter the crop level desired:\t"))
         modes["crop"]=crop_level
     except ValueError: #can't be converted to a float
         print("Warning: invalid crop level, please try again.") #print a warning
