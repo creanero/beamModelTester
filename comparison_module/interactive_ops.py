@@ -15,7 +15,8 @@ from io_functions import set_out_dir
 
 import os.path
 
-import Tkinter  as tk
+import Tkinter as tk
+import tkFileDialog
 
 def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
              exit_prompt=""):
@@ -84,9 +85,15 @@ def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     return(menu_choice)
 
 
-def cli_entry(menu_title="", menu_status="", menu_prompt="",
-             desc_text="",exit_prompt="",out_type="str", warning=""):
+def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="", 
+              exit_prompt="", out_type="str", warning="", literal_zero=False):
     out_var = ""
+    
+    #uses '0' string as an exit value if true zero isn't a possible value
+    if literal_zero:
+        exit_value='X'
+    else:
+        exit_value='0'
     
     #if the warning isn't blank
     if warning != "":
@@ -122,29 +129,52 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="",
         #prints the desc as a Label
         print(desc)          
     
+    #sets up exit prompt
+    if "" ==  exit_prompt:
+        exit_prompt="return to previous menu"
+    
+    print("Type " + exit_value + " to "+ exit_prompt)
+    
     
     #uses a default prompt if no better prompt is given
     if ""==menu_prompt:
         out_var=raw_input("Please enter the value required:\t")
     else:
         out_var=raw_input(menu_prompt+'\t')
-    
-    if out_type=='float':
-        try:
-            out_var = float(out_var)
-        except ValueError:
-            warning = "Warning: {} is not valid data.  Decimal number required.".format(out_var)
-            out_var = cli_entry(menu_title, menu_status, menu_prompt,
-                                desc_text, exit_prompt, out_type, warning)
-    elif out_type=='int':
-        try:
-            out_var = int(out_var)
-        except ValueError:
-            warning = "Warning: {} is not valid data.  Integer required.".format(out_var)
-            out_var = cli_entry(menu_title, menu_status, menu_prompt,
-                                desc_text, exit_prompt, out_type, warning)
+
+
+    #if the output variable isn't the exit value
+    if out_var.strip() != exit_value:        
+        if out_type=='float':
+            try:
+                out_var = float(out_var)
+            except ValueError:
+                warning = "Warning: {} is not valid data.  Decimal number required.".format(out_var)
+                out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning, 
+                                    literal_zero)
+        elif out_type=='int':
+            try:
+                out_var = int(out_var)
+            except ValueError:
+                warning = "Warning: {} is not valid data.  Integer required.".format(out_var)
+                out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning, 
+                                    literal_zero)
+        elif out_type=='file_in':
+            exists = os.path.isfile(out_var)
+            if exists:
+                pass # out_var is good to go as it is
+            else:
+                warning = "Warning: {} is not a valid file path.  Please Try Again.".format(out_var)
+                out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning, 
+                                    literal_zero)
+        else:
+            pass #out_var=out_var
     else:
-        pass #out_var=out_var
+        pass #out_var="0" #leave it as '0' and allow that to return
+    
     
     return(out_var)
 
@@ -243,9 +273,8 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     #returns the choice string.
     return(out_choice)
 
-def gui_entry(menu_title="", menu_status="", menu_prompt="",
-             desc_text="",exit_prompt="",out_type="str",
-             warning=""):
+def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
+              exit_prompt="", out_type="str", warning="", literal_zero=False):
     #creates an output variable
     out_var = ""
     
@@ -256,6 +285,11 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="",
     var = tk.StringVar()
 
     
+    #uses '0' string as an exit value if true zero isn't a possible value
+    if literal_zero:
+        exit_value='X'
+    else:
+        exit_value='0'    
 
     #if the title isn't blank
     if menu_title!="":
@@ -294,9 +328,7 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="",
         desc_label = tk.Label(root,text=desc)
         desc_label.pack()           
     
-    #uses a default instruction if no better prompt is given
-    if ""==menu_prompt:
-        menu_prompt="Please type your selection in the box below:"
+
 
     #if the title isn't blank
     if warning !="":
@@ -305,42 +337,103 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="",
         warning_label.pack()    
 
 
+
+       
+        
     #and prints the instructions as a label   
     prompt = tk.Label(root,text=menu_prompt)
     prompt.pack()   
     
-    #creates the main data entry box
-    entry_box = tk.Entry(root, textvariable=var)
-    entry_box.pack()
-    
-    
+    if out_type in ['file_in']:
+        #creates a change file button which opens a select file button
+        file_button=tk.Button(root, text="Select File", 
+                          command=lambda:pick_in_file(root,var,menu_prompt))
+        file_button.pack()
+            #and creates a corresponding button
+        clear_button=tk.Button(root, text="Clear File", 
+                              command=lambda:close_and_zero(root,var,""))
+        clear_button.pack()
+    else:
+        #uses a default instruction if no better prompt is given
+        if ""==menu_prompt:
+            menu_prompt="Please type your selection in the box below:"
+
+        #creates the main data entry box
+        entry_box = tk.Entry(root, textvariable=var)
+        entry_box.pack()
 
     #creates a "confirm" button which kills root when it is called
     submit=tk.Button(root, text="Click to confirm", command=root.destroy)
     submit.pack()
     
+    #if the exit/up a level prompt is not provided
+    if ""==exit_prompt:
+        #produces a default prompt
+        exit_prompt="Return to previous menu"
+    
+    #and creates a corresponding button
+    exit_button=tk.Button(root, text=exit_prompt, 
+                          command=lambda:close_and_zero(root,var,exit_value))
+    exit_button.pack()
+    
     #runs the mainloop
     root.mainloop()
     
-    if out_type=='float':
-        try:
-            out_var = float(var.get())
-        except ValueError:
-            warning = "Warning: {} is not valid data.  Decimal number required.".format(str(var.get()))
-            out_var = gui_entry(menu_title, menu_status, menu_prompt,
-                                desc_text, exit_prompt, out_type, warning)
-    elif out_type=='int':
-        try:
-            out_var = int(var.get())
-        except ValueError:
-            warning = "Warning: {} is not valid data.  Integer required.".format(str(var.get()))
-            out_var = gui_entry(menu_title, menu_status, menu_prompt,
-                                desc_text, exit_prompt, out_type, warning)
-    else:
-        out_var=var.get()
+    out_var=var.get()
     
+    #if the output variable isn't the exit value
+    if out_var.strip() != exit_value:  
+
+        if out_type=='float':
+            try:
+                out_var = float(str(var.get()))
+            except ValueError:
+                warning = "Warning: {} is not valid data.  Decimal number required.".format(str(var.get()))
+                menu_status = out_var
+                out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning)
+        elif out_type=='int':
+            try:
+                out_var = int(float(var.get()))
+            except ValueError:
+                warning = "Warning: {} is not valid data.  Integer required.".format(str(var.get()))
+                menu_status = out_var
+                out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning)
+        elif out_type=='file_in':
+            if out_var == "":
+                pass # OK to leave clear
+            else:
+                exists = os.path.isfile(out_var)
+                if exists:
+                    menu_status = out_var
+                    pass # out_var is good to go as it is
+                else:
+                    menu_status = out_var
+                    warning = "Warning: {} is not a valid file path.  Please Try Again.".format(out_var)
+                    out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                        desc_text, exit_prompt, out_type, warning, 
+                                        literal_zero)
+        else:
+            pass #out_var=var.get() #leave it as it is
+    else:
+        pass #out_var="0" #leave it as '0' and allow that to return
+
     return(out_var)
 
+def close_and_zero(root,var,exit_value):
+    root.destroy()
+    var.set(exit_value)
+    
+def pick_in_file(root,var,menu_prompt):#,file_options=("all files","*.*")):
+    root.destroy()
+    root = tk.Tk()
+    root.filename = tkFileDialog.askopenfilename(initialdir = os.getcwd(),
+                    title = menu_prompt)#,
+#                    filetypes = file_options)
+
+    var.set(root.filename)
+    root.destroy()
 
 def interactive_operation(modes, model_df, scope_df):
     """
@@ -497,28 +590,34 @@ def set_crop_level(modes):
     """
     This function modifies the cropping level options in the modes variable
     """
-    crop_level = 0.0
-    #TODO: create non-list menu options
 
-    print(("""
-              CROPPING LEVEL MENU
-              Current cropping Level {0}
-          
-      Crop level mode indicates the numerical factor for cropping. 
-      Depending on the crop operation, the crop level is implemented differently.
-      
-      In "median" or "mean" crop operation, the crop level is the multiplier by
-      which those values are multiplied to generate the maximum permitted value
-      
-      In "percentile" crop operation, the crop level is the pecentile level to
-      crop to.  Percentiles higher than 100 are ignored
-          """).format(modes["crop"]))
-    try:#read in the choice as an int
-        crop_level=float(raw_input("Please enter the crop level desired:\t"))
-        modes["crop"]=crop_level
-    except ValueError: #can't be converted to a float
-        print("Warning: invalid crop level, please try again.") #print a warning
-        set_crop_level(modes)
+    continue_option=True
+    #menu_options=range(0,num_options)
+    
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="CROPPING LEVEL MENU"
+        desc_text = """Crop level indicates the numerical factor for cropping. Depending on the crop operation, the crop level is implemented differently.
+  
+In "median" or "mean" crop operation, the crop level is the multiplier by which those values are multiplied to generate the maximum permitted value
+  
+In "percentile" crop operation, the crop level is the pecentile level to crop to.  Percentiles higher than 100 are ignored
+          """
+        menu_prompt = "Please enter the crop level desired:"
+        menu_status = str(modes['crop'])
+        if modes['interactive']==3:
+            crop_level=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="float", 
+                                 warning="", literal_zero=False)
+        else:
+            crop_level=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="float", 
+                                 warning="", literal_zero=False)
+        if crop_level == '0':
+            continue_option=False
+        else:
+            modes["crop"]=crop_level
+
 
 def set_crop_basis(modes):
     """
@@ -1032,20 +1131,29 @@ def set_frame_rate(modes):
     This function modifies the cropping level options in the modes variable
     """
     frame_rate = 0.0
-    #TODO implement GUI for this
 
-    print(("""
-          FRAME RATE MENU
-          Current Frame Rate {0}
-          
-      Sets the frame rate for animated operations in frames per second.
-          """).format(modes["frame_rate"]))
-    try:#read in the choice as an int
-        frame_rate=float(raw_input("Please the frame rate desired:\t"))
-        modes["frame_rate"]=frame_rate
-    except ValueError: #can't be converted to a float
-        print("Warning: invalid crop level, please try again.") #print a warning
-        set_frame_rate(modes)
+    continue_option=True
+    #menu_options=range(0,num_options)
+    
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="FRAME RATE MENU"
+        desc_text = """Sets the frame rate for animated operations in frames per second"""
+        menu_prompt = "Please enter the frame rate desired:"
+        menu_status = str(modes["frame_rate"])
+        if modes['interactive']==3:
+            frame_rate=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="float", 
+                                 warning="", literal_zero=False)
+        else:
+            frame_rate=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="float", 
+                                 warning="", literal_zero=False)
+        if frame_rate == '0':
+            continue_option=False
+        else:
+            modes["frame_rate"]=frame_rate
+
         
 def set_coordinate_options(modes):
     """
@@ -1054,7 +1162,6 @@ def set_coordinate_options(modes):
     menu_choice = "X"
     continue_option=True
     #menu_options=range(0,num_options)
-        #TODO implement GUI for this
     while continue_option:        
         #sets up the menu options for cli or gui use
         menu_title ="3D/ANIMATION PLOTTING MENU"
@@ -1105,7 +1212,7 @@ def set_coordinate_options(modes):
             continue_option=False #finish the loop
         
         elif "1" == menu_choice:
-            modes = interactive_get_location(modes)
+            modes = interactive_get_location(modes) #TODO: fix these
             modes = get_location(modes)
             
         elif "2" == menu_choice:
@@ -1750,17 +1857,39 @@ def set_in_file(modes, in_df, name):
     """
     This function reads in a new file specified by the user
     """
-    #TODO: GUI friendly file entry
+
     out_df=in_df
     dir_file_name="in_file_"+name
-    chosen_file_name=raw_input("Please enter the file name you want to use for "+name+":\n")
+    
+    
+    continue_option=True
+    #menu_options=range(0,num_options)
+    
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="SELECT " + name.upper() + "FILE NAME"
+        desc_text = "Use this menu to select a file for "+name
+        menu_prompt = "Please enter the file name you want to use for "+name
+        menu_status = str(modes[dir_file_name])
+        if modes['interactive']==3:
+            chosen_file_name=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="file_in", 
+                                 warning="", literal_zero=False)
+        else:
+            chosen_file_name=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="file_in", 
+                                 warning="", literal_zero=False)
+        if chosen_file_name == '0':
+            continue_option=False
+
+        else:
+            modes[dir_file_name]=chosen_file_name    
     try:
-        modes[dir_file_name] = chosen_file_name
         out_df=read_var_file(modes[dir_file_name], modes)
         
     except IOError:
-        print("Warning, unable to read file "+ chosen_file_name+", returning original data")
-    
+        print("Warning, unable to read file "+ chosen_file_name+", returning original data")    
+ 
     return(out_df)
     
 
@@ -1977,34 +2106,34 @@ def set_freq_file(modes):
     """
     
     #TODO: Develop GUI version (create file selector?)
+
     
-    continue_flag = True
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    while continue_flag:
-                
-        print("""
-              FREQUENCY FILE SELECTION MENU
-              Currently selected file for frequencies:
-              {0}
-              
-          At this screen you may
-          Enter a file name in which frequencies may be found
-          Enter "0" to return to the previous menu
-          Enter "X" to remove the frequency file
-            
-            """).format(str(modes["freq_file"]))
-        
-        in_file = raw_input("Please enter your selection now:\n\t")
-        
-        if "0" == in_file:
-            continue_flag = False
-        elif in_file in ["X","x"]:
-            modes["freq_file"]=None
-        elif os.path.isfile(in_file):
-            modes["freq"]=[0.0]#clears the manual entry of frequencies
-            modes["freq_file"]=in_file
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="FREQUENCY FILE SELECTION MENU"
+        desc_text = "At this screen you may Enter a file name in which frequencies may be found"
+        menu_prompt = "Please enter the file name you want to use for frequencies to drop"
+        menu_status = str(modes["freq_file"])
+        if modes['interactive']==3:
+            chosen_file_name=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="file_in", 
+                                 warning="", literal_zero=False)
         else:
-            print("ERROR: File \""+in_file+"\" not found.")
+            chosen_file_name=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="file_in", 
+                                 warning="", literal_zero=False)
+        if chosen_file_name == '0':
+            continue_option=False
+
+        else:
+            modes["freq_file"]=chosen_file_name    
+            if chosen_file_name != "":
+                #clears the manual entry of frequencies if a file has been selected
+                modes["freq"]=[0.0]
+
         
 
 def set_other_options(modes):
@@ -2074,62 +2203,62 @@ def set_offset(modes):
     This function allows the user to set the number of seconds of offset that 
     exists between the start time of the scope and model observations
     """
-    #TODO: Create GUI friendly version
-    loop_condition=True
-    while loop_condition:
-        print(("""
-              OFFSET MENU
-              Current offset: {0}s
-              
-      Offset is the number of seconds between the start time of the scope and 
+    continue_option=True
+    #menu_options=range(0,num_options)
+    
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="OFFSET MENU"
+        desc_text = """Offset is the number of seconds between the start time of the scope and 
       model observations.  Offset is subtracted from the scope timestamps to
       allow the scope and model observations to match.
       
-      Offsets MUST be an integer number of seconds.
-              """).format(modes["offset"]))
-        
-        str_offset=raw_input("\tPlease Enter the offset time in seconds"+
-                             "\n\t\tLeave Blank to return to previous menu:\t")
-        if ""==str_offset:
-            loop_condition=False
+      Offsets MUST be an integer number of seconds."""
+        menu_prompt = "Please Enter the offset time in seconds"
+        menu_status = str(modes['offset'])
+        if modes['interactive']==3:
+            str_offset=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="int", 
+                                 warning="", literal_zero=True)
         else:
-            try:
-                offset=int(str_offset)
-                modes["offset"]=offset
-            except ValueError:
-                print('Warning: Value: "'+str_offset+'" not valid.  Please try again!')
+            str_offset=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="int", 
+                                 warning="", literal_zero=True)
+        if str_offset == 'X':
+            continue_option=False
+        else:
+            modes["offset"]=str_offset
+    
+
 
 def set_title(modes):
     """
     This function allows the user to set the titles for graphs and files
     """
+    continue_option=True
+    #menu_options=range(0,num_options)
     
-    continue_flag = True
-    #TODO: Create GUI friendly version
-    while continue_flag:
-                
-        print("""
-              GRAPH AND FILE TITLE PREFIX MENU
-              Currently selected Title prefix:
-              {0}
-              
-          At this screen you may
-          Enter a title prefix for the graphs
-          Enter "0" to return to the previous menu
-          Enter "X" to remove the title prefix
-            
-            """).format(str(modes["title"]))
-        
-        in_title = raw_input("Please enter your selection now:\n\t")
-        
-        if "0" == in_title:
-            continue_flag = False
-        elif in_title in ["X","x"]:
-            modes["title"]=None
-            modes["title_"]=None
+    while continue_option:
+        #sets up the menu options for cli or gui use
+        menu_title ="GRAPH AND FILE TITLE PREFIX MENU"
+        desc_text = """The prefix is used on graph titles and with underscores for file names."""
+        menu_prompt = "Enter a title prefix for the graphs"
+        menu_status = str(modes['title'])
+        if modes['interactive']==3:
+            in_title=gui_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="str", 
+                                 warning="", literal_zero=False)
+        else:
+            in_title=cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="str", 
+                                 warning="", literal_zero=False)
+        if in_title == '0':
+            continue_option=False
         else:
             modes["title"]=in_title
             modes["title_"]="_".join(in_title.split(" "))
+        
+
 
 
 def set_diff(modes):
