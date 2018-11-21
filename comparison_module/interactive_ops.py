@@ -346,13 +346,20 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
     prompt = tk.Label(root,text=menu_prompt)
     prompt.pack()   
     
-    if out_type in ['file_in']:
+    if out_type in ['file_in','dir']:
+        # creates a variable to hold the name of the data type
+        type_name = ""
+
+        if out_type == 'dir':
+            type_name = "Directory"
+        elif out_type == 'file_in':
+            type_name = "File"
         # creates a change file button which opens a select file button
-        file_button=tk.Button(root, text="Select File", 
-                          command=lambda:pick_in_file(root,var,menu_prompt))
+        file_button=tk.Button(root, text="Select "+type_name,
+                          command=lambda:pick_in_file(root,var,menu_prompt,type_name))
         file_button.pack()
             # and creates a corresponding button
-        clear_button=tk.Button(root, text="Clear File", 
+        clear_button=tk.Button(root, text="Clear "+type_name,
                               command=lambda:close_and_zero(root,var,""))
         clear_button.pack()
     else:
@@ -423,16 +430,23 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
     return(out_var)
 
+
 def close_and_zero(root,var,exit_value):
     root.destroy()
     var.set(exit_value)
-    
-def pick_in_file(root,var,menu_prompt):# ,file_options=("all files","*.*")):
+
+
+def pick_in_file(root,var,menu_prompt,type_name):# ,file_options=("all files","*.*")):
     root.destroy()
     root = tk.Tk()
-    root.filename = tkFileDialog.askopenfilename(initialdir = os.getcwd(),
-                    title = menu_prompt)# ,
-#                    filetypes = file_options)
+    if type_name == "File":
+        root.filename = tkFileDialog.askopenfilename(initialdir = os.getcwd(),
+                        title = menu_prompt)# ,
+    #                    filetypes = file_options)
+    elif type_name == "Directory":
+        root.filename = tkFileDialog.askdirectory(initialdir=os.getcwd(),
+                                                     title=menu_prompt)  # ,
+    #                    filetypes = file_options)
 
     var.set(root.filename)
     root.destroy()
@@ -2107,7 +2121,6 @@ def set_freq_file(modes):
     the frequencies to be filtered
     """
     
-    # TODO: Develop GUI version (create file selector?)
 
     
     continue_option=True
@@ -2165,7 +2178,7 @@ def set_other_options(modes):
         opt_name = {"option":"Set difference mode"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Toggle log/linear plotting.  Currently {0}",
+        opt_name = {"option":"Toggle log/linear plotting.",
                   "status":(modes['scale'])}
         menu_list.append(opt_name)
 

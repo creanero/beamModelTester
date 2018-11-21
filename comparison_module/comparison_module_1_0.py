@@ -81,7 +81,7 @@ sets the level of verbosity for the program outputs.
 ###############################################################################
 
     #adds an optional argument for interactivity
-    parser.add_argument("--interactive","-I", default=2, type=int,
+    parser.add_argument("--interactive","-I", default=3, type=int,
                         choices = (0,1,2,3),
                              help='''
 sets the level of interactivity for the program inputs.  
