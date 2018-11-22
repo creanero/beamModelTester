@@ -17,7 +17,7 @@ import os.path
 
 import Tkinter as tk
 import tkFileDialog
-
+import tkFont
 
 def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
              exit_prompt="", status_prompt=""):
@@ -197,6 +197,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
              exit_prompt="", status_prompt=""):
+    #TODO: Temp label
     
     # Creates an interactive window
     root = tk.Tk()
@@ -385,7 +386,7 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
         file_button.pack()
             # and creates a corresponding button
         clear_button=tk.Button(root, text="Clear "+type_name,
-                              command=lambda:close_and_zero(root,var,""))
+                              command=lambda:close_and_value(root,var,""))
         clear_button.pack()
     else:
         # uses a default instruction if no better prompt is given
@@ -407,7 +408,7 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
     
     # and creates a corresponding button
     exit_button=tk.Button(root, text=exit_prompt, 
-                          command=lambda:close_and_zero(root,var,exit_value))
+                          command=lambda:close_and_value(root,var,exit_value))
     exit_button.pack()
     
     # runs the mainloop
@@ -456,9 +457,9 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
     return(out_var)
 
 
-def close_and_zero(root,var,exit_value):
+def close_and_value(root,var,value):
     root.destroy()
-    var.set(exit_value)
+    var.set(value)
 
 
 def pick_in_file(root,var,menu_prompt,type_name):# ,file_options=("all files","*.*")):
@@ -565,7 +566,7 @@ def interactive_operation(modes, model_df, scope_df):
             continue_option=False # finish the loop
 
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
     
     return (modes, model_df, scope_df)
             
@@ -625,7 +626,7 @@ def set_crop_options(modes):
             set_crop_type(modes)
                
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
     
 def set_crop_level(modes):
     """
@@ -724,7 +725,7 @@ def set_crop_basis(modes):
             modes["crop_basis"]='t'
             
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_crop_data(modes):
     """
@@ -788,7 +789,7 @@ def set_crop_data(modes):
             modes["crop_data"]='b'
             
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_crop_type(modes):
     """
@@ -847,45 +848,45 @@ def set_crop_type(modes):
                
 
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
-# TODO: Work out what this function is for
-def validate_options(user_input, valid_options, permit_partial=True):
-    """
-    This function is used to validate options input by the user to interactive 
-    operations.  User input is compared with a list of valid options and the
-    valid options in the user input are returned.  
-    
-    The "permit partial" option allows for valid options to be retained if the 
-    user submits a mix of valid and invalid options
-    """
-    output_options = []
-    
-    # if all are valid
-    if all (opt in valid_options for opt in user_input):
-        # pass them all to output
-        output_options = user_input
-        
-    else : # not all options are valid
-        # check if partial matches are permitted
-        if True==permit_partial:
-            
-            # Setup the output variable by making a copy of the input
-            output_options=list(user_input)
-            
-            # if so, go through the input
-            for opt in user_input:
-                # and reove invalid inputs from the output
-                if opt not in valid_options:
-                    output_options.remove(opt)
-                    print("Option: "+str(opt)+
-                          " is invalid, continuing with remainder")
-            
-
-        else:
-            output_options=[]
-            print("Some options are invalid.  Stopping.")
-    return(output_options)
+#this function isn't used any more, but is being retained for archival purposes
+#def validate_options(user_input, valid_options, permit_partial=True):
+#    """
+#    This function is used to validate options input by the user to interactive 
+#    operations.  User input is compared with a list of valid options and the
+#    valid options in the user input are returned.  
+#    
+#    The "permit partial" option allows for valid options to be retained if the 
+#    user submits a mix of valid and invalid options
+#    """
+#    output_options = []
+#    
+#    # if all are valid
+#    if all (opt in valid_options for opt in user_input):
+#        # pass them all to output
+#        output_options = user_input
+#        
+#    else : # not all options are valid
+#        # check if partial matches are permitted
+#        if True==permit_partial:
+#            
+#            # Setup the output variable by making a copy of the input
+#            output_options=list(user_input)
+#            
+#            # if so, go through the input
+#            for opt in user_input:
+#                # and reove invalid inputs from the output
+#                if opt not in valid_options:
+#                    output_options.remove(opt)
+#                    print("Option: "+str(opt)+
+#                          " is invalid, continuing with remainder")
+#            
+#
+#        else:
+#            output_options=[]
+#            print("Some options are invalid.  Stopping.")
+#    return(output_options)
                 
     
 def set_norm_options(modes):
@@ -935,7 +936,7 @@ def set_norm_options(modes):
                         
  
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 
 def set_norm_basis(modes):
@@ -995,7 +996,7 @@ def set_norm_basis(modes):
 
             
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_norm_data(modes):
     """
@@ -1055,7 +1056,7 @@ def set_norm_data(modes):
             modes["norm_data"]='b'
             
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_3d_options(modes):
     """
@@ -1101,7 +1102,7 @@ def set_3d_options(modes):
                         
  
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_3d_plotting(modes):
     """
@@ -1165,7 +1166,7 @@ def set_3d_plotting(modes):
             modes["three_d"]='contour'
                
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
                     
 def set_frame_rate(modes):
     """
@@ -1262,7 +1263,7 @@ def set_coordinate_options(modes):
                         
  
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
             
 
 def set_plotting_options(modes):
@@ -1309,7 +1310,7 @@ def set_plotting_options(modes):
                         
  
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")            
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")            
 
 def set_plotting(modes):
     """
@@ -1392,7 +1393,7 @@ def set_plotting(modes):
                 modes['plots'].append("spectra")
                  
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_fom(modes):
     """
@@ -1459,7 +1460,7 @@ def set_fom(modes):
             
         else:
             
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_alt_az(modes):
     """
@@ -1562,7 +1563,7 @@ def set_alt_az(modes):
             
         else:   
                         
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_msd_vals(modes):
     """
@@ -1641,7 +1642,7 @@ def set_msd_vals(modes):
             
         else:   
                         
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 
 
@@ -1651,7 +1652,7 @@ def set_values(modes):
     """
     menu_choice = "X"
 
-    # TODO: GUI and CLI friendly implementation of this
+
 
     list_linear=["xx","xy","yy"]
     list_stokes=["U","V","I","Q"]
@@ -1659,50 +1660,24 @@ def set_values(modes):
     dict_lists={"linear":list_linear,
                 "stokes":list_stokes,
                 "all":list_all}
+    
+
 
     continue_option=True
     
     
     while continue_option:
-        dict_set=gen_channels_dict(modes,dict_lists)
-        
         if "each" in modes["values"]:
             each_status = True
         else:
             each_status = False
         
-        print(("""
-              CHANNEL SELECTION MENU
-      
-      Linear Polarisations (to Toggle all enter "linear")
-      xx: Currently: {0}
-      xy: Currently: {1}
-      yy: Currently: {2}
-      
-      Stokes Parameters (to Toggle all enter "stokes")
-      U: Currently: {3}
-      V: Currently: {4}
-      I: Currently: {5}
-      Q: Currently: {6}
-      
-      To toggle all channels simultaneously, enter "all"
-      
-      Channels are currently plotted {7} one another
-      To toggle to plotting {8} one another enter "each"
-      
-      0: Return to previous menu
-              """).format(gen_plotting_boolean(dict_set['xx']),
-                          gen_plotting_boolean(dict_set['xy']),
-                          gen_plotting_boolean(dict_set['yy']),
-                          gen_plotting_boolean(dict_set['U']),
-                          gen_plotting_boolean(dict_set['V']),
-                          gen_plotting_boolean(dict_set['I']),
-                          gen_plotting_boolean(dict_set['Q']),
-                          gen_overlay_boolean(each_status),
-                          gen_overlay_boolean(not each_status)
-              ))
-
-        menu_choice=raw_input("Please enter your (case sensitive) selection to toggle the option on the menu above:\t")
+        dict_set=gen_channels_dict(modes,dict_lists)
+        
+        if modes['interactive'] == 3:
+            menu_choice = gui_set_values(modes, dict_set, each_status)
+        else:
+            menu_choice = cli_set_values(modes, dict_set, each_status)
             
             
         if "0" == menu_choice:
@@ -1728,10 +1703,155 @@ def set_values(modes):
      
         # if nonse
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")   
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")   
+
+def cli_set_values(modes, dict_set, each_status):
+
+    menu_choice = ''
+    
+    print(("""CHANNEL SELECTION MENU
+  
+Linear Polarisations (to Toggle all enter "linear")
+  xx - Linear response. Currently: {0}
+  xy - Cross-channel. Currently: {1}
+  yy - Linear response. Currently: {2}
+  
+Stokes Parameters (to Toggle all enter "stokes")
+  U - Polarisation angle. Currently: {3}
+  V - Circular polarisation. Currently: {4}
+  I - Intensity: Currently. {5}
+  Q - Linear polarisation. Currently: {6}
+  
+To toggle all channels simultaneously, enter "all"
+  
+Channels are currently plotted {7} one another
+To toggle to plotting {8} one another enter "each"
+  
+0: Return to previous menu
+          """).format(gen_plotting_boolean(dict_set['xx']),
+                      gen_plotting_boolean(dict_set['xy']),
+                      gen_plotting_boolean(dict_set['yy']),
+                      gen_plotting_boolean(dict_set['U']),
+                      gen_plotting_boolean(dict_set['V']),
+                      gen_plotting_boolean(dict_set['I']),
+                      gen_plotting_boolean(dict_set['Q']),
+                      gen_overlay_boolean(each_status),
+                      gen_overlay_boolean(not each_status)
+          ))
+
+    menu_choice=raw_input("Please enter your (case sensitive) selection to toggle the option on the menu above:\t")
+    
+    return(menu_choice)
 
 
-
+def gui_set_values(modes, dict_set, each_status):
+    #TODO: Work out a way to stop this being so hard-coded
+    menu_choice = ''
+        
+    # Creates an interactive window
+    root = tk.Tk()
+    
+    # sets up a variable that will eventually set the output
+    var = tk.StringVar()
+    
+        # if the title isn't blank
+    menu_title = "CHANNEL SELECTION MENU"
+    # prints the title as a label
+    root.title(menu_title)
+    title = tk.Label(root,text=menu_title)
+    title.pack()    
+    
+    boldFont = tkFont.Font (weight = "bold")
+    
+    # creates a button to toggle all linear polarisations
+    linear_button=tk.Button(root, text="Linear Polarisations (click to Toggle all)", 
+                          command=lambda:close_and_value(root,var,'linear'),
+                          font=boldFont, padx=1,pady=1)
+    linear_button.pack()
+    
+    # creates a button to toggle xx linear polarisations
+    xx_text=("xx - Linear response. Currently: {0}").format(gen_plotting_boolean(dict_set['xx']))
+    xx_button=tk.Button(root, text=xx_text, 
+                          command=lambda:close_and_value(root,var,'xx'))
+    xx_button.pack()
+    
+    # creates a button to toggle xy linear polarisations
+    xy_text=("xy - cross-channel. Currently: {0}").format(gen_plotting_boolean(dict_set['xy']))
+    xy_button=tk.Button(root, text=xy_text, 
+                          command=lambda:close_and_value(root,var,'xy'))
+    xy_button.pack()  
+    
+    # creates a button to toggle yy linear polarisations
+    yy_text=("yy - Linear response. Currently: {0}").format(gen_plotting_boolean(dict_set['yy']))
+    yy_button=tk.Button(root, text=yy_text, 
+                          command=lambda:close_and_value(root,var,'yy'))
+    yy_button.pack()    
+    
+    # creates a button to toggle all Stokes Parameters
+    stokes_button=tk.Button(root, text="Stokes Parameters (click to Toggle all)", 
+                          command=lambda:close_and_value(root,var,'stokes'),
+                          font=boldFont, padx=1,pady=1)
+    stokes_button.pack()
+    
+    # creates a button to toggle Stokes U Parameter
+    U_text=("U - Polarisation angle. Currently: {0}").format(gen_plotting_boolean(dict_set['U']))
+    U_button=tk.Button(root, text=U_text, 
+                          command=lambda:close_and_value(root,var,'U'))
+    U_button.pack()    
+    
+    # creates a button to toggle Stokes V Parameter
+    V_text=("V - Circular polarisation. Currently: {0}").format(gen_plotting_boolean(dict_set['V']))
+    V_button=tk.Button(root, text=V_text, 
+                          command=lambda:close_and_value(root,var,'V'))
+    V_button.pack()    
+    
+    # creates a button to toggle Stokes I Parameter
+    I_text=("I - Intensity: Currently. Currently: {0}").format(gen_plotting_boolean(dict_set['I']))
+    I_button=tk.Button(root, text=I_text, 
+                          command=lambda:close_and_value(root,var,'I'))
+    I_button.pack()    
+    
+    # creates a button to toggle Stokes Q Parameter
+    Q_text=("Q - Linear polarisation. Currently: {0}").format(gen_plotting_boolean(dict_set['Q']))
+    Q_button=tk.Button(root, text=Q_text, 
+                          command=lambda:close_and_value(root,var,'Q'))
+    Q_button.pack()    
+    
+    # creates a button to toggle all Parameters
+    all_button=tk.Button(root, text="Click to toggle all channels simultaneously", 
+                          command=lambda:close_and_value(root,var,'all'),
+                          font=boldFont, padx=2,pady=2)
+    all_button.pack()
+    
+    overlay_text="Channels are currently plotted {0} one another".format(gen_overlay_boolean(each_status))
+    overlay_label = tk.Label(root,text=overlay_text)
+    overlay_label.pack()    
+    
+    # creates a button to toggle all Overlay
+    overlay_button_text="Click to toggle to plotting {0} one another".format(gen_overlay_boolean(not each_status))
+    overlay_button=tk.Button(root, text=overlay_button_text, 
+                          command=lambda:close_and_value(root,var,'each'),
+                          font=boldFont, padx=1,pady=1)
+    overlay_button.pack()
+    
+    
+    exit_prompt="Return to previous menu"
+    exit_value='0'
+     
+    # and creates a corresponding button
+    exit_button=tk.Button(root, text=exit_prompt, 
+                          command=lambda:close_and_value(root,var,exit_value))
+    exit_button.pack()
+    
+    # runs the mainloop
+    root.mainloop()
+    
+    # creates the output variable
+    menu_choice=var.get()
+    
+    return(menu_choice)
+    
+    
 def process_single_values_menu(menu_choice, modes, dict_lists):
     """
     this function responds when a single channel value is set in the interactive
@@ -1890,7 +2010,7 @@ def set_file_io_options(modes, model_df, scope_df):
                 modes['plots'].append("file")
             
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
     
     return (model_df, scope_df)
             
@@ -2026,7 +2146,7 @@ def set_out_file_type(modes):
             modes['image_type']="html"
                
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_frequency_options(modes):
     """
@@ -2074,7 +2194,7 @@ def set_frequency_options(modes):
                         
 
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def set_freq(modes):
     """
@@ -2147,10 +2267,10 @@ def set_freq(modes):
             enter_freq(modes)       
 
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 def enter_freq(modes):
-    # TODO: Develop GUI version#
+
     continue_option = True
         
     while continue_option:
@@ -2293,7 +2413,7 @@ def set_other_options(modes):
                 modes['scale'] = "linear"
                
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 
 def set_offset(modes):
@@ -2415,7 +2535,7 @@ def set_diff(modes):
                
 
         else:
-            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
 
 def gen_plotting_boolean(bool_in):
@@ -2606,4 +2726,4 @@ def gen_channels_dict(modes, dict_lists):
 #                        
 # 
 #        else:
-#            print("Input: "+str(menu_choice)+" not valid or not implemented.")
+#            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
