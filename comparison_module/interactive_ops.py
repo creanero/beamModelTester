@@ -20,7 +20,7 @@ import tkFileDialog
 
 
 def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt=""):
+             exit_prompt="", status_prompt=""):
     """
     This function produces a text menu on the screen for use with command line
     execution of the program
@@ -33,15 +33,21 @@ def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
         # prints the title
         print(menu_title+"\n")
     
+    
+    if status_prompt=="":
+        status_prompt = "Current:"
+    
     # if an overall menu status is provided
     if menu_status != "":
+        # if it is provided as a function/method
         if callable(menu_status):
-            # if so, call it and record its return value in status
-            status=("Current: {0}\n").format(menu_status())
+            # call it and record its return value in status and the default value
+            status = menu_status()
         else:
-            # otherwise, return its value
-            status=("Current: {0}\n").format(menu_status)
-        # prints the status
+            # otherwise, return its value in status and the default value
+            status = menu_status
+        status=status_prompt+" "+status
+        # prints the status as a Label
         print(status)
     
     # prints a warning if there's no menu options
@@ -87,7 +93,8 @@ def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
 
 
 def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="", 
-              exit_prompt="", out_type="str", warning="", literal_zero=False):
+              exit_prompt="", out_type="str", warning="", literal_zero=False,
+              status_prompt=""):
     out_var = ""
     
     # uses '0' string as an exit value if true zero isn't a possible value
@@ -106,17 +113,26 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
         # prints the title as a label
         print(menu_title+'\n')
     
+    
+    if status_prompt=="":
+        status_prompt = "Current:"
+    
     # if an overall menu status is provided
     if menu_status != "":
         # if it is provided as a function/method
         if callable(menu_status):
-            # call it and record its return value in status
-            status=("Current: {0}").format(menu_status())
+            # call it and record its return value in status and the default value
+            status = menu_status()
         else:
-            # otherwise, return its value
-            status=("Current: {0}").format(menu_status)
+            # otherwise, return its value in status and the default value
+            status = menu_status
+        status=status_prompt+" "+status
         # prints the status as a Label
         print(status)
+    
+    
+    
+    
     
     # if a detailed description is provided
     if desc_text != "":
@@ -180,7 +196,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
 
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt=""):
+             exit_prompt="", status_prompt=""):
     
     # Creates an interactive window
     root = tk.Tk()
@@ -195,19 +211,25 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
         title = tk.Label(root,text=menu_title)
         title.pack()    
     
+    
+    if status_prompt=="":
+        status_prompt = "Current:"
+    
     # if an overall menu status is provided
     if menu_status != "":
         # if it is provided as a function/method
         if callable(menu_status):
-            # call it and record its return value in status
-            status=("Current: {0}").format(menu_status())
+            # call it and record its return value in status and the default value
+            var.set(menu_status())
         else:
-            # otherwise, return its value
-            status=("Current: {0}").format(menu_status)
+            # otherwise, return its value in status and the default value
+            var.set(menu_status)
+        status=status_prompt+" "+var.get()
         # prints the status as a Label
         status_label = tk.Label(root,text=status)
-        status_label.pack()    
-    
+        status_label.pack()     
+    else:
+        var.set("")
     
     # prints a warning as a label if there's no menu options
     if 0==len(menu_list):
@@ -276,7 +298,8 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
 
 
 def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
-              exit_prompt="", out_type="str", warning="", literal_zero=False):
+              exit_prompt="", out_type="str", warning="", literal_zero=False,
+              status_prompt=""):
     # creates an output variable
     out_var = ""
     
@@ -300,17 +323,19 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
         title = tk.Label(root,text=menu_title)
         title.pack()    
     
+    if status_prompt=="":
+        status_prompt = "Current:"
+    
     # if an overall menu status is provided
     if menu_status != "":
         # if it is provided as a function/method
         if callable(menu_status):
             # call it and record its return value in status and the default value
             var.set(menu_status())
-            status=("Current: {0}").format(menu_status())
         else:
             # otherwise, return its value in status and the default value
             var.set(menu_status)
-            status=("Current: {0}").format(menu_status)
+        status=status_prompt+" "+var.get()
         # prints the status as a Label
         status_label = tk.Label(root,text=status)
         status_label.pack()     
@@ -2056,64 +2081,122 @@ def set_freq(modes):
     This function allows the user to manually add frequencies to the list of
     frequencies to be plotted
     """
-    # TODO: Develop GUI version
 
 
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
     
+    
     while continue_option:
-        print("""
-                  FREQUENCY ENTRY MENU
-                  Currently selected frequencies (Hz):
-              """)
         
+        # sets up the menu options for cli or gui use
+        menu_list=[]
+        menu_title = "FREQUENCY ENTRY MENU"
+        menu_status = " "
+        
+        # if the specified frequency list only includes the default
         freq_status = (len(modes["freq"])==1) and (0.0 in modes["freq"])
             
         if freq_status:
-            print("None")
+            status_prompt = "No frequencies specified, plotting all."
         else:
+            status_prompt = "Selected frequencies (Hz):\n"
+            # iterates over the specified frequencies
             for freq in modes["freq"]:
-                print("\t\t"+str(freq))
-    
-        print("\n\n")
-        print("""
+                # Adds them to the "current status" input
+                menu_status = menu_status+str(freq)
+                # if it's not the last item in the list
+                if modes['freq'].index(freq) < (len(modes['freq'])-1):
+                    # appends a comma and a space
+                    menu_status = menu_status+", "
                     
-      1: Clear frequency selection (all frequencies plotted)
-      2: Add new frequencies to plotting list
-
-      0: Return to previous menu
-              """)
+        # adds options to the menu
+        opt_name = {"option":"Clear frequency selection (all frequencies plotted)"}
+        menu_list.append(opt_name)
         
-        menu_choice=raw_input("Please enter your selection from the menu above:\t")
+        opt_name = {"option":"Add new frequencies to plotting list"}
+        menu_list.append(opt_name)
+        
+        #adds a prompt
+        menu_prompt = "Please enter your selection from the menu above:\t"        
+
+        # Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice = gui_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_prompt=menu_prompt, 
+                                   status_prompt=status_prompt)
+
+        else:    
+            menu_choice = cli_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_prompt=menu_prompt, 
+                                   status_prompt=status_prompt)  
+
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
         
         elif "1" == menu_choice:
+            # resets to default
             modes["freq"]=[0.0]
             
         elif "2" == menu_choice:
-            freq_loop=True
-            while freq_loop:
-                input_freq_str =raw_input("Please enter the next frequency in Hz.\n"+
-                                          "Enter \"0\" to stop entering frequencies:\t")
-                if "0" ==input_freq_str:
-                    freq_loop = False
-                else:
-                    try:
-                        input_freq = float(input_freq_str)
-                        modes["freq"].append(input_freq)
-                    except ValueError:
-                        print("Warning: unable to process input frequency: "+input_freq_str)
-            if (len(modes["freq"])>1) and (0.0 in modes["freq"]):
-                modes["freq"].remove(0.0)
-                
-                        
+            # calls the frequency entering function
+            enter_freq(modes)       
 
         else:
             print("Input: "+str(menu_choice)+" not valid or not implemented.")
+
+def enter_freq(modes):
+    # TODO: Develop GUI version#
+    continue_option = True
+        
+    while continue_option:
+        # sets up the menu options for cli or gui use
+        menu_title ="FREQUENCY SELECTION MENU"
+        desc_text = "At this screen you may Enter a file name in which frequencies may be found"
+        menu_prompt = "Please enter the next frequency in Hz."
+        menu_status = " "
+        
+        # if the specified frequency list only includes the default
+        freq_status = (len(modes["freq"])==1) and (0.0 in modes["freq"])
+            
+        if freq_status:
+            status_prompt = "No frequencies specified, plotting all."
+        else:
+            status_prompt = "Selected frequencies (Hz):\n"
+            # iterates over the specified frequencies
+            for freq in modes["freq"]:
+                # Adds them to the "current status" input
+                menu_status = menu_status+str(freq)
+                # if it's not the last item in the list
+                if modes['freq'].index(freq) < (len(modes['freq'])-1):
+                    # appends a comma and a space
+                    menu_status = menu_status+", "
+        
+        if modes['interactive']==3:
+            exit_prompt = "Click to stop entering frequencies."
+            input_freq = gui_entry(menu_title, menu_status, menu_prompt,
+                                 desc_text, exit_prompt, out_type="float", 
+                                 warning="", literal_zero=False, 
+                                 status_prompt=status_prompt)
+        else:
+            exit_prompt = "Enter \"0\" to stop entering frequencies."
+            input_freq = cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt, out_type="float", 
+                                 warning="", literal_zero=False, 
+                                 status_prompt=status_prompt)
+        if input_freq == '0':
+            continue_option=False
+
+        else:
+            modes["freq"].append(input_freq)
+
+        if (len(modes["freq"])>1) and (0.0 in modes["freq"]):
+            modes["freq"].remove(0.0)    
+
 
 def set_freq_file(modes):
     """
@@ -2130,7 +2213,7 @@ def set_freq_file(modes):
         # sets up the menu options for cli or gui use
         menu_title ="FREQUENCY FILE SELECTION MENU"
         desc_text = "At this screen you may Enter a file name in which frequencies may be found"
-        menu_prompt = "Please enter the file name you want to use for frequencies to drop"
+        menu_prompt = "Please enter the file name you want to use for frequencies to plot"
         menu_status = str(modes["freq_file"])
         if modes['interactive']==3:
             chosen_file_name = gui_entry(menu_title, menu_status, menu_prompt,
@@ -2144,7 +2227,7 @@ def set_freq_file(modes):
             continue_option=False
 
         else:
-            modes["freq_file"]=chosen_file_name    
+            modes["freq_file"] = chosen_file_name    
             if chosen_file_name != "":
                 # clears the manual entry of frequencies if a file has been selected
                 modes["freq"]=[0.0]
