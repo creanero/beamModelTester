@@ -40,6 +40,9 @@ except ImportError:
     print("WARNING: unable to import numpy.\n"\
       "This may cause subsequent modules to fail")
 
+from interactive_ops import interactive_get_location
+from interactive_ops import interactive_get_object
+
     
 def set_object_coords(modes):
     '''
@@ -109,68 +112,7 @@ def get_object(modes):
     
     return(modes)
     
-    
-def interactive_get_object(modes):
-    '''
-    This function prompts the user to specify the coordinates of the Target to 
-    be used and modifies the modes dictionary to correspond to the new setting.
-    '''
-    
-    print("Please specify the target manually")
 
-    choice_continue = True
-    while choice_continue:
-        
-        choice=raw_input("Please enter whether you want to specify the object "+
-                 "by name (N) or by coordinate (C):\n"+
-                 "If you do not wish to specify a target, enter 0:\n\t")
-        
-        if choice in ["N", "n"]:
-            modes['object_name']=raw_input("Please enter the short form target name e.g. CasA:\n")
-            choice_continue = False
-            
-        elif choice in ["C", "c"]:
-            #wipes the name clean
-            modes['object_name']=None
-            #initialises variables
-            l_coords = []
-            coords=["Right Ascension", "Declination"]
-            for coord in coords:
-                f_coord = 0
-                coord_continue = True
-                
-                while coord_continue:
-                    input_coord=raw_input("Please enter the "+coord+" in DECIMAL DEGREES leave blank to stop entering coordinates:\n\t\t")
-                    
-                    if input_coord == "":
-                        coord_continue = False
-                    else:
-                        try:
-                            f_coord=(float(input_coord))
-                            coord_continue = False    
-                            l_coords.append(f_coord)
-                        except ValueError:
-                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
-                            coord_continue = True
-                            
-                
-
-            
-            modes['object_coords']=l_coords
-            choice_continue = False
-        
-        elif choice in ["0", "O", "o"]:#O and o also permitted
-            if modes['verbose'] >=1:
-                print("\tSetting target coordinates to 0,0 which will"+
-                      " disable object tracking.")
-                modes['object_coords']=[0.0, 0.0]
-            choice_continue = False
-        
-        else:
-            print("Warning: Incorrect option specified!")
-            choice_continue = True
-            
-    return(modes)
     
 def set_location_coords(modes):
     '''
@@ -268,68 +210,6 @@ def get_location(modes):
     
     return(modes)
 
-def interactive_get_location(modes):
-    '''
-    This function prompts the user to specify the location of the station to be
-    used and modifies the modes dictionary to correspond to the new setting.
-    '''
-    
-    print("Please specify the location of the station manually")
-
-    choice_continue = True
-    while choice_continue:
-        
-        choice=raw_input("Please enter whether you want to specify the location "+
-                 "by name (N) or by coordinate (C):\n"+
-                 "If you do not wish to specify a station, enter 0:\n\t")
-        
-        if choice in ["N", "n"]:
-            modes['location_name']=raw_input("Please enter the StationID:\n")
-            choice_continue = False
-            
-        elif choice in ["C", "c"]:
-            #wipes the name clean
-            modes['location_name']=None
-            #initialises variables
-            l_coords = []
-            coords=["Latitude", "Longitude","Height above Sea Level"]
-            for coord in coords:
-                f_coord = 0
-                coord_continue = True
-                
-                while coord_continue:
-                    input_coord=raw_input("Please enter the "+coord+" leave blank to stop entering coordinates:\n\t\t")
-                    
-                    if input_coord == "":
-                        coord_continue = False
-                    else:
-                        try:
-                            f_coord=(float(input_coord))
-                            coord_continue = False    
-                        except ValueError:
-                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
-                            coord_continue = True
-                
-                if type(f_coord) is int:
-                    break #stops going through the for loop over coordinates
-                else:
-                    l_coords.append(f_coord)
-            
-            modes['location_coords']=l_coords
-            choice_continue = False
-        
-        elif choice in ["0", "O", "o"]:#O and o also permitted
-            if modes['verbose'] >=1:
-                print("\tSetting site coordinates to 0,0,0 which will"+
-                      " disable object tracking.")
-                modes['location_coords']=[0.0, 0.0, 0.0]
-            choice_continue = False
-        
-        else:
-            print("Warning: Incorrect option specified!")
-            choice_continue = True
-            
-    return(modes)
 
 
 def check_coords(ns, ew, modes={"verbose":1}): #default value gives responses

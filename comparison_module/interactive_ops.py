@@ -5,9 +5,7 @@ Created on Wed Jul 25 14:44:17 2018
 @author: User
 """
 from alt_az_functions import get_location
-from alt_az_functions import interactive_get_location
 from alt_az_functions import get_object
-from alt_az_functions import interactive_get_object
 
 from reading_functions import read_var_file
 
@@ -2537,6 +2535,153 @@ def set_diff(modes):
         else:
             print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
+
+    
+def interactive_get_object(modes):
+    '''
+    This function prompts the user to specify the coordinates of the Target to 
+    be used and modifies the modes dictionary to correspond to the new setting.
+    '''
+    #TODO: GUI THIS
+
+
+    choice_continue = True
+    while choice_continue:
+
+        # sets up the menu options for cli or gui use
+        menu_title ="SELECT TARGET MENU"
+         
+        # creates a list of menu items
+        menu_list = []
+        menu_prompt = "Please select how you want to specify the object"
+        
+        opt_name = {"option":"By Name"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"By Coordinates"}
+        menu_list.append(opt_name)        
+        
+        opt_name = {"option":"Clear target"}
+        menu_list.append(opt_name)     
+        
+        if modes['interactive'] == 3:
+            choice=gui_menu(menu_title = menu_title, menu_list=menu_list, 
+                            menu_prompt=menu_prompt)
+        else:
+            choice=cli_menu(menu_title = menu_title, menu_list=menu_list, 
+                            menu_prompt=menu_prompt)
+        
+        if choice == '1':
+            modes['object_name']=raw_input("Please enter the short form target name e.g. CasA:\n")
+            choice_continue = False
+            
+        elif choice == '2':
+            #wipes the name clean
+            modes['object_name']=None
+            #initialises variables
+            l_coords = []
+            coords=["Right Ascension", "Declination"]
+            for coord in coords:
+                f_coord = 0
+                coord_continue = True
+                
+                while coord_continue:
+                    input_coord=raw_input("Please enter the "+coord+" in DECIMAL DEGREES leave blank to stop entering coordinates:\n\t\t")
+                    
+                    if input_coord == "":
+                        coord_continue = False
+                    else:
+                        try:
+                            f_coord=(float(input_coord))
+                            coord_continue = False    
+                            l_coords.append(f_coord)
+                        except ValueError:
+                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
+                            coord_continue = True
+                            
+                
+
+            
+            modes['object_coords']=l_coords
+        
+        elif choice == '3':
+            if modes['verbose'] >=1:
+                print("\tSetting target coordinates to 0,0 which will"+
+                      " disable object tracking.")
+                modes['object_coords']=[0.0, 0.0]
+        
+        elif choice == '0':
+            choice_continue = False #ends the loop
+        
+        else:
+            print("Warning: Incorrect option '{}' specified!".format(choice))
+            
+    return(modes)
+
+
+def interactive_get_location(modes):
+    '''
+    This function prompts the user to specify the location of the station to be
+    used and modifies the modes dictionary to correspond to the new setting.
+    '''
+    # TODO: GUI this
+    
+    print("Please specify the location of the station manually")
+
+    choice_continue = True
+    while choice_continue:
+        
+        choice=raw_input("Please enter whether you want to specify the location "+
+                 "by name (N) or by coordinate (C):\n"+
+                 "If you do not wish to specify a station, enter 0:\n\t")
+        
+        if choice in ["N", "n"]:
+            modes['location_name']=raw_input("Please enter the StationID:\n")
+            choice_continue = False
+            
+        elif choice in ["C", "c"]:
+            #wipes the name clean
+            modes['location_name']=None
+            #initialises variables
+            l_coords = []
+            coords=["Latitude", "Longitude","Height above Sea Level"]
+            for coord in coords:
+                f_coord = 0
+                coord_continue = True
+                
+                while coord_continue:
+                    input_coord=raw_input("Please enter the "+coord+" leave blank to stop entering coordinates:\n\t\t")
+                    
+                    if input_coord == "":
+                        coord_continue = False
+                    else:
+                        try:
+                            f_coord=(float(input_coord))
+                            coord_continue = False    
+                        except ValueError:
+                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
+                            coord_continue = True
+                
+                if type(f_coord) is int:
+                    break #stops going through the for loop over coordinates
+                else:
+                    l_coords.append(f_coord)
+            
+            modes['location_coords']=l_coords
+            choice_continue = False
+        
+        elif choice in ["0", "O", "o"]:#O and o also permitted
+            if modes['verbose'] >=1:
+                print("\tSetting site coordinates to 0,0,0 which will"+
+                      " disable object tracking.")
+                modes['location_coords']=[0.0, 0.0, 0.0]
+            choice_continue = False
+        
+        else:
+            print("Warning: Incorrect option specified!")
+            choice_continue = True
+            
+    return(modes)
 
 def gen_plotting_boolean(bool_in):
     """
