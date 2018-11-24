@@ -40,33 +40,36 @@ except ImportError:
     print("WARNING: unable to import numpy.\n"\
       "This may cause subsequent modules to fail")
 
-from interactive_ops import interactive_get_location
-from interactive_ops import interactive_get_object
+import interactive_ops as iops
 
     
-def set_object_coords(modes):
+def set_coords(name_str,verbose = 1):
     '''
-    returns a 2-long list of the coordinates of an object identified by name
-    Want to replace this with something better at a later point, but this is 
-    designed as a module to be replaced.
+    returns a 2-long list of the coordinates of a target/station identified by name
+
     '''
-    coords=[0.0,0.0]
-    
-    name_str=modes['object_name']
+    coords=None
+
     
     if name_str == "CasA":
         coords=[350.85,  58.815]
     elif name_str == "CygA":
         coords=[299.86791667,  40.73388889]
     elif name_str == "VirA":
-        coords=[187.70415,  12.39111]
+        coords=[187.70415,  12.39111]    
+        
+    #station ids
+    elif name_str == "IE613": 
+        coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
+    elif name_str == "SE607":
+        coords=[57.398743, 11.929636, 20.0]
     else:
-        if modes['verbose'] >=1:
-            print("Warning: Object: "+name_str+" not found.  Setting object "+
-              "coordinates to 0,0 which will disable object tracking.\n\n" + 
-              "for an object at exactly 0,0 set one coordinate to 1e-308")
-    #minimum float increment coordinates will not affect the actual results
-    #due to precision limits but will pass a =!0 test later in the program
+        if verbose >=1:
+            if name_str in['', None]:
+                print("No target specified.")
+            else:
+                print("Warning: '{}' not found.".format(name_str))
+
     
     return(coords)
 
@@ -79,12 +82,15 @@ def get_object(modes):
 
     #sets up the object coordinates
     if modes['object_name'] != None:
-        modes['object_coords']=set_object_coords(modes)
+        modes['object_coords']=set_coords(modes['object_name'],
+                                          modes['verbose'])
       
     #checks the coordinates are valid
     
-    #if there are 2  coordinates
-    if len(modes['object_coords']) == 2:
+    #if there are 2  coordinates    
+    if modes['object_coords'] == None:
+        pass #no coords specified, let it go as is
+    elif len(modes['object_coords']) == 2:
         
         #checks the validity of those coordinates
         warn_flag = check_coords(modes['object_coords'][1], #Dec (N/S)
@@ -99,42 +105,21 @@ def get_object(modes):
         warn_flag = True    
     if warn_flag == True:
         if modes['interactive']>=1:
-            modes = interactive_get_object(modes)
+            modes = iops.interactive_get_object(modes)
             modes = get_object(modes)
         else:
             if modes['verbose'] >=1:
                 print("Interactivity mode: "+str(modes['interactive'])+"\n"
                       "Setting site coordinates to 0,0 which will"+
                       " disable object tracking.")    
-                modes['object_coords']=[0.0, 0.0]
+                modes['object_coords']=None
         #there is no land at lat/long (0,0), so it should be ok to assume no
         #observations at this object
     
     return(modes)
     
 
-    
-def set_location_coords(modes):
-    '''
-    returns a 3-long list of the coordinates of an observing location 
-    identified by name.
-    Want to replace this with something better at a later point, but this is 
-    designed as a module to be replaced.
-    '''
-    coords=[]
-    
-    name_str=modes['location_name']
-    
-    if name_str == "IE613": 
-        coords=[53.095263, -7.922245,150.0] #coords for LBA.  HBA almost identical
-    elif name_str == "SE607":
-        coords=[57.398743, 11.929636, 20.0]
-    else:
-        if modes['verbose'] >=1:
-            print("Warning: Site: "+name_str+" not found.  " )
-            modes['location_name']=None #blanks the name to prevent further use
 
-    return(coords)
 
 
 def get_location(modes):
@@ -146,12 +131,15 @@ def get_location(modes):
 
     #sets up the location coordinates
     if modes['location_name'] != None:
-        modes['location_coords']=set_location_coords(modes)
+        modes['location_coords']==set_coords(modes['location_name'],
+                                             modes['verbose'])
       
     #checks the coordinates are valid
     
     #if there are 2 or 3 coordinates
-    if len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
+    if modes['location_coords'] == None:
+        pass #no coords specified, let it go as is
+    elif len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
         
         #checks the validity of those coordinates
         warn_flag = check_coords(modes['location_coords'][0], #latitude
@@ -197,14 +185,14 @@ def get_location(modes):
         warn_flag = True    
     if warn_flag == True:
         if modes['interactive']>=1:
-            modes = interactive_get_location(modes)
+            modes = iops.interactive_get_location(modes)
             modes = get_location(modes)
         else:
             if modes['verbose'] >=1:
                 print("Interactivity mode: "+str(modes['interactive'])+"\n"
                       "Setting site coordinates to 0,0,0 which will"+
                       " disable object tracking.")    
-                modes['location_coords']=[0.0, 0.0, 0.0]
+                modes['location_coords']=None
         #there is no land at lat/long (0,0), so it should be ok to assume no
         #observations at this location
     

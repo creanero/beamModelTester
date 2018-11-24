@@ -6,10 +6,13 @@ Created on Wed Jul 25 14:44:17 2018
 """
 from alt_az_functions import get_location
 from alt_az_functions import get_object
+from alt_az_functions import set_coords
 
 from reading_functions import read_var_file
 
 from io_functions import set_out_dir
+
+from appearance_functions import gen_pretty_name
 
 import os.path
 
@@ -18,7 +21,7 @@ import tkFileDialog
 import tkFont
 
 def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt="", status_prompt=""):
+             exit_prompt="", status_prompt="", desc_text=""):
     """
     This function produces a text menu on the screen for use with command line
     execution of the program
@@ -31,6 +34,18 @@ def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
         # prints the title
         print(menu_title+"\n")
     
+        
+    # if a detailed description is provided
+    if desc_text != "":
+        # if it is provided as a function/method
+        if callable(desc_text):
+            # call it and record its return value in desc
+            desc=desc_text()
+        else:
+            # otherwise, return its value
+            desc=desc_text
+        # prints the desc as a Label
+        print(desc)        
     
     if status_prompt=="":
         status_prompt = "Current:"
@@ -194,7 +209,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
 
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt="", status_prompt=""):
+             exit_prompt="", status_prompt="", desc_text=""):
     #TODO: Temp label
     
     # Creates an interactive window
@@ -211,8 +226,22 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
         title.pack()    
     
     
+    # if a detailed description is provided
+    if desc_text != "":
+        # if it is provided as a function/method
+        if callable(desc_text):
+            # call it and record its return value in desc
+            desc=desc_text()
+        else:
+            # otherwise, return its value
+            desc=desc_text
+        # prints the desc as a Label
+        desc_label = tk.Label(root,text=desc)
+        desc_label.pack()        
+    
     if status_prompt=="":
         status_prompt = "Current:"
+        
     
     # if an overall menu status is provided
     if menu_status != "":
@@ -1204,7 +1233,7 @@ def set_coordinate_options(modes):
     # menu_options=range(0,num_options)
     while continue_option:        
         # sets up the menu options for cli or gui use
-        menu_title ="3D/ANIMATION PLOTTING MENU"
+        menu_title ="TARGET AND LOCATION MENU"
          
         # creates a list of menu items
         menu_list = []
@@ -1217,24 +1246,45 @@ def set_coordinate_options(modes):
         opt_name = {"option":"Set Target Coordinate Options"}
         menu_list.append(opt_name)
         
-      
+        # constructs the menu status
+        menu_status = ""
+        
+        # starts with location name
+        menu_status = menu_status + "Current Location Name:"
+        if modes['location_name'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            menu_status = menu_status + " " + modes['location_name']+'\n'
+        
+        # then location coordinates if specified
+        menu_status = menu_status + "Current Location Coordinates:"
+        if modes['location_coords'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            str_location_coords="\nLat: {1}deg Long: {2}deg Elev: {3}m\n".format( 
+                    modes['location_coords'][0], # latitude
+                    modes['location_coords'][1], # longitude
+                    modes['location_coords'][2],) # height,)
+            menu_status = menu_status + str_location_coords
+        
+        # moves on to object
+        menu_status = menu_status + "\nCurrent Object Name:"
+        if modes['object_name'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            menu_status = menu_status + " " + modes['object_name']+"\n"
+        
+        # then object coordinates if specified
+        menu_status = menu_status + "Current Object Coordinates:"
+        if modes['object_coords'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            str_object_coords="\nRA: {1}deg DEC: {2}deg\n".format( 
+                    modes['object_coords'][0], # RA
+                    modes['object_coords'][1],) # Dec
+            menu_status = menu_status + str_object_coords            
+            
 
-        menu_status=(("""
-              Current Location Name: {0} 
-              Current Location Coordinates: Lat: {1} Long: {2} Elev {3}m
-              
-              Current Target Name: {4}
-              Current Target Coordinates: RA: {5}deg Dec: {6}deg
-      
-
-              """).format(modes['location_name'],
-                          modes['location_coords'][0], # latitude
-                          modes['location_coords'][1], # longitude
-                          modes['location_coords'][2], # height,
-                          modes['object_name'],
-                          modes['object_coords'][0], # RA
-                          modes['object_coords'][1] # Dec
-                          ))
         
         
         # Runs with GUI or CLI depending on mode.
@@ -2572,9 +2622,13 @@ def interactive_get_object(modes):
                             menu_prompt=menu_prompt)
         
         if choice == '1':
-            modes['object_name']=raw_input("Please enter the short form target name e.g. CasA:\n")
-            choice_continue = False
-            
+            name=set_name(modes,"object_name")
+            coord=set_coords(name)
+            if coord == None:
+                name = None
+            modes['object_name']=name
+            modes['object_coords']=coord
+                            
         elif choice == '2':
             #wipes the name clean
             modes['object_name']=None
@@ -2606,9 +2660,7 @@ def interactive_get_object(modes):
         
         elif choice == '3':
             if modes['verbose'] >=1:
-                print("\tSetting target coordinates to 0,0 which will"+
-                      " disable object tracking.")
-                modes['object_coords']=[0.0, 0.0]
+                modes['object_coords']=None
         
         elif choice == '0':
             choice_continue = False #ends the loop
@@ -2626,20 +2678,48 @@ def interactive_get_location(modes):
     '''
     # TODO: GUI this
     
-    print("Please specify the location of the station manually")
 
     choice_continue = True
     while choice_continue:
+
+        # sets up the menu options for cli or gui use
+        menu_title ="SELECT STATION MENU"
+         
+        # creates a list of menu items
+        menu_list = []
+        menu_prompt = "Please select how you want to specify the station"
         
-        choice=raw_input("Please enter whether you want to specify the location "+
-                 "by name (N) or by coordinate (C):\n"+
-                 "If you do not wish to specify a station, enter 0:\n\t")
+        opt_name = {"option":"By Name"}
+        menu_list.append(opt_name)
         
-        if choice in ["N", "n"]:
-            modes['location_name']=raw_input("Please enter the StationID:\n")
-            choice_continue = False
+        opt_name = {"option":"By Coordinates"}
+        menu_list.append(opt_name)        
+        
+        opt_name = {"option":"Clear station"}
+        menu_list.append(opt_name)     
+
+
+        menu_desc="Please specify the location of the station manually"
+
+        
+        if modes['interactive'] == 3:
+            choice=gui_menu(menu_title = menu_title, menu_list=menu_list, 
+                            menu_prompt=menu_prompt, desc_text=menu_desc)
+        else:
+            choice=cli_menu(menu_title = menu_title, menu_list=menu_list, 
+                            menu_prompt=menu_prompt, desc_text=menu_desc)
+        
+        if choice == '1':
+            name=set_name(modes,"location_name")
+            coord=set_coords(name)
+            if coord == None:
+                name = None
+            modes['location_name']=name
+            modes['location_coords']=coord
+                
             
-        elif choice in ["C", "c"]:
+            
+        elif choice == '2':
             #wipes the name clean
             modes['location_name']=None
             #initialises variables
@@ -2668,20 +2748,67 @@ def interactive_get_location(modes):
                     l_coords.append(f_coord)
             
             modes['location_coords']=l_coords
-            choice_continue = False
         
-        elif choice in ["0", "O", "o"]:#O and o also permitted
+        elif choice == '3':
             if modes['verbose'] >=1:
-                print("\tSetting site coordinates to 0,0,0 which will"+
-                      " disable object tracking.")
-                modes['location_coords']=[0.0, 0.0, 0.0]
-            choice_continue = False
+                #clear the station
+                modes['location_coords']=None
         
+        elif choice == '0':
+            choice_continue = False
         else:
             print("Warning: Incorrect option specified!")
             choice_continue = True
             
     return(modes)
+
+
+
+
+def set_name(modes, to_name):
+    """
+    This function allows the user to set the target or station name
+    """
+    continue_option=True
+    # menu_options=range(0,num_options)
+    pretty_name=gen_pretty_name(to_name)
+    
+    out_name=modes[to_name]
+    
+    example = ""
+    if to_name == "location_name":
+        example = " e.g. IE613"
+    if to_name == "object_name":
+        example = " e.g. CasA"
+    
+    warning = ""
+    
+    while continue_option:
+        # sets up the menu options for cli or gui use
+        menu_title = pretty_name.upper()+" MENU"
+        desc_text = "Use this menu to enter the "+pretty_name+" to enable automatic calculation of coordinates."
+        menu_prompt = "Please Enter the "+pretty_name+example+" below."
+        menu_status = out_name
+        if modes['interactive']==3:
+            in_name = gui_entry(menu_title, menu_status, menu_prompt,
+                                 desc_text, exit_prompt="", out_type="str", 
+                                 warning=warning, literal_zero=False)
+        else:
+            in_name = cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="str", 
+                                 warning=warning, literal_zero=False)
+        if in_name == '0':
+            continue_option=False
+        elif in_name in ['',None]:
+            out_name = None
+        else:
+            if set_coords(in_name) == None:
+                warning="Name: '{}' is not known.  Please try again.".format(in_name)
+            else:
+                out_name=in_name
+            
+    return(out_name)
+
 
 def gen_plotting_boolean(bool_in):
     """

@@ -367,7 +367,7 @@ set a variable for the name of the target object.  This is used to generate sky
 coordinates.  At present this is enabled only for CasA, CygA and VirA
                             ''')        
     #adds an optional argument for target object
-    group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
+    group_object.add_argument("--object_coords","-x", default = None, 
                             type=float, nargs=2,
                             help = '''
 set a variable for the coordinates of the target object.  Coordinates should 
@@ -394,7 +394,7 @@ stations IE613 and SE607
                             ''')        
     #adds an optional argument for target object
     group_location.add_argument("--location_coords","-l", 
-                                default = [0.0,0.0,0.0], 
+                                default = None, 
                             type=float, nargs='*',
                             help = '''
 set a variable for the coordinates of the observing site.  Coordinates should 
@@ -522,7 +522,7 @@ def alt_az_ops(merge_df, modes):
     if possible.
     """
     #calculates Alt-Az coordinates if possible
-    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+    if (modes['object_coords']!=None) and (modes['location_coords']!=None):
         try:
             merge_df = calc_alt_az(merge_df,modes)
         except NameError:

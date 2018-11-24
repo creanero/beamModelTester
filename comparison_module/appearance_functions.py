@@ -66,6 +66,12 @@ def gen_pretty_name(key,units=False):
     elif key =='corr':
         pretty_name = "Pearson's Correlation"    
 
+    elif key =='location_name':
+        pretty_name = 'Station ID'    
+    elif key =='object_name':
+        pretty_name = "Target Name"   
+
+
     elif key =='':
         pretty_name = "value" 
         
