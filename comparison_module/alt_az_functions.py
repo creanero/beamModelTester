@@ -40,9 +40,7 @@ except ImportError:
     print("WARNING: unable to import numpy.\n"\
       "This may cause subsequent modules to fail")
 
-import interactive_ops as iops
 
-    
 def set_coords(name_str,verbose = 1):
     '''
     returns a 2-long list of the coordinates of a target/station identified by name
@@ -72,132 +70,6 @@ def set_coords(name_str,verbose = 1):
 
     
     return(coords)
-
-def get_object(modes):
-    
-    """
-    This function prompts the user to enter the coordinates of the target
-    """
-    warn_flag = False
-
-    #sets up the object coordinates
-    if modes['object_name'] != None:
-        modes['object_coords']=set_coords(modes['object_name'],
-                                          modes['verbose'])
-      
-    #checks the coordinates are valid
-    
-    #if there are 2  coordinates    
-    if modes['object_coords'] == None:
-        pass #no coords specified, let it go as is
-    elif len(modes['object_coords']) == 2:
-        
-        #checks the validity of those coordinates
-        warn_flag = check_coords(modes['object_coords'][1], #Dec (N/S)
-                                 modes['object_coords'][0], #RA (E/W)
-                                 modes) #supplied separately for compatibility
-
-    else:
-        if modes['verbose'] >=1:
-            if modes['object_name'] == None:
-                print("Warning: Target: "+ str(modes['object_coords'])+
-                      " incorrectly specified.  ")
-        warn_flag = True    
-    if warn_flag == True:
-        if modes['interactive']>=1:
-            modes = iops.interactive_get_object(modes)
-            modes = get_object(modes)
-        else:
-            if modes['verbose'] >=1:
-                print("Interactivity mode: "+str(modes['interactive'])+"\n"
-                      "Setting site coordinates to 0,0 which will"+
-                      " disable object tracking.")    
-                modes['object_coords']=None
-        #there is no land at lat/long (0,0), so it should be ok to assume no
-        #observations at this object
-    
-    return(modes)
-    
-
-
-
-
-def get_location(modes):
-    """
-    This function prompts the user to enter the coordinates of the observing 
-    station
-    """
-    warn_flag = False
-
-    #sets up the location coordinates
-    if modes['location_name'] != None:
-        modes['location_coords']==set_coords(modes['location_name'],
-                                             modes['verbose'])
-      
-    #checks the coordinates are valid
-    
-    #if there are 2 or 3 coordinates
-    if modes['location_coords'] == None:
-        pass #no coords specified, let it go as is
-    elif len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
-        
-        #checks the validity of those coordinates
-        warn_flag = check_coords(modes['location_coords'][0], #latitude
-                                 modes['location_coords'][1], #longitude
-                                 modes) #supplied separately for compatibility
-
-    
-        #if there are only two coordinates (missing height)
-        if len(modes['location_coords']) == 2 and not warn_flag:
-            
-            if modes['verbose'] >=1:
-                print("Warning: no height above sea level specified")
-        
-            if modes['interactive']>=1:
-                height_flag=True
-                while height_flag:
-                    height_test = raw_input("\nDo you want to specify a height (Default 0m)? [y/n]:\t")
-                    
-                    if height_test in ["N", "n"]: 
-                        print("Height above sea level defaulting to 0m")
-                        modes['location_coords']=modes['location_coords']+[0.0]
-                        height_flag=False#end the while loop
-                        
-                    elif height_test in ["Y", "y"]:
-                        warn_flag = True #reenter the coordinates
-                        height_flag=False #end while loop
-                    else:
-                        print("Input not understood.")
-                        height_flag=True #continue while loop
-            
-            
-            else:#in low interactivity modes
-                #appends a height of zero (sea level) for the observing site
-                if modes['verbose'] >=1:
-                    print("Interactivity mode: "+str(modes['interactive'])+"\n"
-                          "Height above sea level defaulting to 0m")
-                modes['location_coords']=modes['location_coords']+[0.0]
-    else:
-        if modes['verbose'] >=1:
-            if modes['location_name'] == None:
-                print("Warning: Site: "+ str(modes['location_coords'])+
-                      " incorrectly specified.  ")
-        warn_flag = True    
-    if warn_flag == True:
-        if modes['interactive']>=1:
-            modes = iops.interactive_get_location(modes)
-            modes = get_location(modes)
-        else:
-            if modes['verbose'] >=1:
-                print("Interactivity mode: "+str(modes['interactive'])+"\n"
-                      "Setting site coordinates to 0,0,0 which will"+
-                      " disable object tracking.")    
-                modes['location_coords']=None
-        #there is no land at lat/long (0,0), so it should be ok to assume no
-        #observations at this location
-    
-    return(modes)
-
 
 
 def check_coords(ns, ew, modes={"verbose":1}): #default value gives responses

@@ -4,8 +4,7 @@ Created on Wed Jul 25 14:44:17 2018
 
 @author: User
 """
-from alt_az_functions import get_location
-from alt_az_functions import get_object
+
 from alt_az_functions import set_coords
 
 from reading_functions import read_var_file
@@ -194,7 +193,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
         elif out_type=='file_in':
             exists = os.path.isfile(out_var)
             if exists:
-                pass #  out_var is good to go as it is
+                pass  # out_var is good to go as it is
             else:
                 warning = "Warning: {} is not a valid file path.  Please Try Again.".format(out_var)
                 out_var = cli_entry(menu_title, menu_status, menu_prompt,
@@ -207,6 +206,54 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
     return(out_var)
 
+def cli_coords(menu_title = "", menu_status="", status_prompt="", coords=[]):
+    l_coords = []
+
+    # if the title isn't blank
+    if menu_title != "":
+        # prints the title as a label
+        print(menu_title + '\n')
+
+    if status_prompt == "":
+        status_prompt = "Current:"
+
+    # if an overall menu status is provided
+    if menu_status != "":
+        # if it is provided as a function/method
+        if callable(menu_status):
+            # call it and record its return value in status and the default value
+            status = menu_status()
+        else:
+            # otherwise, return its value in status and the default value
+            status = menu_status
+        status = status_prompt + " " + status
+        # prints the status as a Label
+        print(status)
+
+    for coord in coords:
+        f_coord = 0
+        coord_continue = True
+
+
+        while coord_continue:
+            input_coord = raw_input("Please enter the " + coord + " leave blank to stop entering coordinates:\n\t\t")
+
+            if input_coord == "":
+                coord_continue = False
+            else:
+                try:
+                    f_coord = (float(input_coord))
+                    coord_continue = False
+                except ValueError:
+                    print("Warning: Coordinates must be specified as decimal numbers:\n\t")
+                    coord_continue = True
+
+        if type(f_coord) is int: # because it hasn't been changed from 0
+            break  # stops going through the for loop over coordinates
+        else:
+            l_coords.append(f_coord)
+
+    return (l_coords)
 
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
              exit_prompt="", status_prompt="", desc_text=""):
@@ -393,7 +440,9 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
 
 
 
-       
+    # uses a default instruction if no better prompt is given
+    if ""==menu_prompt:
+        menu_prompt="Please type your selection in the box below:"
         
     # and prints the instructions as a label   
     prompt = tk.Label(root,text=menu_prompt)
@@ -416,10 +465,6 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
                               command=lambda:close_and_value(root,var,""))
         clear_button.pack()
     else:
-        # uses a default instruction if no better prompt is given
-        if ""==menu_prompt:
-            menu_prompt="Please type your selection in the box below:"
-
         # creates the main data entry box
         entry_box = tk.Entry(root, textvariable=var)
         entry_box.pack()
@@ -482,6 +527,123 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
         pass # out_var="0" # leave it as '0' and allow that to return
 
     return(out_var)
+
+
+def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
+              exit_prompt="", warning="", status_prompt="", coord_names=[]):
+    # creates an output variable
+    vars = []
+
+    exit_value = None
+
+    # Creates an interactive window
+    root = tk.Tk()
+
+        # if the title isn't blank
+    if menu_title != "":
+        # prints the title as a label
+        root.title(menu_title)
+        title = tk.Label(root, text=menu_title)
+        title.pack()
+
+    if status_prompt == "":
+        status_prompt = "Current:"
+
+    # if an overall menu status is provided
+    if menu_status != "":
+        # if it is provided as a function/method
+        if callable(menu_status):
+            # call it and record its return value in status and the default value
+            menu_status = menu_status()
+        else:
+            # otherwise, return its value in status and the default value
+            menu_status = menu_status
+        status = status_prompt + " " + menu_status
+        # prints the status as a Label
+        status_label = tk.Label(root, text=status)
+        status_label.pack()
+
+
+    # if a detailed description is provided
+    if desc_text != "":
+        # if it is provided as a function/method
+        if callable(desc_text):
+            # call it and record its return value in desc
+            desc = desc_text()
+        else:
+            # otherwise, return its value
+            desc = desc_text
+        # prints the desc as a Label
+        desc_label = tk.Label(root, text=desc)
+        desc_label.pack()
+
+        # if the title isn't blank
+    if warning != "":
+        # prints the warning as a label
+        warning_label = tk.Label(root, text=warning, fg="red")
+        warning_label.pack()
+
+    # and prints the instructions as a label
+    prompt = tk.Label(root, text=menu_prompt)
+    prompt.pack()
+
+
+    # and creates a corresponding button
+    clear_button = tk.Button(root, text="Clear Coordinates" ,
+                             command=lambda: close_and_value(root, vars, []))
+    clear_button.pack()
+    for i in range(len(coord_names)):
+        var = tk.StringVar()
+        vars.append(var)
+        # creates the main data entry box
+        entry_box = tk.Entry(root, textvariable=vars[i])
+        entry_box.pack()
+        coord_label = tk.Label(root, text=coord_names[i])
+        coord_label.pack(tk.W)
+
+    # creates a "confirm" button which kills root when it is called
+    submit = tk.Button(root, text="Click to confirm", command=root.destroy)
+    submit.pack()
+
+    # if the exit/up a level prompt is not provided
+    if "" == exit_prompt:
+        # produces a default prompt
+        exit_prompt = "Return to previous menu"
+
+    # and creates a corresponding button
+    exit_button = tk.Button(root, text=exit_prompt,
+                            command=lambda: close_and_value(root, var, exit_value))
+    exit_button.pack()
+
+    # runs the mainloop
+    root.mainloop()
+
+    out_vars=[]
+
+    warning=""
+    # if the output variable isn't the exit value
+    if vars == exit_value:
+        pass # out_var=None # leave it as '0' and allow that to return
+    else:
+        for i in range(len(vars)):
+            out_var = vars[i].get()
+
+
+            try:
+                out_var = float(out_var)
+            except ValueError:
+                warning.append = "Warning: '{}' is not valid for {}.\n".format(out_var, coord_names[i])
+            # out_vars = gui_entry(menu_title, menu_status, menu_prompt,
+            #                     desc_text, exit_prompt, out_type, warning)
+            out_vars.append(out_var)
+
+    if warning != "":
+        out_vars = gui_coords(menu_title, menu_status, menu_prompt, desc_text,
+                              exit_prompt, warning, status_prompt, coord_names)
+
+
+
+    return (out_vars)
 
 
 def close_and_value(root,var,value):
@@ -1336,8 +1498,8 @@ def set_plotting_options(modes):
         
         opt_name = {"option":"Set variables to plot"}
         menu_list.append(opt_name)
-        
-        
+
+
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
@@ -1692,6 +1854,122 @@ def set_msd_vals(modes):
                         
             print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
 
+
+def get_location(modes):
+    """
+    This function prompts the user to enter the coordinates of the observing
+    station
+    """
+    warn_flag = False
+
+    # sets up the location coordinates
+    if modes['location_name'] != None:
+        modes['location_coords'] == set_coords(modes['location_name'],
+                                               modes['verbose'])
+
+    # checks the coordinates are valid
+
+    # if there are 2 or 3 coordinates
+    if modes['location_coords'] == None:
+        pass  # no coords specified, let it go as is
+    elif len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
+
+        # checks the validity of those coordinates
+        warn_flag = check_coords(modes['location_coords'][0],  # latitude
+                                 modes['location_coords'][1],  # longitude
+                                 modes)  # supplied separately for compatibility
+
+        # if there are only two coordinates (missing height)
+        if len(modes['location_coords']) == 2 and not warn_flag:
+
+            if modes['verbose'] >= 1:
+                print("Warning: no height above sea level specified")
+
+            if modes['interactive'] >= 1:
+                height_flag = True
+                while height_flag:
+                    height_test = raw_input("\nDo you want to specify a height (Default 0m)? [y/n]:\t")
+
+                    if height_test in ["N", "n"]:
+                        print("Height above sea level defaulting to 0m")
+                        modes['location_coords'] = modes['location_coords'] + [0.0]
+                        height_flag = False  # end the while loop
+
+                    elif height_test in ["Y", "y"]:
+                        warn_flag = True  # reenter the coordinates
+                        height_flag = False  # end while loop
+                    else:
+                        print("Input not understood.")
+                        height_flag = True  # continue while loop
+
+
+            else:  # in low interactivity modes
+                # appends a height of zero (sea level) for the observing site
+                if modes['verbose'] >= 1:
+                    print("Interactivity mode: " + str(modes['interactive']) + "\n"
+                                                                               "Height above sea level defaulting to 0m")
+                modes['location_coords'] = modes['location_coords'] + [0.0]
+    else:
+        if modes['verbose'] >= 1:
+            if modes['location_name'] == None:
+                print("Warning: Site: " + str(modes['location_coords']) +
+                      " incorrectly specified.  ")
+        warn_flag = True
+    if warn_flag == True:
+        if modes['interactive'] >= 1:
+            modes = interactive_get_location(modes)
+            modes = get_location(modes)
+        else:
+            if modes['verbose'] >= 1:
+                print("Interactivity mode: " + str(modes['interactive']))
+                modes['location_coords'] = None
+
+    return (modes)
+
+
+def get_object(modes):
+    """
+    This function prompts the user to enter the coordinates of the target
+    """
+    warn_flag = False
+
+    # sets up the object coordinates
+    if modes['object_name'] != None:
+        modes['object_coords'] = set_coords(modes['object_name'],
+                                            modes['verbose'])
+
+    # checks the coordinates are valid
+
+    # if there are 2  coordinates
+    if modes['object_coords'] == None:
+        pass  # no coords specified, let it go as is
+    elif len(modes['object_coords']) == 2:
+
+        # checks the validity of those coordinates
+        warn_flag = check_coords(modes['object_coords'][1],  # Dec (N/S)
+                                 modes['object_coords'][0],  # RA (E/W)
+                                 modes)  # supplied separately for compatibility
+
+    else:
+        if modes['verbose'] >= 1:
+            if modes['object_name'] == None:
+                print("Warning: Target: " + str(modes['object_coords']) +
+                      " incorrectly specified.  ")
+        warn_flag = True
+    if warn_flag == True:
+        if modes['interactive'] >= 1:
+            modes = interactive_get_object(modes)
+            modes = get_object(modes)
+        else:
+            if modes['verbose'] >= 1:
+                print("Interactivity mode: " + str(modes['interactive']) + "\n"
+                                                                           "Setting site coordinates to 0,0 which will" +
+                      " disable object tracking.")
+                modes['object_coords'] = None
+        # there is no land at lat/long (0,0), so it should be ok to assume no
+        # observations at this object
+
+    return (modes)
 
 
 def set_values(modes):
@@ -2594,6 +2872,8 @@ def interactive_get_object(modes):
     '''
     #TODO: GUI THIS
 
+    warning = ""
+
 
     choice_continue = True
     while choice_continue:
@@ -2612,14 +2892,36 @@ def interactive_get_object(modes):
         menu_list.append(opt_name)        
         
         opt_name = {"option":"Clear target"}
-        menu_list.append(opt_name)     
-        
+        menu_list.append(opt_name)
+
+        # constructs the menu status
+        menu_status = ""
+
+        # moves on to object
+        menu_status = menu_status + "\nCurrent Object Name:"
+        if modes['object_name'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            menu_status = menu_status + " " + modes['object_name'] + "\n"
+
+        # then object coordinates if specified
+        menu_status = menu_status + "Current Object Coordinates:"
+        if modes['object_coords'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            str_object_coords = "\nRA: {1}deg DEC: {2}deg\n".format(
+                modes['object_coords'][0],  # RA
+                modes['object_coords'][1], )  # Dec
+            menu_status = menu_status + str_object_coords
+
         if modes['interactive'] == 3:
             choice=gui_menu(menu_title = menu_title, menu_list=menu_list, 
-                            menu_prompt=menu_prompt)
+                            menu_status=menu_status, menu_prompt=menu_prompt,
+                            warning=warning)
         else:
             choice=cli_menu(menu_title = menu_title, menu_list=menu_list, 
-                            menu_prompt=menu_prompt)
+                            menu_status=menu_status, menu_prompt=menu_prompt,
+                            warning=warning)
         
         if choice == '1':
             name=set_name(modes,"object_name")
@@ -2635,23 +2937,14 @@ def interactive_get_object(modes):
             #initialises variables
             l_coords = []
             coords=["Right Ascension", "Declination"]
-            for coord in coords:
-                f_coord = 0
-                coord_continue = True
-                
-                while coord_continue:
-                    input_coord=raw_input("Please enter the "+coord+" in DECIMAL DEGREES leave blank to stop entering coordinates:\n\t\t")
-                    
-                    if input_coord == "":
-                        coord_continue = False
-                    else:
-                        try:
-                            f_coord=(float(input_coord))
-                            coord_continue = False    
-                            l_coords.append(f_coord)
-                        except ValueError:
-                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
-                            coord_continue = True
+            if modes['interactive'] == 3:
+                l_coords = gui_coords(menu_title=menu_title, menu_status=menu_status, menu_prompt=menu_prompt,
+                                      desc_text="",exit_prompt="", warning=warning, status_prompt="",
+                                      coord_names=coords)
+            else:
+                l_coords = cli_coords(coords)
+
+
                             
                 
 
@@ -2666,7 +2959,7 @@ def interactive_get_object(modes):
             choice_continue = False #ends the loop
         
         else:
-            print("Warning: Incorrect option '{}' specified!".format(choice))
+            warning = "Warning: Incorrect option '{}' specified!".format(choice)
             
     return(modes)
 
@@ -2696,17 +2989,40 @@ def interactive_get_location(modes):
         menu_list.append(opt_name)        
         
         opt_name = {"option":"Clear station"}
-        menu_list.append(opt_name)     
+        menu_list.append(opt_name)
+
+        # constructs the menu status
+        menu_status = ""
+
+        # starts with location name
+        menu_status = menu_status + "Current Location Name:"
+        if modes['location_name'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            menu_status = menu_status + " " + modes['location_name'] + '\n'
+
+        # then location coordinates if specified
+        menu_status = menu_status + "Current Location Coordinates:"
+        if modes['location_coords'] == None:
+            menu_status = menu_status + " None Specified\n"
+        else:
+            str_location_coords = "\nLat: {1}deg Long: {2}deg Elev: {3}m\n".format(
+                modes['location_coords'][0],  # latitude
+                modes['location_coords'][1],  # longitude
+                modes['location_coords'][2], )  # height,)
+            menu_status = menu_status + str_location_coords
 
 
         menu_desc="Please specify the location of the station manually"
 
         
         if modes['interactive'] == 3:
-            choice=gui_menu(menu_title = menu_title, menu_list=menu_list, 
+            choice=gui_menu(menu_title = menu_title, menu_list=menu_list,
+                            menu_status=menu_status,
                             menu_prompt=menu_prompt, desc_text=menu_desc)
         else:
-            choice=cli_menu(menu_title = menu_title, menu_list=menu_list, 
+            choice=cli_menu(menu_title = menu_title, menu_list=menu_list,
+                            menu_status=menu_status,
                             menu_prompt=menu_prompt, desc_text=menu_desc)
         
         if choice == '1':
@@ -2725,27 +3041,7 @@ def interactive_get_location(modes):
             #initialises variables
             l_coords = []
             coords=["Latitude", "Longitude","Height above Sea Level"]
-            for coord in coords:
-                f_coord = 0
-                coord_continue = True
-                
-                while coord_continue:
-                    input_coord=raw_input("Please enter the "+coord+" leave blank to stop entering coordinates:\n\t\t")
-                    
-                    if input_coord == "":
-                        coord_continue = False
-                    else:
-                        try:
-                            f_coord=(float(input_coord))
-                            coord_continue = False    
-                        except ValueError:
-                            print("Warning: Coordinates must be specified as decimal numbers:\n\t")
-                            coord_continue = True
-                
-                if type(f_coord) is int:
-                    break #stops going through the for loop over coordinates
-                else:
-                    l_coords.append(f_coord)
+
             
             modes['location_coords']=l_coords
         
@@ -2757,7 +3053,7 @@ def interactive_get_location(modes):
         elif choice == '0':
             choice_continue = False
         else:
-            print("Warning: Incorrect option specified!")
+            warning = "Warning: Incorrect option '{}' specified!".format(choice)
             choice_continue = True
             
     return(modes)
@@ -2808,6 +3104,15 @@ def set_name(modes, to_name):
                 out_name=in_name
             
     return(out_name)
+
+
+def set_in_coords(modes,coord_type):
+    # creates a blank list.
+    coords=[]
+
+
+
+    return (coords)
 
 
 def gen_plotting_boolean(bool_in):

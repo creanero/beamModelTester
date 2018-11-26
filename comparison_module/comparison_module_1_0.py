@@ -14,10 +14,6 @@ import argparse
 
 import sys
 
-import interactive_ops as iops
-
-
-
 #modules of this project
 from reading_functions import read_var_file
 from reading_functions import merge_crop_test
@@ -30,12 +26,13 @@ from io_functions import prep_out_file
 from analysis_functions import analysis_1d
 from analysis_functions import analysis_nd
 
+from interactive_ops import interactive_operation
+from interactive_ops import get_object
+from interactive_ops import get_location
 
-
-from alt_az_functions import get_object
 from alt_az_functions import calc_alt_az
 from alt_az_functions import calc_alt_az_lofar
-from alt_az_functions import get_location
+
 
 
 
@@ -641,6 +638,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            (modes, model_df, scope_df)=iops.interactive_operation(modes, model_df, scope_df)
+            (modes, model_df, scope_df)=interactive_operation(modes, model_df, scope_df)
             
     
