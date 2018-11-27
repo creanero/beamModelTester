@@ -370,7 +370,7 @@ coordinates.  At present this is enabled only for CasA, CygA and VirA
 set a variable for the coordinates of the target object.  Coordinates should 
 be 2 floats: RA and Dec (decimal degrees)
                             ''')   
-    #TODO: deak with restricted units
+    #TODO: deal with restricted units
     #may later add functionality to parse non-decimal degree values or add a 
     #unit functionality
     

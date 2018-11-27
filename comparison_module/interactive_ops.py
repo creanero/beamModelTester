@@ -6,6 +6,7 @@ Created on Wed Jul 25 14:44:17 2018
 """
 
 from alt_az_functions import set_coords
+from alt_az_functions import check_coords
 
 from reading_functions import read_var_file
 
@@ -20,14 +21,19 @@ import tkFileDialog
 import tkFont
 
 def cli_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt="", status_prompt="", desc_text=""):
+             exit_prompt="", status_prompt="", desc_text="", warning=""):
     """
     This function produces a text menu on the screen for use with command line
     execution of the program
     """
     # creates a menu option for the user to input
     menu_choice = "X"
-    
+
+    # if the warning isn't blank
+    if warning != "":
+        # prints the warning
+        print(warning + '\n')
+
     # if the title isn't blank
     if menu_title!="":
         # prints the title
@@ -256,7 +262,7 @@ def cli_coords(menu_title = "", menu_status="", status_prompt="", coords=[]):
     return (l_coords)
 
 def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
-             exit_prompt="", status_prompt="", desc_text=""):
+             exit_prompt="", status_prompt="", desc_text="", warning=""):
     #TODO: Temp label
     
     # Creates an interactive window
@@ -310,7 +316,8 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     if 0==len(menu_list):
         warning_label = tk.Label(root,text="Menu_empty")
         warning_label.pack() 
-    
+
+    opt_buttons = dict()
     # iterates over the menu list
     for i in range(len(menu_list)):
         # creates a menu number
@@ -337,18 +344,42 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
         # Creates a string which contains the option and its status
         button_string=("{0} {1}").format(option,status)
         
-        # produces a radiobutton for each option
-        R=tk.Radiobutton(root, text=button_string, variable=var, value=menu_number)
-        R.pack( anchor = tk.W )
+        # produces a button for each option
+        # R=tk.Radiobutton(root, text=button_string, variable=var, value=menu_number)
+        # R.pack( anchor = tk.W )
+
+        button_action = lambda x = menu_number: close_and_value(root, var, x)
+
+        opt_buttons[i] = tk.Button(root, text=button_string, command=button_action)
+        opt_buttons[i].pack()
     
     # if the exit/up a level prompt is not provided
     if ""==exit_prompt:
         # produces a default prompt
         exit_prompt="Return to previous menu"
     
-    # and creates a corresponding radio button
-    exit_button=tk.Radiobutton(root, text=exit_prompt, variable=var, value=0)
-    exit_button.pack( anchor = tk.W )
+    # # and creates a corresponding radio button
+    # exit_button=tk.Radiobutton(root, text=exit_prompt, variable=var, value=0)
+    # exit_button.pack( anchor = tk.W )
+
+    exit_value = '0'
+    # if the exit/up a level prompt is not provided
+    if "" == exit_prompt:
+        # produces a default prompt
+        exit_prompt = "Return to previous menu"
+
+    # and creates a corresponding button
+    exit_button = tk.Button(root, text=exit_prompt,
+                            command=lambda: close_and_value(root, var, exit_value))
+    exit_button.pack()
+
+
+
+    # if the title isn't blank
+    if warning !="":
+        # prints the warning as a label
+        warning_label = tk.Label(root,text=warning,fg="red")
+        warning_label.pack()
  
     # uses a default instruction if no better prompt is given
     if ""==menu_prompt:
@@ -358,9 +389,9 @@ def gui_menu(menu_title="", menu_list=[], menu_status="", menu_prompt="",
     prompt = tk.Label(root,text=menu_prompt)
     prompt.pack() 
     
-    # creates a "confirm" button which kills root when it is called
-    submit=tk.Button(root, text="Click to confirm", command=root.destroy)
-    submit.pack()
+    # # creates a "confirm" button which kills root when it is called
+    # submit=tk.Button(root, text="Click to confirm", command=root.destroy)
+    # submit.pack()
     
     # runs the mainloop
     root.mainloop()
@@ -534,12 +565,15 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
     # creates an output variable
     vars = []
 
-    exit_value = None
 
     # Creates an interactive window
     root = tk.Tk()
 
-        # if the title isn't blank
+    button_var = tk.StringVar()
+    exit_value = 'exit'
+    clear_value = 'clear'
+
+    # if the title isn't blank
     if menu_title != "":
         # prints the title as a label
         root.title(menu_title)
@@ -590,7 +624,7 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
 
     # and creates a corresponding button
     clear_button = tk.Button(root, text="Clear Coordinates" ,
-                             command=lambda: close_and_value(root, vars, []))
+                             command=lambda: close_and_value(root, button_var, clear_value))
     clear_button.pack()
     for i in range(len(coord_names)):
         var = tk.StringVar()
@@ -599,7 +633,7 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
         entry_box = tk.Entry(root, textvariable=vars[i])
         entry_box.pack()
         coord_label = tk.Label(root, text=coord_names[i])
-        coord_label.pack(tk.W)
+        coord_label.pack()
 
     # creates a "confirm" button which kills root when it is called
     submit = tk.Button(root, text="Click to confirm", command=root.destroy)
@@ -612,7 +646,7 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
 
     # and creates a corresponding button
     exit_button = tk.Button(root, text=exit_prompt,
-                            command=lambda: close_and_value(root, var, exit_value))
+                            command=lambda: close_and_value(root, button_var, exit_value))
     exit_button.pack()
 
     # runs the mainloop
@@ -621,9 +655,15 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
     out_vars=[]
 
     warning=""
+
+    check_var = button_var.get()
+
+
     # if the output variable isn't the exit value
-    if vars == exit_value:
-        pass # out_var=None # leave it as '0' and allow that to return
+    if check_var == exit_value:
+        out_vars = exit_value
+    elif check_var == clear_value:
+        out_vars = clear_value
     else:
         for i in range(len(vars)):
             out_var = vars[i].get()
@@ -632,7 +672,7 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
             try:
                 out_var = float(out_var)
             except ValueError:
-                warning.append = "Warning: '{}' is not valid for {}.\n".format(out_var, coord_names[i])
+                warning = warning + "Warning: '{}' is not valid for {}.\n".format(out_var, coord_names[i])
             # out_vars = gui_entry(menu_title, menu_status, menu_prompt,
             #                     desc_text, exit_prompt, out_type, warning)
             out_vars.append(out_var)
@@ -641,9 +681,7 @@ def gui_coords(menu_title="", menu_status=[], menu_prompt="", desc_text="",
         out_vars = gui_coords(menu_title, menu_status, menu_prompt, desc_text,
                               exit_prompt, warning, status_prompt, coord_names)
 
-
-
-    return (out_vars)
+    return out_vars
 
 
 def close_and_value(root,var,value):
@@ -727,6 +765,8 @@ def interactive_operation(modes, model_df, scope_df):
                                    exit_prompt=exit_prompt)
 
 
+
+
         # this setion handles the responses
         if "1" == menu_choice:
             set_crop_options(modes)
@@ -748,7 +788,7 @@ def interactive_operation(modes, model_df, scope_df):
             
         elif "9" == menu_choice:
             continue_option=False # finish the loop
-            
+            pass
                                 
         elif "0" == menu_choice:
             modes['interactive']=0 # terminates the interactions which will exit
@@ -756,7 +796,8 @@ def interactive_operation(modes, model_df, scope_df):
 
         else:
             print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
-    
+            continue_option = True
+
     return (modes, model_df, scope_df)
             
 def set_crop_options(modes):
@@ -1413,17 +1454,17 @@ def set_coordinate_options(modes):
         
         # starts with location name
         menu_status = menu_status + "Current Location Name:"
-        if modes['location_name'] == None:
+        if modes['location_name'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
             menu_status = menu_status + " " + modes['location_name']+'\n'
         
         # then location coordinates if specified
         menu_status = menu_status + "Current Location Coordinates:"
-        if modes['location_coords'] == None:
+        if modes['location_coords'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
-            str_location_coords="\nLat: {1}deg Long: {2}deg Elev: {3}m\n".format( 
+            str_location_coords="\nLat: {0}deg Long: {1}deg Elev: {2}m\n".format(
                     modes['location_coords'][0], # latitude
                     modes['location_coords'][1], # longitude
                     modes['location_coords'][2],) # height,)
@@ -1431,17 +1472,17 @@ def set_coordinate_options(modes):
         
         # moves on to object
         menu_status = menu_status + "\nCurrent Object Name:"
-        if modes['object_name'] == None:
+        if modes['object_name'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
             menu_status = menu_status + " " + modes['object_name']+"\n"
         
         # then object coordinates if specified
         menu_status = menu_status + "Current Object Coordinates:"
-        if modes['object_coords'] == None:
+        if modes['object_coords'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
-            str_object_coords="\nRA: {1}deg DEC: {2}deg\n".format( 
+            str_object_coords="\nRA: {0}deg DEC: {1}deg\n".format(
                     modes['object_coords'][0], # RA
                     modes['object_coords'][1],) # Dec
             menu_status = menu_status + str_object_coords            
@@ -1863,14 +1904,14 @@ def get_location(modes):
     warn_flag = False
 
     # sets up the location coordinates
-    if modes['location_name'] != None:
+    if modes['location_name'] is not None:
         modes['location_coords'] == set_coords(modes['location_name'],
                                                modes['verbose'])
 
     # checks the coordinates are valid
 
     # if there are 2 or 3 coordinates
-    if modes['location_coords'] == None:
+    if modes['location_coords'] is None:
         pass  # no coords specified, let it go as is
     elif len(modes['location_coords']) == 2 or len(modes['location_coords']) == 3:
 
@@ -1911,7 +1952,7 @@ def get_location(modes):
                 modes['location_coords'] = modes['location_coords'] + [0.0]
     else:
         if modes['verbose'] >= 1:
-            if modes['location_name'] == None:
+            if modes['location_name'] is None:
                 print("Warning: Site: " + str(modes['location_coords']) +
                       " incorrectly specified.  ")
         warn_flag = True
@@ -1934,14 +1975,14 @@ def get_object(modes):
     warn_flag = False
 
     # sets up the object coordinates
-    if modes['object_name'] != None:
+    if modes['object_name'] is not None:
         modes['object_coords'] = set_coords(modes['object_name'],
                                             modes['verbose'])
 
     # checks the coordinates are valid
 
     # if there are 2  coordinates
-    if modes['object_coords'] == None:
+    if modes['object_coords'] is None:
         pass  # no coords specified, let it go as is
     elif len(modes['object_coords']) == 2:
 
@@ -1952,7 +1993,7 @@ def get_object(modes):
 
     else:
         if modes['verbose'] >= 1:
-            if modes['object_name'] == None:
+            if modes['object_name'] is None:
                 print("Warning: Target: " + str(modes['object_coords']) +
                       " incorrectly specified.  ")
         warn_flag = True
@@ -1962,9 +2003,7 @@ def get_object(modes):
             modes = get_object(modes)
         else:
             if modes['verbose'] >= 1:
-                print("Interactivity mode: " + str(modes['interactive']) + "\n"
-                                                                           "Setting site coordinates to 0,0 which will" +
-                      " disable object tracking.")
+                print("Interactivity mode: " + str(modes['interactive'])+", disabling object tracking.")
                 modes['object_coords'] = None
         # there is no land at lat/long (0,0), so it should be ok to assume no
         # observations at this object
@@ -2273,7 +2312,6 @@ def set_file_io_options(modes, model_df, scope_df):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
-    # todo: finish this
     while continue_option:
         # checks if data file output is requested
         file_status = "file" in modes["plots"]
@@ -2870,7 +2908,6 @@ def interactive_get_object(modes):
     This function prompts the user to specify the coordinates of the Target to 
     be used and modifies the modes dictionary to correspond to the new setting.
     '''
-    #TODO: GUI THIS
 
     warning = ""
 
@@ -2899,17 +2936,17 @@ def interactive_get_object(modes):
 
         # moves on to object
         menu_status = menu_status + "\nCurrent Object Name:"
-        if modes['object_name'] == None:
+        if modes['object_name'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
             menu_status = menu_status + " " + modes['object_name'] + "\n"
 
         # then object coordinates if specified
         menu_status = menu_status + "Current Object Coordinates:"
-        if modes['object_coords'] == None:
+        if modes['object_coords'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
-            str_object_coords = "\nRA: {1}deg DEC: {2}deg\n".format(
+            str_object_coords = "\nRA: {0}deg DEC: {1}deg\n".format(
                 modes['object_coords'][0],  # RA
                 modes['object_coords'][1], )  # Dec
             menu_status = menu_status + str_object_coords
@@ -2926,37 +2963,21 @@ def interactive_get_object(modes):
         if choice == '1':
             name=set_name(modes,"object_name")
             coord=set_coords(name)
-            if coord == None:
+            if coord is None:
                 name = None
-            modes['object_name']=name
-            modes['object_coords']=coord
+            modes['object_name'] = name
+            modes['object_coords'] = coord
                             
         elif choice == '2':
             #wipes the name clean
-            modes['object_name']=None
-            #initialises variables
-            l_coords = []
-            coords=["Right Ascension", "Declination"]
-            if modes['interactive'] == 3:
-                l_coords = gui_coords(menu_title=menu_title, menu_status=menu_status, menu_prompt=menu_prompt,
-                                      desc_text="",exit_prompt="", warning=warning, status_prompt="",
-                                      coord_names=coords)
-            else:
-                l_coords = cli_coords(coords)
-
-
-                            
-                
-
-            
-            modes['object_coords']=l_coords
+            modes['object_name'] = None
+            modes['object_coords'] = set_in_coords(modes,"object")
         
         elif choice == '3':
-            if modes['verbose'] >=1:
-                modes['object_coords']=None
+            modes['object_coords'] = None
         
         elif choice == '0':
-            choice_continue = False #ends the loop
+            choice_continue = False  # ends the loop
         
         else:
             warning = "Warning: Incorrect option '{}' specified!".format(choice)
@@ -2969,8 +2990,7 @@ def interactive_get_location(modes):
     This function prompts the user to specify the location of the station to be
     used and modifies the modes dictionary to correspond to the new setting.
     '''
-    # TODO: GUI this
-    
+
 
     choice_continue = True
     while choice_continue:
@@ -2996,17 +3016,17 @@ def interactive_get_location(modes):
 
         # starts with location name
         menu_status = menu_status + "Current Location Name:"
-        if modes['location_name'] == None:
+        if modes['location_name'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
             menu_status = menu_status + " " + modes['location_name'] + '\n'
 
         # then location coordinates if specified
         menu_status = menu_status + "Current Location Coordinates:"
-        if modes['location_coords'] == None:
+        if modes['location_coords'] is None:
             menu_status = menu_status + " None Specified\n"
         else:
-            str_location_coords = "\nLat: {1}deg Long: {2}deg Elev: {3}m\n".format(
+            str_location_coords = "\nLat: {0}deg Long: {1}deg Elev: {2}m\n".format(
                 modes['location_coords'][0],  # latitude
                 modes['location_coords'][1],  # longitude
                 modes['location_coords'][2], )  # height,)
@@ -3028,7 +3048,7 @@ def interactive_get_location(modes):
         if choice == '1':
             name=set_name(modes,"location_name")
             coord=set_coords(name)
-            if coord == None:
+            if coord is None:
                 name = None
             modes['location_name']=name
             modes['location_coords']=coord
@@ -3038,13 +3058,10 @@ def interactive_get_location(modes):
         elif choice == '2':
             #wipes the name clean
             modes['location_name']=None
-            #initialises variables
-            l_coords = []
-            coords=["Latitude", "Longitude","Height above Sea Level"]
 
-            
-            modes['location_coords']=l_coords
-        
+            modes['location_coords'] = set_in_coords(modes,"location")
+
+
         elif choice == '3':
             if modes['verbose'] >=1:
                 #clear the station
@@ -3098,7 +3115,7 @@ def set_name(modes, to_name):
         elif in_name in ['',None]:
             out_name = None
         else:
-            if set_coords(in_name) == None:
+            if set_coords(in_name) is None:
                 warning="Name: '{}' is not known.  Please try again.".format(in_name)
             else:
                 out_name=in_name
@@ -3106,13 +3123,85 @@ def set_name(modes, to_name):
     return(out_name)
 
 
-def set_in_coords(modes,coord_type):
+def set_in_coords(modes,coord_type=""):
     # creates a blank list.
-    coords=[]
+    if coord_type == 'object':
+        out_coords = modes['object_coords']
+    elif coord_type == "location":
+        out_coords=modes['location_coords']
+
+    warning=""
+    menu_title = ""
+    menu_prompt = ""
+    menu_status = ""
+    coords = []
+    status_prompt = ""
+
+    out_coords = None  # in case the conditions are missed
+
+    continue_option = True
+
+    while continue_option:
+        print("Probe set_in_coords: out_coords = {}".format(out_coords))
+
+        if coord_type == "object":
+            menu_title = "Target Object Coordinate Entry Menu"
+            # then location coordinates if specified
+            status_prompt = "Current Target Coordinates:"
+            menu_prompt = "Please enter the coordinates of the target."
+            if out_coords is None:
+                menu_status = "None Specified"
+            else:
+                menu_status = "\nRA: {0}deg DEC: {1}deg\n".format(
+                    out_coords[0],  # RA
+                    out_coords[1])  # Dec
+            coords = ["Right Ascension", "Declination"]
+
+            ns = 1
+            ew = 0
+
+        elif coord_type == "location":
+            menu_title = "Observing Station Coordinate Entry Menu"
+            # then location coordinates if specified
+            status_prompt = "Current Location Coordinates:"
+            menu_prompt = "Please enter the coordinates of the station below."
+            if out_coords is None:
+                menu_status = "None Specified"
+            else:
+                menu_status = "Lat: {0}deg Long: {1}deg Elev: {2}m\n".format(
+                    out_coords[0],  # latitude
+                    out_coords[1],  # longitude
+                    out_coords[2])  # height,)
+
+            coords = ["Latitude", "Longitude", "Height"]
+            ns = 0
+            ew = 1
+
+        else: # this shouldn't arise, but for safety
+            warning = "Unknown menu"
 
 
+        if modes['interactive'] == 3:
+            l_coords = gui_coords(menu_title=menu_title, menu_status=menu_status, menu_prompt=menu_prompt,
+                                  desc_text="", exit_prompt="", warning=warning, status_prompt=status_prompt,
+                                  coord_names=coords)
+        else:
+            l_coords = cli_coords(coords)
 
-    return (coords)
+        if l_coords == 'exit':
+            continue_option = False  # end the loop
+
+        elif l_coords == 'clear':
+            out_coords = None  # clears the output
+
+        else:
+            coords_warning = check_coords(l_coords[ns],l_coords[ew],modes)
+            if coords_warning:
+                out_coords = None
+            else:
+                out_coords = l_coords
+
+    return (out_coords)
 
 
 def gen_plotting_boolean(bool_in):
