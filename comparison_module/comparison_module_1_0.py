@@ -20,7 +20,7 @@ from reading_functions import merge_crop_test
 
 from utility_functions import get_df_keys
 
-from io_functions import prep_out_dir
+from interactive_ops import prep_out_dir
 from io_functions import prep_out_file
 
 from analysis_functions import analysis_1d

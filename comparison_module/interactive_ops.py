@@ -10,8 +10,6 @@ from alt_az_functions import check_coords
 
 from reading_functions import read_var_file
 
-from io_functions import set_out_dir
-
 from appearance_functions import gen_pretty_name
 
 import os.path
@@ -184,7 +182,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
             try:
                 out_var = float(out_var)
             except ValueError:
-                warning = "Warning: {} is not valid data.  Decimal number required.".format(out_var)
+                warning = "Warning: '{}' is not valid data.  Decimal number required.".format(out_var)
                 out_var = cli_entry(menu_title, menu_status, menu_prompt,
                                     desc_text, exit_prompt, out_type, warning, 
                                     literal_zero)
@@ -192,7 +190,7 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
             try:
                 out_var = int(out_var)
             except ValueError:
-                warning = "Warning: {} is not valid data.  Integer required.".format(out_var)
+                warning = "Warning: '{}' is not valid data.  Integer required.".format(out_var)
                 out_var = cli_entry(menu_title, menu_status, menu_prompt,
                                     desc_text, exit_prompt, out_type, warning, 
                                     literal_zero)
@@ -201,10 +199,19 @@ def cli_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
             if exists:
                 pass  # out_var is good to go as it is
             else:
-                warning = "Warning: {} is not a valid file path.  Please Try Again.".format(out_var)
+                warning = "Warning: '{}' is not a valid file path.  Please Try Again.".format(out_var)
                 out_var = cli_entry(menu_title, menu_status, menu_prompt,
                                     desc_text, exit_prompt, out_type, warning, 
                                     literal_zero)
+        elif out_type == 'dir':
+            check_out_var = prep_out_dir(out_var)
+            if check_out_var is None:
+                warning = "Warning: '{}' is not a valid directory path.  Please Try Again.".format(out_var)
+                out_var = cli_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning, 
+                                    literal_zero)
+            else:
+                out_var = check_out_var
         else:
             pass # out_var=out_var
     else:
@@ -712,6 +719,7 @@ def interactive_operation(modes, model_df, scope_df):
     continue_option = True
     menu_choice = "X"
     
+    warning = ""
 
 
     while continue_option:
@@ -757,12 +765,14 @@ def interactive_operation(modes, model_df, scope_df):
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
                                    menu_list=menu_list,
-                                   exit_prompt=exit_prompt)
+                                   exit_prompt=exit_prompt,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                    menu_list=menu_list,
-                                   exit_prompt=exit_prompt)
+                                   exit_prompt=exit_prompt,
+                                   warning = warning)
 
 
 
@@ -795,7 +805,7 @@ def interactive_operation(modes, model_df, scope_df):
             continue_option=False # finish the loop
 
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
             continue_option = True
 
     return (modes, model_df, scope_df)
@@ -807,6 +817,7 @@ def set_crop_options(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    warning = ""
     
     while continue_option:
 
@@ -834,11 +845,13 @@ def set_crop_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                   menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                   menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -856,7 +869,7 @@ def set_crop_options(modes):
             set_crop_type(modes)
                
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
     
 def set_crop_level(modes):
     """
@@ -865,6 +878,8 @@ def set_crop_level(modes):
 
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:
         # sets up the menu options for cli or gui use
@@ -880,11 +895,11 @@ In "percentile" crop operation, the crop level is the pecentile level to crop to
         if modes['interactive']==3:
             crop_level=gui_entry(menu_title, menu_status, menu_prompt, 
                                  desc_text, exit_prompt="", out_type="float", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         else:
             crop_level=cli_entry(menu_title, menu_status, menu_prompt, 
                                  desc_text, exit_prompt="", out_type="float", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         if crop_level == '0':
             continue_option=False
         else:
@@ -898,6 +913,7 @@ def set_crop_basis(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=['n', 'N', 'o', 'O', 'f', 'F', '0']
+    warning = ""
     
     while continue_option:
 
@@ -931,12 +947,14 @@ def set_crop_basis(modes):
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
                                  menu_list=menu_list,
-                                 menu_status=menu_status)
+                                 menu_status=menu_status,
+                                 warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                  menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                 menu_status=menu_status,
+                                 warning = warning)  
         
         
         if '0' == menu_choice:
@@ -955,13 +973,15 @@ def set_crop_basis(modes):
             modes["crop_basis"]='t'
             
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_crop_data(modes):
     """
     This function modifies the cropping basis options in the modes
     """
     menu_choice = "X"
+    
+    warning = ""
    
     # menu_options=['n', 'N', 's', 'S', 'm', 'M', 'b', 'B', '0']
     continue_option=True
@@ -995,12 +1015,14 @@ def set_crop_data(modes):
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
                                  menu_list=menu_list,
-                                 menu_status=menu_status)
+                                 menu_status=menu_status,
+                                 warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                  menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                 menu_status=menu_status,
+                                 warning = warning)  
         
         
         if '0' == menu_choice:
@@ -1019,7 +1041,7 @@ def set_crop_data(modes):
             modes["crop_data"]='b'
             
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_crop_type(modes):
     """
@@ -1028,6 +1050,8 @@ def set_crop_type(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:
 
@@ -1055,13 +1079,15 @@ def set_crop_type(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
         
             
         if "0" == menu_choice:
@@ -1078,7 +1104,7 @@ def set_crop_type(modes):
                
 
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 #this function isn't used any more, but is being retained for archival purposes
 #def validate_options(user_input, valid_options, permit_partial=True):
@@ -1127,6 +1153,9 @@ def set_norm_options(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
+    warning = ""
+    
+    
     while continue_option:
 
         # sets up the menu options for cli or gui use
@@ -1148,11 +1177,13 @@ def set_norm_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
         
             
         if "0" == menu_choice:
@@ -1166,7 +1197,7 @@ def set_norm_options(modes):
                         
  
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 
 def set_norm_basis(modes):
@@ -1174,6 +1205,8 @@ def set_norm_basis(modes):
     This function modifies the normalisation basis options in the modes
     """
     menu_choice = "X"
+    
+    warning = ""
    
     continue_option=True
     while continue_option:
@@ -1204,13 +1237,15 @@ def set_norm_basis(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
         
         if '0' == menu_choice:
             continue_option=False # finish the loop
@@ -1226,7 +1261,7 @@ def set_norm_basis(modes):
 
             
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_norm_data(modes):
     """
@@ -1234,6 +1269,8 @@ def set_norm_data(modes):
     """
     menu_choice = "X"
     continue_option=True
+    
+    warning = ""
     
     while continue_option:
 
@@ -1262,13 +1299,15 @@ def set_norm_data(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
         
         if '0' == menu_choice:
             continue_option=False # finish the loop
@@ -1286,7 +1325,7 @@ def set_norm_data(modes):
             modes["norm_data"]='b'
             
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_3d_options(modes):
     """
@@ -1295,6 +1334,8 @@ def set_3d_options(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:
 
@@ -1315,11 +1356,13 @@ def set_3d_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -1332,7 +1375,7 @@ def set_3d_options(modes):
                         
  
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_3d_plotting(modes):
     """
@@ -1341,6 +1384,8 @@ def set_3d_plotting(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
 
     
     while continue_option:
@@ -1372,13 +1417,15 @@ def set_3d_plotting(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -1396,7 +1443,7 @@ def set_3d_plotting(modes):
             modes["three_d"]='contour'
                
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
                     
 def set_frame_rate(modes):
     """
@@ -1407,6 +1454,8 @@ def set_frame_rate(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
+    warning = ""
+    
     while continue_option:
         # sets up the menu options for cli or gui use
         menu_title ="FRAME RATE MENU"
@@ -1416,11 +1465,11 @@ def set_frame_rate(modes):
         if modes['interactive']==3:
             frame_rate = gui_entry(menu_title, menu_status, menu_prompt,
                                  desc_text, exit_prompt="", out_type="float", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         else:
             frame_rate = cli_entry(menu_title, menu_status, menu_prompt, 
                                  desc_text, exit_prompt="", out_type="float", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         if frame_rate == '0':
             continue_option=False
         else:
@@ -1434,6 +1483,9 @@ def set_coordinate_options(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
+    
     while continue_option:        
         # sets up the menu options for cli or gui use
         menu_title ="TARGET AND LOCATION MENU"
@@ -1493,19 +1545,21 @@ def set_coordinate_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
         
         elif "1" == menu_choice:
-            modes = interactive_get_location(modes) # TODO: fix these
+            modes = interactive_get_location(modes) 
             modes = get_location(modes)
             
         elif "2" == menu_choice:
@@ -1514,7 +1568,7 @@ def set_coordinate_options(modes):
                         
  
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
             
 
 def set_plotting_options(modes):
@@ -1524,6 +1578,8 @@ def set_plotting_options(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:        
         # sets up the menu options for cli or gui use
@@ -1544,11 +1600,13 @@ def set_plotting_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -1561,7 +1619,7 @@ def set_plotting_options(modes):
                         
  
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")            
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_plotting(modes):
     """
@@ -1576,6 +1634,9 @@ def set_plotting(modes):
 #                                 "alt","az","ew", "stn", "split",
 #                                 "values","model","scope", "diff", 
 #                                 "overlay"]
+    
+    warning = ""
+    
     
     while continue_option:
         # checks the current status of overlaid plots
@@ -1613,11 +1674,13 @@ def set_plotting(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -1644,7 +1707,7 @@ def set_plotting(modes):
                 modes['plots'].append("spectra")
                  
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_fom(modes):
     """
@@ -1654,7 +1717,7 @@ def set_fom(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
-#    ["rmse", "corr" 
+    warning = ""
     
     while continue_option:
         # checks whether RMSE is currently being used
@@ -1686,11 +1749,13 @@ def set_fom(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -1710,8 +1775,7 @@ def set_fom(modes):
                         
             
         else:
-            
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_alt_az(modes):
     """
@@ -1720,6 +1784,7 @@ def set_alt_az(modes):
     menu_choice = "X"
     continue_option=True
 
+    warning = ""
     
     while continue_option:
         # checks whether plots against altitude have been specified
@@ -1767,11 +1832,13 @@ def set_alt_az(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
             
         if "0" == menu_choice:
@@ -1814,7 +1881,7 @@ def set_alt_az(modes):
             
         else:   
                         
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_msd_vals(modes):
     """
@@ -1824,7 +1891,7 @@ def set_msd_vals(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
-#    ["alt","az","ew", "stn", "split"
+    warning = ""
     
     while continue_option:
         # checks if model plotting is requested
@@ -1844,7 +1911,8 @@ def set_msd_vals(modes):
         # each menu item has an option title.
         # status can be blank, a function or constant 
       
-        opt_name = {"option":"Toggle Model Data Plotting."}
+        opt_name = {"option":"Toggle Model Data Plotting.",
+                  "status":(gen_plotting_boolean(model_status))}
         menu_list.append(opt_name)
         
         opt_name = {"option":"Toggle Scope Data Plotting",
@@ -1859,11 +1927,13 @@ def set_msd_vals(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
             
         if "0" == menu_choice:
@@ -1893,7 +1963,7 @@ def set_msd_vals(modes):
             
         else:   
                         
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 
 def get_location(modes):
@@ -1901,6 +1971,8 @@ def get_location(modes):
     This function prompts the user to enter the coordinates of the observing
     station
     """
+    #TODO: get the rest of the prints out of here
+    
     warn_flag = False
 
     # sets up the location coordinates
@@ -1972,6 +2044,9 @@ def get_object(modes):
     """
     This function prompts the user to enter the coordinates of the target
     """
+    #TODO: get the rest of the prints out of here
+
+    
     warn_flag = False
 
     # sets up the object coordinates
@@ -2030,6 +2105,7 @@ def set_values(modes):
 
     continue_option=True
     
+    warning = ""
     
     while continue_option:
         if "each" in modes["values"]:
@@ -2040,9 +2116,9 @@ def set_values(modes):
         dict_set=gen_channels_dict(modes,dict_lists)
         
         if modes['interactive'] == 3:
-            menu_choice = gui_set_values(modes, dict_set, each_status)
+            menu_choice = gui_set_values(modes, dict_set, each_status, warning)
         else:
-            menu_choice = cli_set_values(modes, dict_set, each_status)
+            menu_choice = cli_set_values(modes, dict_set, each_status, warning)
             
             
         if "0" == menu_choice:
@@ -2068,9 +2144,9 @@ def set_values(modes):
      
         # if nonse
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")   
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
-def cli_set_values(modes, dict_set, each_status):
+def cli_set_values(modes, dict_set, each_status, warning = ""):
 
     menu_choice = ''
     
@@ -2103,13 +2179,18 @@ To toggle to plotting {8} one another enter "each"
                       gen_overlay_boolean(each_status),
                       gen_overlay_boolean(not each_status)
           ))
+    
+    # if the warning isn't blank
+    if warning != "":
+        # prints the warning
+        print(warning + '\n')
 
     menu_choice=raw_input("Please enter your (case sensitive) selection to toggle the option on the menu above:\t")
     
     return(menu_choice)
 
 
-def gui_set_values(modes, dict_set, each_status):
+def gui_set_values(modes, dict_set, each_status, warning = ""):
     #TODO: Work out a way to stop this being so hard-coded
     menu_choice = ''
         
@@ -2133,6 +2214,13 @@ def gui_set_values(modes, dict_set, each_status):
                           command=lambda:close_and_value(root,var,'linear'),
                           font=boldFont, padx=1,pady=1)
     linear_button.pack()
+    
+    
+        # if the title isn't blank
+    if warning !="":
+        # prints the warning as a label
+        warning_label = tk.Label(root,text=warning,fg="red")
+        warning_label.pack()
     
     # creates a button to toggle xx linear polarisations
     xx_text=("xx - Linear response. Currently: {0}").format(gen_plotting_boolean(dict_set['xx']))
@@ -2311,6 +2399,8 @@ def set_file_io_options(modes, model_df, scope_df):
     """
     menu_choice = "X"
     continue_option=True
+    
+    warning = ""
     # menu_options=range(0,num_options)
     while continue_option:
         # checks if data file output is requested
@@ -2345,20 +2435,22 @@ def set_file_io_options(modes, model_df, scope_df):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
         
         elif "1" == menu_choice:
-            model_df=set_in_file(modes, model_df, "model")
+            model_df=set_in_file(modes, "model")
             
         elif "2" == menu_choice:
-            scope_df=set_in_file(modes, scope_df, "scope")
+            scope_df=set_in_file(modes, "scope")
                         
         elif "3" == menu_choice:
             set_out_file_type(modes)
@@ -2374,21 +2466,21 @@ def set_file_io_options(modes, model_df, scope_df):
                 modes['plots'].append("file")
             
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
     
     return (model_df, scope_df)
             
-def set_in_file(modes, in_df, name):
+def set_in_file(modes, name):
     """
     This function reads in a new file specified by the user
     """
 
-    out_df=in_df
     dir_file_name="in_file_"+name
     
     
     continue_option=True
     # menu_options=range(0,num_options)
+    warning = ""
     
     while continue_option:
         # sets up the menu options for cli or gui use
@@ -2399,21 +2491,21 @@ def set_in_file(modes, in_df, name):
         if modes['interactive']==3:
             chosen_file_name = gui_entry(menu_title, menu_status, menu_prompt,
                                  desc_text, exit_prompt="", out_type="file_in", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         else:
             chosen_file_name = cli_entry(menu_title, menu_status, menu_prompt, 
                                  desc_text, exit_prompt="", out_type="file_in", 
-                                 warning="", literal_zero=False)
+                                 warning=warning, literal_zero=False)
         if chosen_file_name == '0':
             continue_option=False
 
         else:
             modes[dir_file_name]=chosen_file_name    
-    try:
-        out_df=read_var_file(modes[dir_file_name], modes)
-        
-    except IOError:
-        print("Warning, unable to read file "+ chosen_file_name+", returning original data")    
+        try:
+            out_df=read_var_file(modes[dir_file_name], modes)
+            
+        except IOError:
+            warning = "Warning, unable to read file "+ chosen_file_name+", returning original data"
  
     return(out_df)
     
@@ -2426,6 +2518,8 @@ def set_out_file_type(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:
 
@@ -2470,13 +2564,15 @@ def set_out_file_type(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
             
             
         if "0" == menu_choice:
@@ -2510,7 +2606,7 @@ def set_out_file_type(modes):
             modes['image_type']="html"
                
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_frequency_options(modes):
     """
@@ -2519,6 +2615,8 @@ def set_frequency_options(modes):
     menu_choice = "X"
     continue_option=True
     # menu_options=range(0,num_options)
+    
+    warning = ""
     
     while continue_option:
         # sets up the menu options for cli or gui use
@@ -2540,11 +2638,13 @@ def set_frequency_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
             
         if "0" == menu_choice:
@@ -2558,7 +2658,7 @@ def set_frequency_options(modes):
                         
 
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def set_freq(modes):
     """
@@ -2571,6 +2671,7 @@ def set_freq(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
+    warning = ""
     
     while continue_option:
         
@@ -2610,13 +2711,15 @@ def set_freq(modes):
             menu_choice = gui_menu(menu_title=menu_title,
                                    menu_list=menu_list,
                                    menu_prompt=menu_prompt, 
-                                   status_prompt=status_prompt)
+                                   status_prompt=status_prompt,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                    menu_list=menu_list,
                                    menu_prompt=menu_prompt, 
-                                   status_prompt=status_prompt)  
+                                   status_prompt=status_prompt,
+                                   warning = warning)  
 
             
         if "0" == menu_choice:
@@ -2631,7 +2734,7 @@ def set_freq(modes):
             enter_freq(modes)       
 
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 def enter_freq(modes):
 
@@ -2726,6 +2829,8 @@ def set_other_options(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
+    warning = ""
+    
     while continue_option:
         # sets up the menu options for cli or gui use
         menu_title ="MISCELLANEOUS SETTINGS MENU"
@@ -2753,11 +2858,13 @@ def set_other_options(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list)
+                                   menu_list=menu_list,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list)  
+                                   menu_list=menu_list,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -2777,7 +2884,7 @@ def set_other_options(modes):
                 modes['scale'] = "linear"
                
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 
 def set_offset(modes):
@@ -2852,6 +2959,8 @@ def set_diff(modes):
     continue_option=True
     # menu_options=range(0,num_options)
     
+    warning = ""
+    
     while continue_option:
 
         # sets up the menu options for cli or gui use
@@ -2877,13 +2986,15 @@ def set_diff(modes):
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
 
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
-                                 menu_list=menu_list,
-                                 menu_status=menu_status)  
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -2899,7 +3010,7 @@ def set_diff(modes):
                
 
         else:
-            print("Input: '"+str(menu_choice)+"' not valid or not implemented.")
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
 
     
@@ -2991,7 +3102,8 @@ def interactive_get_location(modes):
     used and modifies the modes dictionary to correspond to the new setting.
     '''
 
-
+    warning = ""
+    
     choice_continue = True
     while choice_continue:
 
@@ -3038,11 +3150,11 @@ def interactive_get_location(modes):
         
         if modes['interactive'] == 3:
             choice=gui_menu(menu_title = menu_title, menu_list=menu_list,
-                            menu_status=menu_status,
+                            menu_status=menu_status, warning = warning,
                             menu_prompt=menu_prompt, desc_text=menu_desc)
         else:
             choice=cli_menu(menu_title = menu_title, menu_list=menu_list,
-                            menu_status=menu_status,
+                            menu_status=menu_status, warning = warning,
                             menu_prompt=menu_prompt, desc_text=menu_desc)
         
         if choice == '1':
@@ -3202,6 +3314,70 @@ def set_in_coords(modes,coord_type=""):
                 out_coords = l_coords
 
     return (out_coords)
+
+def prep_out_dir(out_dir=None, modes={"verbose":1}):
+    '''
+    Sets up the output directory based on the inputs.  If there are issues with
+    the output directory specified, warns the user and continues by printing 
+    the output instead
+    '''
+    
+    #if no directory was specified
+    if out_dir == None:
+        pass #do nothing - will return None as designed
+    
+    #if something has been passed in
+    else: 
+        #if the directory doesn't already exist
+        if not os.path.isdir(out_dir):
+            #try to make it and any parents needed
+            try:
+                os.makedirs(out_dir)
+            
+            #if it's not possible to make that directory
+            except OSError:
+                if modes['verbose'] >=1:
+                    print("WARNING: output directory specified not suitable!")
+                if modes['interactive']>=1:
+                    out_dir=set_out_dir(modes)
+                else:
+                    out_dir = None
+    
+    return(out_dir)
+
+def set_out_dir(modes):
+    """
+    This is a function that enables interactive input of the output directory
+    """
+    out_dir = modes['out_dir']
+    
+    continue_option=True
+    # menu_options=range(0,num_options)
+    warning = ""
+    
+    while continue_option:
+        # sets up the menu options for cli or gui use
+        menu_title ="SELECT OUTPUT DIRECTORY"
+        desc_text = "Use this menu to select directory to place outputs in"
+        menu_prompt = "Please enter the directory name you want to use"
+        menu_status = str(out_dir)
+        if modes['interactive']==3:
+            out_dir = gui_entry(menu_title, menu_status, menu_prompt,
+                                 desc_text, exit_prompt="", out_type="dir", 
+                                 warning=warning, literal_zero=False)
+        else:
+            out_dir = cli_entry(menu_title, menu_status, menu_prompt, 
+                                 desc_text, exit_prompt="", out_type="dir", 
+                                 warning=warning, literal_zero=False)
+        if out_dir == '0':
+            continue_option=False
+
+        else:
+            modes['out_dir']=out_dir    
+
+ 
+    return(out_dir)
+
 
 
 def gen_plotting_boolean(bool_in):
