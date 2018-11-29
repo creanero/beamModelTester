@@ -3080,9 +3080,12 @@ def interactive_get_object(modes):
             modes['object_coords'] = coord
                             
         elif choice == '2':
-            #wipes the name clean
-            modes['object_name'] = None
-            modes['object_coords'] = set_in_coords(modes,"object")
+
+            coord = set_in_coords(modes,"object")
+            if coord != modes['object_coords']:
+                # if the coordinates have been changed
+                modes['object_coords'] = coord
+                modes['object_name'] = None  # wipes the name clean
         
         elif choice == '3':
             modes['object_coords'] = None
@@ -3168,10 +3171,12 @@ def interactive_get_location(modes):
             
             
         elif choice == '2':
-            #wipes the name clean
-            modes['location_name']=None
 
-            modes['location_coords'] = set_in_coords(modes,"location")
+            coord = set_in_coords(modes,"location")
+            if coord != modes['location_coords']:
+                # if the coordinates have been changed
+                modes['location_coords'] = coord
+                modes['location_name'] = None  # wipes the name clean
 
 
         elif choice == '3':
@@ -3254,7 +3259,6 @@ def set_in_coords(modes,coord_type=""):
     continue_option = True
 
     while continue_option:
-        print("Probe set_in_coords: out_coords = {}".format(out_coords))
 
         if coord_type == "object":
             menu_title = "Target Object Coordinate Entry Menu"
