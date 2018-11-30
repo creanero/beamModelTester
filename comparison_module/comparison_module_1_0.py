@@ -14,28 +14,25 @@ import argparse
 
 import sys
 
-import interactive_ops as iops
-
-
-
 #modules of this project
 from reading_functions import read_var_file
 from reading_functions import merge_crop_test
 
 from utility_functions import get_df_keys
 
-from io_functions import prep_out_dir
+from interactive_ops import prep_out_dir
 from io_functions import prep_out_file
 
 from analysis_functions import analysis_1d
 from analysis_functions import analysis_nd
 
+from interactive_ops import interactive_operation
+from interactive_ops import get_object
+from interactive_ops import get_location
 
-
-from alt_az_functions import get_object
 from alt_az_functions import calc_alt_az
 from alt_az_functions import calc_alt_az_lofar
-from alt_az_functions import get_location
+
 
 
 
@@ -81,8 +78,8 @@ sets the level of verbosity for the program outputs.
 ###############################################################################
 
     #adds an optional argument for interactivity
-    parser.add_argument("--interactive","-I", default=2, type=int,
-                        choices = (0,1,2),
+    parser.add_argument("--interactive","-I", default=3, type=int,
+                        choices = (0,1,2,3),
                              help='''
 sets the level of interactivity for the program inputs.  
 0 indicates non-interactive mode
@@ -205,11 +202,13 @@ multiple of the mean or median, or the percentile level to cut the scope values
     
 
     #adds an optional argument for cropping method
-    parser.add_argument("--crop_basis","-k", default='n',choices=('o',"f","n"), 
+    parser.add_argument("--crop_basis","-k", default='n',
+                        choices=('o',"f","n",'t'), 
                              help='''
 Method for cropping the data
 o = overall (crop equally for all data)
 f = frequency (crop by frequency/subband)
+t = time
 n = no cropping
                              ''')
 
@@ -365,13 +364,13 @@ set a variable for the name of the target object.  This is used to generate sky
 coordinates.  At present this is enabled only for CasA, CygA and VirA
                             ''')        
     #adds an optional argument for target object
-    group_object.add_argument("--object_coords","-x", default = [0.0,0.0], 
+    group_object.add_argument("--object_coords","-x", default = None, 
                             type=float, nargs=2,
                             help = '''
 set a variable for the coordinates of the target object.  Coordinates should 
 be 2 floats: RA and Dec (decimal degrees)
                             ''')   
-    #TODO: deak with restricted units
+    #TODO: deal with restricted units
     #may later add functionality to parse non-decimal degree values or add a 
     #unit functionality
     
@@ -392,7 +391,7 @@ stations IE613 and SE607
                             ''')        
     #adds an optional argument for target object
     group_location.add_argument("--location_coords","-l", 
-                                default = [0.0,0.0,0.0], 
+                                default = None, 
                             type=float, nargs='*',
                             help = '''
 set a variable for the coordinates of the observing site.  Coordinates should 
@@ -520,7 +519,7 @@ def alt_az_ops(merge_df, modes):
     if possible.
     """
     #calculates Alt-Az coordinates if possible
-    if (modes['object_coords']!=[0.0,0.0]) and (modes['location_coords']!=[0.0,0.0,0.0]):
+    if (modes['object_coords']!=None) and (modes['location_coords']!=None):
         try:
             merge_df = calc_alt_az(merge_df,modes)
         except NameError:
@@ -639,6 +638,6 @@ if __name__ == "__main__":
     else:
         while modes['interactive']>=2:
             operational_loop(model_df, scope_df, modes)
-            (modes, model_df, scope_df)=iops.interactive_operation(modes, model_df, scope_df)
+            (modes, model_df, scope_df)=interactive_operation(modes, model_df, scope_df)
             
     
