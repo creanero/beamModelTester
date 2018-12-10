@@ -569,6 +569,7 @@ def output_df(merge_df, modes):
     """
     This function saves the merged dataframe to a CSV file
     """
+    print("probe: output_df"+str(modes['out_dir']))
     #output the dataframe if requested
     if (modes['out_dir'] != None) & ('file' in modes['plots']):
         path_out_df = prep_out_file(modes,out_type=".csv")

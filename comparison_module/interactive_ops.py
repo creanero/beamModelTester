@@ -559,6 +559,16 @@ def gui_entry(menu_title="", menu_status="", menu_prompt="", desc_text="",
                     out_var = gui_entry(menu_title, menu_status, menu_prompt,
                                         desc_text, exit_prompt, out_type, warning, 
                                         literal_zero)
+
+        elif out_type == 'dir':
+            check_out_var = prep_out_dir(out_var)
+            if check_out_var is None:
+                warning = "Warning: '{}' is not a valid directory path.  Please Try Again.".format(out_var)
+                out_var = gui_entry(menu_title, menu_status, menu_prompt,
+                                    desc_text, exit_prompt, out_type, warning,
+                                    literal_zero)
+            else:
+                out_var = check_out_var
         else:
             pass # out_var=var.get() # leave it as it is
     else:
@@ -2457,7 +2467,7 @@ def set_file_io_options(modes, model_df, scope_df):
                
         elif "4" == menu_choice:
             # sets up the output directory based on the input
-            modes['out_dir']=set_out_dir(modes)
+            set_out_dir(modes)
                
         elif "5" == menu_choice:
             if file_status:
@@ -3343,7 +3353,7 @@ def prep_out_dir(out_dir=None, modes={"verbose":1}):
                 if modes['verbose'] >=1:
                     print("WARNING: output directory specified not suitable!")
                 if modes['interactive']>=1:
-                    out_dir=set_out_dir(modes)
+                    set_out_dir(modes)
                 else:
                     out_dir = None
     
@@ -3353,7 +3363,7 @@ def set_out_dir(modes):
     """
     This is a function that enables interactive input of the output directory
     """
-    out_dir = modes['out_dir']
+    out_dir = str(modes['out_dir'])
     
     continue_option=True
     # menu_options=range(0,num_options)
@@ -3364,7 +3374,7 @@ def set_out_dir(modes):
         menu_title ="SELECT OUTPUT DIRECTORY"
         desc_text = "Use this menu to select directory to place outputs in"
         menu_prompt = "Please enter the directory name you want to use"
-        menu_status = str(out_dir)
+        menu_status = out_dir
         if modes['interactive']==3:
             out_dir = gui_entry(menu_title, menu_status, menu_prompt,
                                  desc_text, exit_prompt="", out_type="dir", 
@@ -3380,7 +3390,7 @@ def set_out_dir(modes):
             modes['out_dir']=out_dir    
 
  
-    return(out_dir)
+   # return(out_dir)
 
 
 
