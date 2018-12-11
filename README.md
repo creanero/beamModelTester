@@ -16,6 +16,8 @@ figure of merit for the model, and also to guide improvements to the model.
 
 As an additional feature, this system enables plotting of results from a single station observation on a variety of parameters.
 
+BeamModelTester was developed as part of the RadioNet RINGS (Radio Interferometry Next Generation Software) JRA. RadioNet has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 730562.
+
 ## System Requirements
 
 ### Language and Libraries
@@ -43,7 +45,9 @@ Follow the links below to install these packges
 
 ## How to use
 
-### Analysis of existing Data
+This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
+
+### Sample Analysis of existing Data
 
 Save the [two files at this link](https://zenodo.org/record/1744987#.XAEbpdv7SUk) to your computer and 
 Run the [comparison module](/comparison_module/comparison_module_1_0.py) 
