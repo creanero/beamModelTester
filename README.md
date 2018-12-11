@@ -18,9 +18,18 @@ As an additional feature, this system enables plotting of results from a single 
 
 BeamModelTester was developed as part of the RadioNet RINGS (Radio Interferometry Next Generation Software) JRA. RadioNet has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 730562.
 
-## System Requirements
 
-### Language and Libraries
+## Table of Contents<a name="ToC"></a>
+1. [System Requirements](#sys_req)
+    1.  [Language and Libraries](#languages)
+    1.  [Depenent packages](#dependencies)
+    1.  [Operating System](#os)
+  1.  [How to use](#howto)
+  1.  [System Design Components](#design)
+
+## System Requirements<a name="sys_req"></a>
+
+### Language and Libraries<a name="languages"></a>
 This software runs in **Python 2.7**.  Ensure the following Libraries are installed and up-to-date
 in your python environment.  
 
@@ -30,7 +39,7 @@ To update, run pip update \<package\>
  * Required: pandas, numpy, sys, argparse, os, h5py, matplotlib, scipy
  * Recommended: astropy (Horizontal coordinate plotting will not work without this package)
 
-### Depenent packages
+### Depenent packages<a name="dependencies"></a>
 The following 3rd-party packages (not available as pip packages) are required for full functionality of this system. 
 Some functionality may work without these packages, but installation is recommended.  
 Follow the links below to install these packges
@@ -38,12 +47,12 @@ Follow the links below to install these packges
   * [iLiSA](https://github.com/2baOrNot2ba/iLiSA)
   * [python-casacore](https://github.com/casacore/python-casacore)
 
-### Operating System
+### Operating System<a name="os"></a>
 * Recommended OS: Ubuntu 18.04
 * Partial functionality available in Windows 8, 10
 * Other operating systems not tested, but may work with appropriate Python interpreter.
 
-## How to use
+## How to use<a name="howto"></a>
 
 This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
 
@@ -59,7 +68,7 @@ To run non-interactively, call the [comparison script] directly and use the argu
 
 e.g. ./comparison_module/comparison_module_1_0.py --model ~/SE607_24h_sim.csv --scope ~/SE607_2018-03-16T15_58_25_rcu5_CasA_dur86146_ct20161220_acc2bst.hdf5 --values xx yy --plots spectra model scope diff -I 0
 
-## System Design Components
+## System Design Components<a name="design"></a>
 
 There are three major components to this system:
   * Data from the Telescope (Currently LOFAR ACC files converted to HDF5 by [iLiSA](https://github.com/2baOrNot2ba/iLiSA))
