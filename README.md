@@ -1,8 +1,45 @@
 # beamModelTester
 
-beamModel Tester was developed to enable comparison of models of phased array radio telescope data with observations made 
-using said telescope to enable evaluation of the model and guide improvements.  In addition, this system enables plotting 
-of results from a single station observation on a variety of parameters.
+beamModelTester is a general-purpose tool that enables evaluation of models 
+of the variation in sensitivity and apparent polarisation of fixed antenna phased array 
+radio telescopes.  
+
+The sensitivity of such instruments varies with respect to the orientation
+of the source to the antenna.  This creates a variation in sensitivity over altitude and azimuth.
+Further geometric effects mean that this variation is not conisistent with respect to frequency.
+In addition, the different relative orientation of orthogonal pairs of linear antennae produces 
+a difference in sensitivity between the antennae, leading to an artificial apparent polarisation
+
+By comparing the model with observations made using the given telescope, it is possible to
+evaluate the model's performance.  The results of this evaluation can be used to provide a 
+figure of merit for the model, and also to guide improvements to the model.  
+
+As an additional feature, this system enables plotting of results from a single station observation on a variety of parameters.
+
+## System Requirements
+
+### Language and Libraries
+This software runs in **Python 2.7**.  Ensure the following Libraries are installed and up-to-date
+in your python environment.  
+
+To install, run pip install \<package\>\
+To update, run pip update \<package\>
+
+ * Required: pandas, numpy, sys, argparse, os, h5py, matplotlib, scipy
+ * Recommended: astropy (Horizontal coordinate plotting will not work without this package)
+
+### Depenent packages
+The following 3rd-party packages (not available as pip packages) are required for full functionality of this system. 
+Some functionality may work without these packages, but installation is recommended.  
+Follow the links below to install these packges
+  * [dreamBeam](https://github.com/2baOrNot2ba/dreamBeam)
+  * [iLiSA](https://github.com/2baOrNot2ba/iLiSA)
+  * [python-casacore](https://github.com/casacore/python-casacore)
+
+### Operating System
+* Recommended OS: Ubuntu 18.04
+* Partial functionality available in Windows 8, 10
+* Other operating systems not tested, but may work with appropriate Python interpreter.
 
 ## How to use
 
@@ -64,17 +101,4 @@ but the analysis and visualisations are repeated, so the use of this script is d
 
 
 
-## System Requirements
 
-* Python 2.7
-  * Python Libraries:
-  * Required: pandas, numpy, sys, argparse, os, h5py, matplotlib, scipy
-  * Recommended: astropy, casacore
-
-Installed packages
-  * [dreamBeam](https://github.com/2baOrNot2ba/dreamBeam)
-  * [iLiSA](https://github.com/2baOrNot2ba/iLiSA)
-
-* Recommended OS: Ubuntu 18.04
-* Partial functionality available in Windows 8, 10
-* Other operating systems not tested, but may work with appropriate Python interpreter.
