@@ -97,9 +97,9 @@ or otherwise as needed.
 ## System Design Components<a name="design"></a>
 
 There are three major components to this system:
-  * Data from the Telescope (Currently LOFAR ACC files converted to HDF5 by [iLiSA](https://github.com/2baOrNot2ba/iLiSA))
-  * Data from the Model (Currently Hamaker as output from [dreamBeam](https://github.com/2baOrNot2ba/dreamBeam))
-  * Comparison/Analysis
+  * Data from the Telescope (Currently LOFAR [ACC files](/data_descriptions/ACC_Source_data_description_0_0.md) converted to [HDF5](/data_descriptions/OSO_HDF5.md) by [iLiSA](https://github.com/2baOrNot2ba/iLiSA))
+  * Data from the Model (Currently [CSV Files](/data_descriptions/DreamBeam_Source_data_description.md) based on the Hamaker model as output from [dreamBeam](https://github.com/2baOrNot2ba/dreamBeam))
+  * Comparison/Analysis [module design at this link](/comparison_module/readme.md)
   
 Software Design Documents are available at [This Link](/overall_design.md)
 
