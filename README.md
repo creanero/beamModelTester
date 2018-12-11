@@ -24,7 +24,10 @@ BeamModelTester was developed as part of the RadioNet RINGS (Radio Interferometr
     1.  [Language and Libraries](#languages)
     1.  [Depenent packages](#dependencies)
     1.  [Operating System](#os)
+  1.  [Installation](#install)
   1.  [How to use](#howto)
+    1.  [Plotting software](#plotting)
+    1.  [Full Pipeline Data Processing](#pipeline)
   1.  [System Design Components](#design)
 
 ## System Requirements<a name="sys_req"></a>
@@ -52,8 +55,15 @@ Follow the links below to install these packges
 * Partial functionality available in Windows 8, 10
 * Other operating systems not tested, but may work with appropriate Python interpreter.
 
+
+## Installation<a name="install"></a>
+Once the above requirements are met, clone this repository to your local file system.
+
+git clone https://github.com/creaneroDIAS/beamModelTester
+
 ## How to use<a name="howto"></a>
 
+### Plotting software<a name="plotting"></a>
 This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
 
 **Beginners are recommended to follow [this tutorial](/tutorial.md) to learn the use of the system.**
@@ -66,7 +76,23 @@ Non-interactive mode is **recommended for advanced users only** especially users
 To run non-interactively, call the [comparison script] directly and use the arguments discussed in 
 [this document](/comparison_module/cli_arguments.md)
 
-e.g. ./comparison_module/comparison_module_1_0.py --model ~/SE607_24h_sim.csv --scope ~/SE607_2018-03-16T15_58_25_rcu5_CasA_dur86146_ct20161220_acc2bst.hdf5 --values xx yy --plots spectra model scope diff -I 0
+e.g. ***./comparison_module/comparison_module_1_0.py --model ~/SE607_24h_sim.csv --scope ~/SE607_2018-03-16T15_58_25_rcu5_CasA_dur86146_ct20161220_acc2bst.hdf5 --values xx yy --plots spectra model scope diff -I 0***
+
+### Full Pipeline Data Processing<a name="pipeline"></a>
+Acquire ACC Data from LOFAR and store it in a directory with the following name structure
+
+*{STN_ID}_YYYYMMDD_HHMMSS_rcu{RCU_MODE}_dur{DURATION}_{SOURCE}_acc*\
+e.g. *IE613_20180406_091321_rcu3_dur91863_CasA_acc*
+
+A sample of suitable data is available at https://zenodo.org/record/1326532#.W3L8FNVKiUk
+
+Run the [data extraction script](https://github.com/creaneroDIAS/beamWrapper/blob/master/data_wrapper.sh) 
+with that directory as an argument.\
+e.g ***./beamWrapper/data_wrapper.sh ~/IE613_20180406_091321_rcu3_dur85628_CasA_acc***
+
+This will produce a [HDF5 file](/data_descriptions/OSO_HDF5.md)
+and a [CSV file](/data_descriptions/DreamBeam_Source_data_description.md) which can be used in the next step
+or otherwise as needed.
 
 ## System Design Components<a name="design"></a>
 
