@@ -4,8 +4,6 @@ Created on Fri Jun 15 13:40:49 2018
 
 @author: User
 """
-import matplotlib
-matplotlib.use('agg')
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -25,12 +23,11 @@ from utility_functions import split_df
 from io_functions import prep_out_file
 
 
-
 def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
-    '''
+    """
     This function generates 3d colour plots against frequency and time for the 
     given value for a given channel
-    '''
+    """
 
     
     
