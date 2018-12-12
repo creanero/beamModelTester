@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python2 ./comparison_module/comparison_module_1_0.sh -I 2
+python2 ./comparison_module/comparison_module_1_0.py -I 2
