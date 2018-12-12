@@ -241,7 +241,7 @@ the difference between the scope and the model.  Default is subtract
 ###############################################################################    
     
     # adds an optional argument for the set of values to analyse and plot
-    parser.add_argument("--values", "-v", default=[], nargs="*",
+    parser.add_argument("--values", "-v", default=["linear"], nargs="*",
                         choices=("all", "linear", "stokes",
                                  "xx", "xy", "yy", "U", "V", "I", "Q",
                                  "each"),
@@ -257,7 +257,7 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     # adds an optional argument for the plots to show
     parser.add_argument("--plots", "-p", nargs="*",
-                        default=[],
+                        default=["spectra", "values"],
                         choices=("rmse", "corr", "spectra", 
                                  "file",
                                  "alt", "az", "ew", "stn", "split",
