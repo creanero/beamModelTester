@@ -24,11 +24,11 @@ BeamModelTester was developed as part of the RadioNet RINGS (Radio Interferometr
     1.  [Language and Libraries](#languages)
     1.  [Depenent packages](#dependencies)
     1.  [Operating System](#os)
-  1.  [Installation](#install)
-  1.  [How to use](#howto)
+1.  [Installation](#install)
+1.  [How to use](#howto)
     1.  [Plotting software](#plotting)
     1.  [Full Pipeline Data Processing](#pipeline)
-  1.  [System Design Components](#design)
+1.  [System Design Components](#design)
 
 ## System Requirements<a name="sys_req"></a>
 
