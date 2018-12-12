@@ -605,7 +605,7 @@ def operational_loop(model_df, scope_df, modes):
         # performs the various operations to create the alt-az components
         merge_df= alt_az_ops(merge_df, modes)
 
-        # chooses between various analysisn options and then carries them out
+        # chooses between various analysis options and then carries them out
         ind_dfs=analysis(merge_df, modes, m_keys, sources)
 
         # outputs the dataframe to disc if required.
