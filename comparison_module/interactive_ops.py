@@ -2509,13 +2509,17 @@ def set_in_file(modes, name):
         if chosen_file_name == '0':
             continue_option=False
 
+        elif chosen_file_name != modes[dir_file_name]: # if the user has selected anew
+            try:
+                out_df = read_var_file(chosen_file_name, modes)
+                modes[dir_file_name] = chosen_file_name
+
+            except IOError:
+                warning = "Warning, unable to read file " + chosen_file_name + ", returning original data"
         else:
-            modes[dir_file_name]=chosen_file_name    
-        try:
-            out_df=read_var_file(modes[dir_file_name], modes)
-            
-        except IOError:
-            warning = "Warning, unable to read file "+ chosen_file_name+", returning original data"
+            pass # file remains the same
+            # modes[dir_file_name]=chosen_file_name
+
  
     return(out_df)
     
