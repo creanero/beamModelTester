@@ -8,13 +8,11 @@ Created on Mon Mar  5 13:39:28 2018
 
 import pandas as pd
 
-
-
 import argparse
 
 import sys
 
-#modules of this project
+# modules of this project
 from reading_functions import read_var_file
 from reading_functions import merge_crop_test
 
@@ -34,10 +32,6 @@ from alt_az_functions import calc_alt_az
 from alt_az_functions import calc_alt_az_lofar
 
 
-
-
-
-
 ###############################################################################
 #
 # argument setting functions
@@ -45,7 +39,7 @@ from alt_az_functions import calc_alt_az_lofar
 ###############################################################################
 
 def beam_arg_parser():
-    '''
+    """
     This function parses the arguments from the command line and returns the 
     file names for the model data and the scope data
     
@@ -54,7 +48,7 @@ def beam_arg_parser():
     
     future expansions to arguments will allow the user to specify modes of 
     operation and the type of output generated
-    '''
+    """
     
     parser = argparse.ArgumentParser()
 
@@ -198,7 +192,6 @@ multiple of the mean or median, or the percentile level to cut the scope values
  to. Default is not to crop (crop = 0.0). Negative values are converted to 
  positive before use.
                              ''')
-    
 
     # adds an optional argument for cropping method
     parser.add_argument("--crop_basis", "-k", default='n',
@@ -223,8 +216,8 @@ b = crop both
                              ''')    
 
 ###############################################################################
-#Difference options
-###############################################################################    
+# Difference options
+###############################################################################
     
     # adds an optional argument for the mechanism for comparing scope with model
     parser.add_argument("--diff", "-d", default = "sub",
@@ -237,8 +230,8 @@ the difference between the scope and the model.  Default is subtract
   idiv = scope/model
                         ''')
 ###############################################################################
-#Plotting options
-###############################################################################    
+# Plotting options
+###############################################################################
     
     # adds an optional argument for the set of values to analyse and plot
     parser.add_argument("--values", "-v", default=["linear"], nargs="*",
@@ -284,8 +277,8 @@ overlay means that for a given channel, the plots will be overlaid
                         ''') 
 
 ###############################################################################
-#Three D/Animation options
-###############################################################################    
+# Three D/Animation options
+###############################################################################
     
     # adds an optional argument for the way to show 3d data
     parser.add_argument("--three_d", "-3", default="colour",
@@ -306,7 +299,7 @@ to files on a per-frame basis, this variable is ignored.  Default is 60 FPS
                              ''')
      
 ###############################################################################
-#Timing options
+# Timing options
 ###############################################################################
     # adds an optional argument for a time offset between model and scope
     parser.add_argument("--offset", "-O", default = 0, type=int,
@@ -317,10 +310,9 @@ time of the scope data.  Default is no offset.  Offsets may only be given in
 whole seconds
                              ''')
 
-         
                  
 ###############################################################################
-#Scale options
+# Scale options
 ###############################################################################
     # adds an optional argument for a time offset between model and scope
     parser.add_argument("--scale", "-S", default = 'linear',
@@ -330,7 +322,7 @@ Sets whether to plot on logarithmic or linear scales
                              ''')
 
 ###############################################################################
-#Frequencies
+# Frequencies
 ###############################################################################
     # creates a group for the chosen frequency or frequencies
     group_freq = parser.add_mutually_exclusive_group()
@@ -506,9 +498,7 @@ def filter_frequencies(merge_df, modes):
         # drops all frequencies which do not match the filter if applicable
         merge_df=merge_df[merge_df['Freq'].isin(modes['freq'])]
         merge_df.reset_index(drop=True, inplace=True)
-    
 
-    
     return (merge_df)
     
 
@@ -542,6 +532,7 @@ def alt_az_ops(merge_df, modes):
                    "\tProceeding without station coordinates.")    
     return(merge_df)
 
+
 def analysis(merge_df, modes, m_keys, sources):
     """
     based on options, chooses the analysis to perform and returns the 
@@ -564,6 +555,7 @@ def analysis(merge_df, modes, m_keys, sources):
     
     return(ind_dfs)
 
+
 def output_df(merge_df, modes):
     """
     This function saves the merged dataframe to a CSV file
@@ -580,9 +572,6 @@ def output_df(merge_df, modes):
     if (modes['out_dir'] == None) & ('file' in modes['plots']):
         if modes['verbose'] >=1:
             print("ERROR: file output requested, but no directory selected.")
-            
-
-            
 
 
 def operational_loop(model_df, scope_df, modes):       
@@ -601,7 +590,7 @@ def operational_loop(model_df, scope_df, modes):
     merge_df = filter_frequencies(merge_df, modes)
 
     # if there is some data in the merged dataframe
-    if  len(merge_df)>0:
+    if len(merge_df)>0:
         # performs the various operations to create the alt-az components
         merge_df= alt_az_ops(merge_df, modes)
 
@@ -619,25 +608,26 @@ def operational_loop(model_df, scope_df, modes):
             if modes['verbose'] >=1:
                 print("EXITING!")
             sys.exit(1)
-        
-    
-if __name__ == "__main__":
-    # gets the command line arguments and parses them into the modes dictionary
-    modes=beam_arg_parser()
-    
 
-    
+
+def main():
+    # gets the command line arguments and parses them into the modes dictionary
+    modes = beam_arg_parser()
+
     # read in the csv files from DreamBeam and format them correctly
-    model_df=read_var_file(modes['in_file_model'],modes)
-    
+    model_df = read_var_file(modes['in_file_model'], modes)
+
     # read in the file from the scope using variable reader
-    scope_df=read_var_file(modes['in_file_scope'],modes)
-    
-    if modes['interactive']<2:
+    scope_df = read_var_file(modes['in_file_scope'], modes)
+
+    if modes['interactive'] < 2:
         operational_loop(model_df, scope_df, modes)
     else:
-        while modes['interactive']>=2:
+        while modes['interactive'] >= 2:
             operational_loop(model_df, scope_df, modes)
-            (modes, model_df, scope_df)=interactive_operation(modes, model_df, scope_df)
-            
-    
+            (modes, model_df, scope_df) = interactive_operation(modes, model_df, scope_df)
+
+
+if __name__ == "__main__":
+    main()
+
