@@ -174,7 +174,7 @@ b = normalise both
 ###############################################################################
     
     # adds an optional argument for the cropping type for noise on the scope
-    parser.add_argument("--crop_type", "-C", default="median",
+    parser.add_argument("--crop_type", "-C", default="percentile",
                         choices=("median", "mean", "percentile"),
                         help='''
 Sets what style of cropping will be applied to the scope data to remove 
@@ -182,7 +182,7 @@ outliers. A value for --crop must also be specified or this argument is ignored.
     median implies drop all values over a given multiple of the median value.
     mean implies drop all values over a given multiple of the median value.
     percentile implies drop all values over a given percentile value.
-    percentiles over 100 are ignored''')     
+    percentiles over 100 are ignored.  Default is to crop by percentile.''')
 
     # adds an optional argument for the cropping level for noise on the scope
     parser.add_argument("--crop", "-c", default = 0.0, type=float,
