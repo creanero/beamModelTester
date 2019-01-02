@@ -2847,7 +2847,7 @@ def set_other_options(modes):
     
     while continue_option:
         # sets up the menu options for cli or gui use
-        menu_title ="MISCELLANEOUS SETTINGS MENU"
+        menu_title = "MISCELLANEOUS SETTINGS MENU"
          
         # creates a list of menu items
         menu_list = []
@@ -2855,25 +2855,25 @@ def set_other_options(modes):
         # each menu item has an option title.
         # status can be blank, a function or constant 
       
-        opt_name = {"option":"Set time offset between scope and frequency"}
+        opt_name = {"option": "Set time offset between scope and frequency"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Set graph and file title prefix"}
+        opt_name = {"option": "Set graph and file title prefix"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Set difference mode"}
+        opt_name = {"option": "Set difference mode"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Toggle log/linear plotting.",
-                  "status":(modes['scale'])}
+        opt_name = {"option": "Toggle log/linear plotting.",
+                    "status": gen_scale_name(modes['scale'])}
         menu_list.append(opt_name)
 
         opt_name = {"option": "Toggle percentage plotting.",
-                    "status": (modes['scale'])}
+                    "status": gen_scale_name(modes['scale'])}
         menu_list.append(opt_name)
 
         # Runs with GUI or CLI depending on mode.
-        if modes['interactive']==3:
+        if modes['interactive'] == 3:
             menu_choice = gui_menu(menu_title=menu_title,
                                    menu_list=menu_list,
                                    warning = warning)
@@ -2881,7 +2881,7 @@ def set_other_options(modes):
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                    menu_list=menu_list,
-                                   warning = warning)  
+                                   warning=warning)
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
