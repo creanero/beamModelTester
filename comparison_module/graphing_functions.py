@@ -177,6 +177,11 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             
             var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
                                    (var_y+sep+source))
+
+            # sets the y axis scale to percentage if requested.
+            if 'percent' in modes['scale']:
+                var_y_vals=var_y_vals*100
+
         
     
             line, = ax.plot(var_x_vals, var_y_vals, 
@@ -184,12 +189,12 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             lines.append(line)
 
             # code to set x and y limits.
-            local_min_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),percentile_gap)*multiplier
+            local_min_y=np.percentile(var_y_vals,percentile_gap)*multiplier
 
 
             min_y=min(min_y,local_min_y)
             #min_y=0#min(merge_df[(var_y+"_"+source)].min(),0)
-            local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),100-percentile_gap)*multiplier
+            local_max_y=np.percentile(var_y_vals,100-percentile_gap)*multiplier
             max_y=max(max_y,local_max_y)
 
     if min_y > 0 and 'linear' in modes['scale']:
@@ -303,6 +308,11 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
             sep=get_source_separator(source)
             var_y_vals = plottable(merge_df.loc[merge_df[var_t]==var_t_val].reset_index(drop=True),
                                    (var_y+sep+source))
+
+            # sets the y axis scale to percentage if requested.
+            if 'percent' in modes['scale']:
+                var_y_vals=var_y_vals*100
+
             line_index = (y_index * no_sources) + source_index
             lines[line_index].set_data(var_x_vals, var_y_vals)
     ax.set_aspect('auto')
@@ -395,34 +405,40 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     
     title=title+"\nat a Frequency of {:7.3f} MHz".format(freq_MHz)
 
-    fig, ax = plt.subplots()
+
 
     if modes['verbose'] >=2:
         print(title)
     
-    plt.figure()
-
+    #plt.figure()
+    fig, ax = plt.subplots()
     for key in m_keys:
         for source in sources:
             sep=get_source_separator(source)
-            plt.plot(plottable(merge_df, var_str),
-                     plottable(merge_df,(key+sep+source)),
+
+            var_y_vals = plottable(merge_df,(key+sep+source))
+
+            # sets the y axis scale to percentage if requested.
+            if 'percent' in modes['scale']:
+                var_y_vals = var_y_vals*100
+
+            ax.plot(plottable(merge_df, var_str),
+                    var_y_vals,
                     label=key+sep+source,
                     color=colour_models(key+sep+source))
                    
-    plt.title(title, wrap=True)
+    ax.set_title(title, wrap=True)
 
-
-    plt.legend(frameon=False)
-    #plots the axis labels rotated so they're legible
-    plt.xticks(rotation=90)
-    plt.xlabel(gen_pretty_name(var_str,units=True))
+    ax.legend(frameon=False)
+    # plots the axis labels rotated so they're legible
+    ax.tick_params(labelrotation=45)
+    ax.set_xlabel(gen_pretty_name(var_str,units=True))
 
 
 
     #sets the y axis scale to logarithmic if requested.
     if 'log' in modes['scale']:
-        plt.yscale('log')
+        ax.set_yscale('log')
 
     # sets the y axis scale to percentage if requested.
     if 'percent' in modes['scale']:

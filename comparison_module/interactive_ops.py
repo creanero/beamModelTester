@@ -2869,7 +2869,7 @@ def set_other_options(modes):
         menu_list.append(opt_name)
 
         opt_name = {"option": "Toggle percentage plotting.",
-                    "status": gen_scale_name(modes['scale'])}
+                    "status": gen_scale_percent(modes['scale'])}
         menu_list.append(opt_name)
 
         # Runs with GUI or CLI depending on mode.
