@@ -31,7 +31,25 @@ A total of six such images are shown, similar to the plots below
 ## Cropping
 In order to remove RFI peaks, several approaches can be taken.  One simple approach is to crop the data to remove all data above a certain level.  In doing so, it becomes possible to see the features of the observed data.  
 
-To Enable cropping, go to the cropping menu and select 
+![Cropping menu](/images/interactive_snips/gicm_1_crop_menu.PNG)
+
+To Enable cropping, go to the cropping menu.  There you are presented with a series of options to define the level
+above which to crop, the basis on which to perform the cropping, which of the input files to crop and what type of 
+crop operation to perform.  
+
+For now, we'll select "set crop level" and enter "99" to crop the data at the 99th percentile.  
+
+![Crop Level menu](/images/interactive_snips/gicm_1_1_crop_level_menu.PNG)
+
+Next, return to the Cropping Menu, then select the Crop Data menu and click to crop the scope data.  (Only the observed data has the RFI spikes we want to remove.)
+
+![Crop Data menu](/images/interactive_snips/gicm_1_3_crop_data_menu.PNG)
+
+Return to the main menu and select "plot with current options."  Plots similar to the ones below should emerge. (As before, you should expect 6 images, not just the two shown here.
+
+<img src="/images/tutorial_model_xx_2.png" width=400><img src="/images/tutorial_scope_yy_2.png" width=400>\
+*The model image (left) remains much the same, but there is now definite structure to the observed data (right).  
+Notice the distribution in Frequency and the scale of the observation.  The Hamaker-Arts model is a normalised scale and, by design, does not incorporate the instrumental frequency dependence.  As a result, some normalisation must be applied to the observation to make comparison meaningful.*
 
 ## Normalisation
 
