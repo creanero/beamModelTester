@@ -314,9 +314,9 @@ whole seconds
 ###############################################################################
 # Scale options
 ###############################################################################
-    # adds an optional argument for a time offset between model and scope
-    parser.add_argument("--scale", "-S", default = 'linear',
-                        choices=("linear", "log"),
+    # adds an optional argument for how the scale is displayed
+    parser.add_argument("--scale", "-S", default = ['linear'],
+                        choices=("linear", "log", "percent"), nargs="*",
                         help='''
 Sets whether to plot on logarithmic or linear scales
                              ''')

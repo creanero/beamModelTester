@@ -2868,6 +2868,9 @@ def set_other_options(modes):
                   "status":(modes['scale'])}
         menu_list.append(opt_name)
 
+        opt_name = {"option": "Toggle percentage plotting.",
+                    "status": (modes['scale'])}
+        menu_list.append(opt_name)
 
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
@@ -2892,10 +2895,29 @@ def set_other_options(modes):
         elif "3" == menu_choice:
             set_diff(modes)
         elif "4" == menu_choice:
-            if "linear" == modes['scale']:
-                modes['scale'] = "log"
+            if "linear" in modes['scale']:
+                try:
+                    modes['scale'].remove("linear")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+                modes['scale'].append("log")
             else:
-                modes['scale'] = "linear"
+                try:
+                    modes['scale'].remove("log")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+                modes['scale'].append("linear")
+        elif "5" == menu_choice:
+            if "percent" in modes['scale']:
+                try:
+                    modes['scale'].remove("percent")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+            else:
+                modes['scale'].append("percent")
                
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
@@ -3517,6 +3539,26 @@ def gen_three_d_name(abbreviation):
     return(three_d_name)
 
 
+def gen_scale_name(scale):
+    scale_name=""
+    if "log" in scale:
+        scale_name="log"
+    elif "linear" in scale:
+        scale_name="linear"
+    else:
+        scale_name = "linear"
+        print("Warning: Unknown scale name used!")
+    return(scale_name)
+
+
+def gen_scale_percent(scale):
+    scale_percent=""
+    if "percent" in scale:
+        scale_percent="Percentage"
+
+    else:
+        scale_percent = "Raw Data"
+    return(scale_percent)
             
 def gen_channels_dict(modes, dict_lists):
     

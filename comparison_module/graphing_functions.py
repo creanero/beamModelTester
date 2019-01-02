@@ -7,6 +7,9 @@ Created on Fri Jun 15 13:40:49 2018
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.ticker as mtick
+
+
 import numpy as np
 from scipy.stats.stats import pearsonr
 
@@ -189,7 +192,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             local_max_y=np.percentile(plottable(merge_df,(var_ys[i]+sep+source)),100-percentile_gap)*multiplier
             max_y=max(max_y,local_max_y)
 
-    if min_y > 0 and modes['scale']=='linear':
+    if min_y > 0 and 'linear' in modes['scale']:
         min_y = 0
     ax.set_ylim(min_y,max_y)
     
@@ -198,9 +201,13 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     ax.set_ylabel(channel_maker(var_ys,modes,", ")+" flux\n(arbitrary units)", wrap=True)    
 
 
-    #sets the y axis scale to logarithmic if requested.
-    if modes['scale'] == 'log':
-        ax.set_yscale('log')   
+    # sets the y axis scale to logarithmic if requested.
+    if 'log' in modes['scale']:
+        ax.set_yscale('log')
+
+    # sets the y axis scale to percentage if requested.
+    if 'percent' in modes['scale']:
+        ax.yaxis.set_major_formatter(mtick.PercentFormatter())
  
     ax.legend(frameon=False)
     
@@ -209,7 +216,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     else:
         repeat_option = False
     
-    #creates a global variable as animations only work with globals
+    # creates a global variable as animations only work with globals
     if "anim" not in globals():
         global anim
         anim = []
@@ -224,18 +231,18 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     ax.set_aspect('auto')
     
     plt.subplots_adjust(top=0.80)#TODO: automate this so it's not fixed 
-    if modes['out_dir']!=None:
+    if modes['out_dir'] != None:
         str_channel = channel_maker(var_ys,modes)
         str_sources = channel_maker(sources,modes)
-        #str_channel = list_to_string(var_ys,", ")
+        # str_channel = list_to_string(var_ys,", ")
         plot_name = var_x+"_over_"+var_t
         plt_file = prep_out_file(modes,source=str_sources,
                                  plot=plot_name,dims="nd",
                                channel=str_channel,out_type=modes['image_type'])
         anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
-        #plt.close()#TODO: fix this so it works
+        # plt.close()#TODO: fix this so it works
     else:
-        plt.show()# will just loop the animation forever.
+        plt.show()  # will just loop the animation forever.
 
 
 
@@ -281,9 +288,13 @@ def update_a(i,merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
 
 
     #sets the y axis scale to logarithmic if requested.
-    if modes['scale'] == 'log':
-        ax.set_yscale('log')   
-    
+    if 'log' in modes['scale']:
+        ax.set_yscale('log')
+
+    # sets the y axis scale to percentage if requested.
+    if 'percent' in modes['scale']:
+        ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+
     no_sources = len(sources)
     for y_index in range(len(var_ys)):
         var_y = var_ys[y_index]
@@ -383,7 +394,9 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     freq_MHz = freq_in/1e6
     
     title=title+"\nat a Frequency of {:7.3f} MHz".format(freq_MHz)
-    
+
+    fig, ax = plt.subplots()
+
     if modes['verbose'] >=2:
         print(title)
     
@@ -408,8 +421,12 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
 
 
     #sets the y axis scale to logarithmic if requested.
-    if modes['scale'] == 'log':
-        plt.yscale('log')            
+    if 'log' in modes['scale']:
+        plt.yscale('log')
+
+    # sets the y axis scale to percentage if requested.
+    if 'percent' in modes['scale']:
+        ax.yaxis.set_major_formatter(mtick.PercentFormatter())
 
     #prints or saves the plot
     if modes['out_dir'] == None:
