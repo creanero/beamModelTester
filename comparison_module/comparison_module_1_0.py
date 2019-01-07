@@ -150,7 +150,7 @@ file types will save animations, and others will save frames.  Default is png.
 ###############################################################################
     
     # adds an optional argument for normalisation method
-    parser.add_argument("--norm", "-n", default='n',
+    parser.add_argument("--norm", "-n", default='o',
                         choices=('o', "f", "n",'t'),
                              help='''
 Method for normalising the data 
@@ -160,7 +160,7 @@ t = time (divide by maximum by time/observation)
 n = no normalisation.
                              ''')
     # adds an optional argument for normalisation target
-    parser.add_argument("--norm_data", "-N", default="n",
+    parser.add_argument("--norm_data", "-N", default="b",
                         choices=("s", "m", "n", "b"),
                              help='''
 Target data for applying the normalisation to
@@ -205,7 +205,7 @@ n = no cropping
                              ''')
 
     # adds an optional argument for cropping method
-    parser.add_argument("--crop_data", "-K", default="n",
+    parser.add_argument("--crop_data", "-K", default="b",
                         choices=("s", "m", "n", "b"),
                              help='''
 Target data for applying the cropping to

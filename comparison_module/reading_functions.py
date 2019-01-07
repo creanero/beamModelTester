@@ -208,11 +208,11 @@ def crop_and_norm(in_df,modes,origin):
         #always crops zero values, may crop high values depending on user input
         out_df=crop_vals(out_df,modes)
     if any (c in modes['norm_data'] for c in origin_options):    
-        for channel in ["xx","xy","yy"]:
+        for channel in ["xx","xy","yy","U","V","I","Q"]:
             #normalises the dataframe
             out_df=normalise_data(out_df,modes,channel)  
-        #recalculates the Stokes Parameters for the normalised values
-        calc_stokes(out_df,modes)
+        # recalculates the Stokes Parameters for the normalised values
+        # calc_stokes(out_df,modes)
     return(out_df)
 
 def merge_crop_test(model_df, scope_df, modes):

@@ -2457,10 +2457,10 @@ def set_file_io_options(modes, model_df, scope_df):
             continue_option=False # finish the loop
         
         elif "1" == menu_choice:
-            model_df=set_in_file(modes, "model")
+            model_df = set_in_file(modes, "model", model_df)
             
         elif "2" == menu_choice:
-            scope_df=set_in_file(modes, "scope")
+            scope_df = set_in_file(modes, "scope", scope_df)
                         
         elif "3" == menu_choice:
             set_out_file_type(modes)
@@ -2480,11 +2480,11 @@ def set_file_io_options(modes, model_df, scope_df):
     
     return (model_df, scope_df)
             
-def set_in_file(modes, name):
+def set_in_file(modes, name, in_df):
     """
     This function reads in a new file specified by the user
     """
-
+    out_df = in_df
     dir_file_name="in_file_"+name
     
     
