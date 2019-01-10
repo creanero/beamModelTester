@@ -17,6 +17,7 @@ from scipy.stats.stats import pearsonr
 from appearance_functions import gen_pretty_name
 from appearance_functions import colour_models
 from appearance_functions import channel_maker
+from appearance_functions import list_to_string
 
 from utility_functions import plottable 
 from utility_functions import get_source_separator
@@ -183,13 +184,6 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             local_max_y = np.percentile(var_y_vals,100-percentile_gap)*multiplier
             max_y = max(max_y,local_max_y)
 
-    if min_y > 0 and 'linear' in modes['scale']:
-        min_y = 0
-    ax.set_ylim(min_y, max_y)
-
-    ax.set_xlabel(gen_pretty_name(var_x, units=True), wrap=True)
-    ax.set_ylabel(channel_maker(var_ys, modes, ", ")+" flux\n(arbitrary units)", wrap=True)
-
     # sets the y axis scale to logarithmic if requested.
     if 'log' in modes['scale']:
         ax.set_yscale('log')
@@ -197,6 +191,13 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     # sets the y axis scale to percentage if requested.
     if 'percent' in modes['scale']:
         ax.yaxis.set_major_formatter(mtick.PercentFormatter())
+
+    if min_y > 0 and 'linear' in modes['scale']:
+        min_y = 0
+    ax.set_ylim(min_y, max_y)
+
+    ax.set_xlabel(gen_pretty_name(var_x, units=True), wrap=True)
+    ax.set_ylabel(channel_maker(var_ys, modes, ", ")+" flux\n(arbitrary units)", wrap=True)
 
     ax.legend(frameon=False)
 
@@ -221,14 +222,15 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     ax.set_aspect('auto')
 
     plt.subplots_adjust(top=0.80)  # TODO: automate this so it's not fixed
-    if modes['out_dir'] != None:
-        str_channel = channel_maker(var_ys,modes)
-        str_sources = channel_maker(sources,modes)
+    if modes['out_dir'] is not None:
+        str_channel = channel_maker(var_ys, modes)
+        str_sources = list_to_string(sources, "_")
         # str_channel = list_to_string(var_ys,", ")
         plot_name = var_x+"_over_"+var_t
         plt_file = prep_out_file(modes, source=str_sources,
                                  plot=plot_name, dims="nd",
                                  channel=str_channel, out_type=modes['image_type'])
+
         anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
         # plt.close() # TODO: fix this so it works
     else:
