@@ -256,6 +256,7 @@ def update_a(i, merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
     title = "Plot of "
     for source in sources:
         title = add_key(title, sources, source)
+        
     title = title+" for "
     for var_y in var_ys:
         title = add_key(title, var_ys, var_y)
