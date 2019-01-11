@@ -86,7 +86,17 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
                                  channel=key, out_type=modes['image_type'])
         if modes['verbose'] >=2:
             print("plotting: "+plt_file)
-        plt.savefig(plt_file, bbox_inches='tight')
+        try:
+            plt.savefig(plt_file, bbox_inches='tight')
+        except ValueError:
+            if modes['verbose'] >=1:
+                print("ERROR: Unable to save file, showing instead.")
+            try:
+                plt.show()
+            except:
+                 print("Unable to show file.")
+                
+            
         plt.close()
 
 
@@ -229,7 +239,15 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
         plt_file = prep_out_file(modes, source=str_sources,
                                  plot=plot_name, dims="nd",
                                  channel=str_channel, out_type=modes['image_type'])
-        anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
+        try:
+            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
+        except ValueError:
+            if modes['verbose'] >=1:
+                print("ERROR: Unable to save file, try showing instead.")
+            try:
+                plt.show()
+            except:
+                 print("ERROR: Unable to show file.")
         # plt.close() # TODO: fix this so it works
     else:
         plt.show()  # will just loop the animation forever.
@@ -432,7 +450,15 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
                                  out_type="png")
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
-        plt.savefig(plt_file,bbox_inches='tight')
+        try:
+            plt.savefig(plt_file,bbox_inches='tight')
+        except ValueError:
+            if modes['verbose'] >=1:
+                print("ERROR: Unable to save file, showing instead.")
+            try:
+                plt.show()
+            except:
+                 print("Unable to show file.")
         plt.close()
     return(0)
 
@@ -533,7 +559,15 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
                                out_type=modes['image_type'])
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
-        plt.savefig(plt_file, bbox_inches='tight')
+        try:
+            plt.savefig(plt_file, bbox_inches='tight')
+        except ValueError:
+            if modes['verbose'] >=1:
+                print("ERROR: Unable to save file, showing instead.")
+            try:
+                plt.show()
+            except:
+                 print("Unable to show file.")
         plt.close()
 
 
@@ -737,7 +771,15 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
 
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
-        plt.savefig(plt_file,bbox_inches='tight')
+        try:
+            plt.savefig(plt_file,bbox_inches='tight')
+        except ValueError:
+            if modes['verbose'] >=1:
+                print("ERROR: Unable to save file, showing instead.")
+            try:
+                plt.show()
+            except:
+                 print("Unable to show file.")
         plt.close()
 
     # returns the correlation lists if needed
