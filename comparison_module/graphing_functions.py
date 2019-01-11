@@ -448,7 +448,7 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     else:
         str_sources = channel_maker(sources,modes)
         plt_file = prep_out_file(modes, plot="vals",dims="1d", ind_var=var_str,
-                                 channel=channel_maker(m_keys, modes),
+                                 channel=list_to_string(m_keys, '_'),
                                  source=str_sources,
                                  freq=min(merge_df.Freq),
                                  out_type="png")
@@ -767,7 +767,7 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
         plt.show()
     else:
         # creates an output-friendly string for the channel
-        str_channel = channel_maker(m_keys,modes)
+        str_channel = list_to_string(m_keys,'_')
 
         plt_file = prep_out_file(modes,plot=fom,ind_var=var_str,
                                  channel=str_channel,
