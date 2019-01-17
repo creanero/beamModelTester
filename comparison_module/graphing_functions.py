@@ -126,8 +126,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     fig, ax = plt.subplots()
 
     # hard coded for now, need to parameterise
-    percentile_gap = 5
-    multiplier = 1.5
+    percentile_gap = 0  # 5
+    multiplier = 1  # 1.5
 
     # sets default values for max_ and min_y
     max_y = np.nextafter(0, 1)  # makes max and min values distinct
@@ -204,6 +204,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
 
     if min_y > 0 and 'linear' in modes['scale']:
         min_y = 0
+
+    print ("Probe: ", min_y, max_y)
     ax.set_ylim(min_y, max_y)
 
     ax.set_xlabel(gen_pretty_name(var_x, units=True), wrap=True)
