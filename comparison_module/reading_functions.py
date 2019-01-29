@@ -190,7 +190,7 @@ def read_var_file(file_name,modes):
     else:
        
         #calculates the stokes parameters for the dataframe
-        calc_stokes(out_df,modes)
+        out_df=calc_stokes(out_df,modes)
     
     return(out_df)
 
@@ -389,23 +389,24 @@ def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
     '''
+    out_df = in_df.copy()
     if modes['verbose'] >=2:
         print("Calculating Stokes Parameters")
 
     for source in sources:
         sep=get_source_separator(source)
-        #Stokes U is the real component of the XY
-        in_df['U'+sep+source]=np.real(in_df['xy'+sep+source])
-        #Stokes V is the imaginary component of the XY
-        in_df['V'+sep+source]=np.imag(in_df['xy'+sep+source])
+        # Stokes U is the real component of the XY
+        out_df['U'+sep+source] = np.real(in_df['xy'+sep+source])
+        # Stokes V is the imaginary component of the XY
+        out_df['V'+sep+source] = np.imag(in_df['xy'+sep+source])
         
-        #Stokes I is the sum of XX and YY
-        in_df['I'+sep+source]=in_df['xx'+sep+source]+in_df['yy'+sep+source]
-        #Stokes Q is the difference between XX and YY
-        in_df['Q'+sep+source]=in_df['xx'+sep+source]-in_df['yy'+sep+source]
+        # Stokes I is the sum of XX and YY
+        out_df['I'+sep+source] = in_df['xx'+sep+source]+in_df['yy'+sep+source]
+        # Stokes Q is the difference between XX and YY
+        out_df['Q'+sep+source] = in_df['xx'+sep+source]-in_df['yy'+sep+source]
 
-  
-    return (in_df)
+    return (out_df)
+
 
 def normalise_data(merge_df,modes,channel,out_str=""):
     '''

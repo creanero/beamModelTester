@@ -562,7 +562,7 @@ def output_df(merge_df, modes):
     """
     # output the dataframe if requested
     if (modes['out_dir'] != None) & ('file' in modes['plots']):
-        path_out_df = prep_out_file(modes,out_type=".csv")
+        path_out_df = prep_out_file(modes,plot="file",out_type=".csv")
         try:
             merge_df.to_csv(path_out_df)
         except IOError:
