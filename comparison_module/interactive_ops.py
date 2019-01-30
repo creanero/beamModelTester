@@ -3355,7 +3355,7 @@ def set_in_coords(modes,coord_type=""):
 
     return (out_coords)
 
-def prep_out_dir(out_dir=None, modes={"verbose":1,"interactive":1}):
+def prep_out_dir(out_dir=None, modes={"verbose":1,"interactive":1, "out_dir":""}):
     '''
     Sets up the output directory based on the inputs.  If there are issues with
     the output directory specified, warns the user and continues by printing 

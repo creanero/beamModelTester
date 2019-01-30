@@ -468,8 +468,9 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
 
     # sets up non-interactive plotting
     if modes['interactive'] == 0:  # non-interactive mode
-        import matplotlib
-        matplotlib.use('agg')
+        pass  # needed until can be fixed
+        # import matplotlib
+        # matplotlib.use('agg')  # todo: fix this
     else:
         pass  # use whatever the default is, usually tk
 
