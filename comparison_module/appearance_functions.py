@@ -4,6 +4,9 @@ Created on Fri Jun 15 13:13:45 2018
 
 @author: User
 """
+import seaborn as sns
+
+import matplotlib.pyplot as plt
 
 def gen_pretty_name(key,units=False):
     '''
@@ -106,7 +109,7 @@ def colour_models(colour_id):
     if colour_id in ['p_dark','p_scope']:
         return('darkorange')
     if 'p_s'==colour_id:
-        return('Oranges')
+        return plt.get_cmap('Oranges')
         
     #sets greens for various applications of the q channel    
     if colour_id in ['q','q_diff']:
@@ -116,7 +119,7 @@ def colour_models(colour_id):
     if colour_id in ['q_dark','q_scope']:
         return('darkgreen')
     if 'q_s'==colour_id:
-        return('Greens')
+        return plt.get_cmap('Greens')
     
     #sets reds for various applications of the XX channel 
     if colour_id in ['xx','xx_diff']:
@@ -126,7 +129,7 @@ def colour_models(colour_id):
     if colour_id in ['xx_dark','xx_scope']:
         return('darkred')
     if 'xx_s'==colour_id:
-        return('Reds')
+        return plt.get_cmap('Reds')
     
     
     #sets purples for various applications of the XY channel 
@@ -137,7 +140,7 @@ def colour_models(colour_id):
     if colour_id in ['xy_dark','xy_scope']:
         return('purple')
     if 'xy_s'==colour_id:
-        return('Purples')
+        return plt.get_cmap('Purples')
     
     
     #sets greens for various applications of the YY channel 
@@ -148,7 +151,7 @@ def colour_models(colour_id):
     if colour_id in ['yy_dark','yy_scope']:
         return('darkblue')
     if 'yy_s'==colour_id:
-        return('Blues')
+        return plt.get_cmap('Blues')
         
     #sets golds/yellows for various applications of stokes U
     if colour_id in ['U','U_diff']:
@@ -158,7 +161,7 @@ def colour_models(colour_id):
     if colour_id in ['U_dark','U_scope']:
         return('darkgoldenrod')
     if 'U_s'==colour_id:
-        return('YlOrBr')
+        return sns.light_palette("goldenrod", as_cmap = True)
         
     #sets oranges for various applications for the Stokes V
     if colour_id in ['V','V_diff']:
@@ -168,7 +171,7 @@ def colour_models(colour_id):
     if colour_id in ['V_dark','V_scope']:
         return('chocolate')
     if 'V_s'==colour_id:
-        return('Oranges')        
+        return plt.get_cmap('Oranges')        
 
     #sets cyans for various applications for the Stokes I
     if colour_id in ['I','I_diff']:
@@ -178,7 +181,7 @@ def colour_models(colour_id):
     if colour_id in ['I_dark','I_scope']:
         return('teal')
     if 'I_s'==colour_id:
-        return('winter')   
+        return sns.light_palette("teal", as_cmap = True)   
 
     #sets greens for various applications for the Stokes Q
     #note the distinction from the generic q-channel
@@ -189,7 +192,7 @@ def colour_models(colour_id):
     if colour_id in ['Q_dark','Q_scope']:
         return('darkgreen')
     if 'Q_s'==colour_id:
-        return('Greens')           
+        return plt.get_cmap('Greens')           
 
     #sets black/grey for various applications for altitude
     if colour_id in ['alt','stn_alt']:
@@ -199,7 +202,7 @@ def colour_models(colour_id):
     if colour_id in ['alt_dark','stn_alt_dark']:
         return('darkslategrey')
     if colour_id in ['alt_s','stn_alt_s']:
-        return('Greys')     
+        return plt.get_cmap('Greys')     
     
     #sets browns for various applications for azimuth
     if colour_id in ['az','az_ew','stn_az','stn_az_ew']:
@@ -211,7 +214,7 @@ def colour_models(colour_id):
                      'az_scope','stn_az_scope','az_ew_scope','stn_az_ew_scope']:
         return('saddlebrown')
     if colour_id in ['az_s','az_ew_s','stn_az_s','stn_az_ew_s']:
-        return('copper')     
+        return plt.get_cmap('copper')     
 
     #TODO: see if there's a way to make this generic but enable suppression of 
     #warnings if user requested.
@@ -241,7 +244,7 @@ def colour_models(colour_id):
         print("Warning: Colour incompletely or inaccurately specified as:\n\n\t"+colour_id+              
               "\n\n'_s' found in colourstring.\n"
               "Defaulting to Greys\n")
-        return ('Greys')      
+        return  plt.get_cmap('Greys')      
     
     #returns black as a final default
     else:

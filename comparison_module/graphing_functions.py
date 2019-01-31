@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
 
-
 import numpy as np
 from scipy.stats.stats import pearsonr
 
@@ -37,8 +36,8 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
     if modes['verbose'] >= 2:
         print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
-    plt.figure()
-
+    plt.figure(figsize=(6,8), dpi=300)  # TODO: softcode
+    
     graph_title = "\n".join([modes['title'],
         ("Plot of the "+gen_pretty_name(source)+" for "+key+
          "-channel \nover "+gen_pretty_name(var_x)+ " and "+
@@ -53,7 +52,7 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             plt.tripcolor(plottable(merge_df,var_x),
                           plottable(merge_df,var_y),
                           plottable(merge_df,var_z),
-                          cmap = plt.get_cmap(colour_models(key+'_s')))
+                          cmap = colour_models(key+'_s'))
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -79,6 +78,9 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
     plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
     plt.colorbar()
+    
+    plt.tight_layout
+    
     # prints or saves the plot
     if modes['out_dir'] is None:
         plt.show()
