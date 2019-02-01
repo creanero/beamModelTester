@@ -62,8 +62,6 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
         pass  # do nothing
     else:
         fig.set_size_inches(modes['image_size'])
-    
-
 
     if modes['colour'] in ["dark","matching_dark"]:
         ax.set_facecolor('black')
@@ -156,7 +154,34 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     Produces an animated linegraph(s) with the X, Y and T variables specified
     """
 
+    if modes['colour'] in ["matching","matching_dark"]:
+        text_colour = colour_models(var_y)
+    elif modes['colour'] == "dark":
+        text_colour = "white"
+
+    else:  # light or None
+        text_colour = "black"
+    
+    mpl.rcParams.update({'text.color' : text_colour,
+                         'axes.labelcolor' : text_colour,
+                         'xtick.color' : text_colour,
+                         'ytick.color' : text_colour})
+    
+    mpl.rc('axes',edgecolor=text_colour)    
     fig, ax = plt.subplots()
+    if modes['dpi'] is None:
+        pass
+    else:
+        fig.set_dpi(modes['dpi'])    
+        
+    if modes['image_size'] is None:
+        pass  # do nothing
+    else:
+        fig.set_size_inches(modes['image_size'])
+
+    if modes['colour'] in ["dark","matching_dark"]:
+        ax.set_facecolor('black')
+        fig.patch.set_facecolor('black')
 
     # hard coded for now, need to parameterise
     percentile_gap = 0  # 5
@@ -443,18 +468,35 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     if modes['verbose'] >=2:
         print(title)
 
-    fig = plt.figure()
+    if modes['colour'] in ["matching","matching_dark"]:
+        text_colour = colour_models(key)
+    elif modes['colour'] == "dark":
+        text_colour = "white"
+
+    else:  # light or None
+        text_colour = "black"
+    
+    mpl.rcParams.update({'text.color' : text_colour,
+                         'axes.labelcolor' : text_colour,
+                         'xtick.color' : text_colour,
+                         'ytick.color' : text_colour})
+    
+    mpl.rc('axes',edgecolor=text_colour)    
+    fig, ax = plt.subplots()
     if modes['dpi'] is None:
         pass
     else:
         fig.set_dpi(modes['dpi'])    
         
     if modes['image_size'] is None:
-        pass # do nothing
+        pass  # do nothing
     else:
         fig.set_size_inches(modes['image_size'])
+
+    if modes['colour'] in ["dark","matching_dark"]:
+        ax.set_facecolor('black')
+        fig.patch.set_facecolor('black')
         
-    fig, ax = plt.subplots()
     for key in m_keys:
         for source in sources:
             sep = get_source_separator(source)
@@ -530,16 +572,34 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
               " against " + gen_pretty_name(var_x) + " and "+gen_pretty_name(var_y) +
               " and " + gen_pretty_name(var_y2, plot_name) + " against " + gen_pretty_name(var_x))
     
-    fig = plt.figure()
+    if modes['colour'] in ["matching","matching_dark"]:
+        text_colour = colour_models(key)
+    elif modes['colour'] == "dark":
+        text_colour = "white"
+
+    else:  # light or None
+        text_colour = "black"
+    
+    mpl.rcParams.update({'text.color' : text_colour,
+                         'axes.labelcolor' : text_colour,
+                         'xtick.color' : text_colour,
+                         'ytick.color' : text_colour})
+    
+    mpl.rc('axes',edgecolor=text_colour)    
+    fig, ax = plt.subplots()
     if modes['dpi'] is None:
         pass
     else:
         fig.set_dpi(modes['dpi'])    
         
     if modes['image_size'] is None:
-        pass # do nothing
+        pass  # do nothing
     else:
         fig.set_size_inches(modes['image_size'])
+
+    if modes['colour'] in ["dark","matching_dark"]:
+        ax.set_facecolor('black')
+        fig.patch.set_facecolor('black')
     
     plt.subplot(211)
     upper_title=("Plot of "+gen_pretty_name(source)+
