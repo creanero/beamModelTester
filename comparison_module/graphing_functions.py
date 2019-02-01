@@ -5,6 +5,7 @@ Created on Fri Jun 15 13:40:49 2018
 @author: User
 """
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
@@ -36,8 +37,38 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
     if modes['verbose'] >= 2:
         print("Generating a 3-d plot of "+gen_pretty_name(source)+" for "+key)
-    plt.figure(figsize=(6,8), dpi=300)  # TODO: softcode
+
+    if modes['colour'] in ["matching","matching_dark"]:
+        text_colour = colour_models(key)
+    elif modes['colour'] == "dark":
+        text_colour = "white"
+
+    else:  # light or None
+        text_colour = "black"
     
+    mpl.rcParams.update({'text.color' : text_colour,
+                         'axes.labelcolor' : text_colour,
+                         'xtick.color' : text_colour,
+                         'ytick.color' : text_colour})
+    
+    mpl.rc('axes',edgecolor=text_colour)    
+    fig, ax = plt.subplots()
+    if modes['dpi'] is None:
+        pass
+    else:
+        fig.set_dpi(modes['dpi'])    
+        
+    if modes['image_size'] is None:
+        pass  # do nothing
+    else:
+        fig.set_size_inches(modes['image_size'])
+    
+
+
+    if modes['colour'] in ["dark","matching_dark"]:
+        ax.set_facecolor('black')
+        fig.patch.set_facecolor('black')
+        
     graph_title = "\n".join([modes['title'],
         ("Plot of the "+gen_pretty_name(source)+" for "+key+
          "-channel \nover "+gen_pretty_name(var_x)+ " and "+
@@ -412,7 +443,17 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     if modes['verbose'] >=2:
         print(title)
 
-    #plt.figure()
+    fig = plt.figure()
+    if modes['dpi'] is None:
+        pass
+    else:
+        fig.set_dpi(modes['dpi'])    
+        
+    if modes['image_size'] is None:
+        pass # do nothing
+    else:
+        fig.set_size_inches(modes['image_size'])
+        
     fig, ax = plt.subplots()
     for key in m_keys:
         for source in sources:
@@ -488,7 +529,18 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
         print("Plotting " + gen_pretty_name(source) + "\nfor " + gen_pretty_name(var_z) +
               " against " + gen_pretty_name(var_x) + " and "+gen_pretty_name(var_y) +
               " and " + gen_pretty_name(var_y2, plot_name) + " against " + gen_pretty_name(var_x))
-    plt.figure()
+    
+    fig = plt.figure()
+    if modes['dpi'] is None:
+        pass
+    else:
+        fig.set_dpi(modes['dpi'])    
+        
+    if modes['image_size'] is None:
+        pass # do nothing
+    else:
+        fig.set_size_inches(modes['image_size'])
+    
     plt.subplot(211)
     upper_title=("Plot of "+gen_pretty_name(source)+
                  "\nfor "+gen_pretty_name(var_z)+" against "+
@@ -743,7 +795,19 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
             " between model and scope for "+\
           channel_maker(m_keys,modes,", ")+" against "+\
           gen_pretty_name(var_str))
-    plt.figure()
+    
+    fig = plt.figure()
+    if modes['dpi'] is None:
+        pass
+    else:
+        fig.set_dpi(modes['dpi'])    
+        
+    if modes['image_size'] is None:
+        pass # do nothing
+    else:
+        fig.set_size_inches(modes['image_size'])
+    
+    
     graph_title = "\n".join([modes['title'],"Plot of the "+gen_pretty_name(fom)+\
             " in "])
     for key in m_keys:

@@ -389,6 +389,45 @@ set a variable for the coordinates of the observing site.  Coordinates should
 be 3 floats: Latitude, longitude (degrees) and height above sea level (metres).
 If two coordinates are specified, height will be assumed to be 0 (sea level)
                             ''')   
+
+
+###############################################################################
+# Image Size and resolution
+###############################################################################
+    
+    # adds an optional argument for image size
+    parser.add_argument("--image_size", "-z", default = None,
+                                nargs = 2, type=float,
+                                help='''
+Set the size of the images in inches.  (width/height)
+                            ''')        
+
+    # adds an optional argument for image size
+    parser.add_argument("--dpi", "-D", default = None,
+                        type=float,
+                        help='''
+Set the output resolution in DPI
+                            ''')        
+    
+
+###############################################################################
+# Colourscheme Options
+###############################################################################
+    # creates a group for the colourscheme
+    group_colour = parser.add_mutually_exclusive_group()    
+    # adds an optional argument for the colourscheme
+    group_colour.add_argument("--colour", "-P", default=None,
+                        choices=("light", "dark", "matching", "matching_dark"),
+                        help='''
+Chooses the colourscheme for the plots.
+                        ''')  
+        # adds an optional argument for the colourscheme
+    group_colour.add_argument("--color", default=None,
+                        choices=("light", "dark", "matching", "matching_dark"),
+                        help='''
+Chooses the colorscheme for the plots, translated int US English.
+                        ''') 
+    
     
 ###############################################################################
 # Using the arguments
@@ -420,6 +459,13 @@ If two coordinates are specified, height will be assumed to be 0 (sea level)
     modes['object_name']=args.object_name
     modes['object_coords']=args.object_coords
     modes['scale']=args.scale
+    modes['image_size']=args.image_size
+    modes['dpi']=args.dpi
+    
+    if args.color is not None:
+        modes['colour']=args.color
+    else:
+        modes['colour']=args.colour
     
     # ensures that whichever spelling of colour is input by the user, only one
     # needs to be used in the rest of the code.
