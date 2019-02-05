@@ -302,8 +302,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
                                  channel=str_channel, out_type=modes['image_type'])
 
         try:
-            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick',
-                                   facecolor=fig.get_facecolor(), edgecolor='none')
+            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')# ,
+                                   #facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, try showing instead.")
