@@ -65,7 +65,7 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
     if modes['colour'] in ["dark","matching_dark"]:
         ax.set_facecolor('black')
-        fig.patch.set_facecolor('black')
+        fig.set_facecolor('black')
         
     graph_title = "\n".join([modes['title'],
         ("Plot of the "+gen_pretty_name(source)+" for "+key+
@@ -119,7 +119,8 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
         if modes['verbose'] >=2:
             print("plotting: "+plt_file)
         try:
-            plt.savefig(plt_file, bbox_inches='tight')
+            plt.savefig(plt_file, bbox_inches='tight',
+                        facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, showing instead.")
@@ -154,12 +155,12 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     Produces an animated linegraph(s) with the X, Y and T variables specified
     """
 
-    if modes['colour'] in ["matching","matching_dark"]:
-        text_colour = colour_models(var_y)
-    elif modes['colour'] == "dark":
+    if modes['colour'] in ["matching","matching_dark"] and len(var_ys) == 1:
+        text_colour = colour_models(var_ys[0])
+    elif modes['colour'] in ["dark", "matching_dark"]:
         text_colour = "white"
 
-    else:  # light or None
+    else:  # light or None or matching and multiple y
         text_colour = "black"
     
     mpl.rcParams.update({'text.color' : text_colour,
@@ -263,7 +264,6 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
     if min_y > 0 and 'linear' in modes['scale']:
         min_y = 0
 
-    print ("Probe: ", min_y, max_y)
     ax.set_ylim(min_y, max_y)
 
     ax.set_xlabel(gen_pretty_name(var_x, units=True), wrap=True)
@@ -468,9 +468,9 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
     if modes['verbose'] >=2:
         print(title)
 
-    if modes['colour'] in ["matching","matching_dark"]:
-        text_colour = colour_models(key)
-    elif modes['colour'] == "dark":
+    if modes['colour'] in ["matching","matching_dark"] and len(m_keys)==1:
+        text_colour = colour_models(m_keys[0])
+    elif modes['colour'] in ["dark","matching_dark"]:
         text_colour = "white"
 
     else:  # light or None
@@ -542,7 +542,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
         try:
-            plt.savefig(plt_file,bbox_inches='tight')
+            plt.savefig(plt_file,bbox_inches='tight',
+                        facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, showing instead.")
@@ -573,7 +574,7 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
               " and " + gen_pretty_name(var_y2, plot_name) + " against " + gen_pretty_name(var_x))
     
     if modes['colour'] in ["matching","matching_dark"]:
-        text_colour = colour_models(key)
+        text_colour = colour_models(var_y)
     elif modes['colour'] == "dark":
         text_colour = "white"
 
@@ -680,7 +681,8 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
         try:
-            plt.savefig(plt_file, bbox_inches='tight')
+            plt.savefig(plt_file, bbox_inches='tight',
+                        facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, showing instead.")
@@ -904,7 +906,8 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
         if modes['verbose'] >=2:
             print("Saving: "+plt_file)
         try:
-            plt.savefig(plt_file,bbox_inches='tight')
+            plt.savefig(plt_file,bbox_inches='tight',
+                        facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, showing instead.")
