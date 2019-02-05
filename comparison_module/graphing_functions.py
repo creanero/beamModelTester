@@ -302,7 +302,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
                                  channel=str_channel, out_type=modes['image_type'])
 
         try:
-            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')
+            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick',
+                                   facecolor=fig.get_facecolor(), edgecolor='none')
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, try showing instead.")
@@ -824,6 +825,7 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     in current versions, useable values for fom are "rmse" and "corr"
     """
 
+    print("probe: ", modes['colour'])
     if modes['verbose'] >=2:
         print ("Calculating the "+gen_pretty_name(fom)+
                " between observed and model data.")
@@ -853,22 +855,38 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     # creates an overlaid plot of how the Figure of Merit  between model and scope
     # varies for each of the channels against var_str
     if modes['verbose'] >=2:
-        print("Plotting the "+gen_pretty_name(fom)+\
-            " between model and scope for "+\
-          channel_maker(m_keys,modes,", ")+" against "+\
-          gen_pretty_name(var_str))
+        print("Plotting the "+gen_pretty_name(fom) + " between model and scope for " +
+              channel_maker(m_keys,modes,", ") + " against " + gen_pretty_name(var_str))
     
-    fig = plt.figure()
+    if modes['colour'] in ["matching", "matching_dark"] and len(m_keys) == 1:
+        text_colour = colour_models(m_keys[0])
+    elif modes['colour'] in ["dark", "matching_dark"]:
+        text_colour = "white"
+
+    else:  # light or None
+        text_colour = "black"
+
+    mpl.rcParams.update({'text.color': text_colour,
+                         'axes.labelcolor': text_colour,
+                         'xtick.color': text_colour,
+                         'ytick.color': text_colour})
+
+    mpl.rc('axes', edgecolor=text_colour)
+    fig, ax = plt.subplots()
     if modes['dpi'] is None:
         pass
     else:
-        fig.set_dpi(modes['dpi'])    
-        
+        fig.set_dpi(modes['dpi'])
+
     if modes['image_size'] is None:
-        pass # do nothing
+        pass  # do nothing
     else:
         fig.set_size_inches(modes['image_size'])
-    
+
+    if modes['colour'] in ["dark", "matching_dark"]:
+        ax.set_facecolor('black')
+        fig.patch.set_facecolor('black')
+
     
     graph_title = "\n".join([modes['title'],"Plot of the "+gen_pretty_name(fom)+\
             " in "])
