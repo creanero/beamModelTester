@@ -168,13 +168,15 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
                          'xtick.color' : text_colour,
                          'ytick.color' : text_colour})
     
-    mpl.rc('axes',edgecolor=text_colour)    
+    mpl.rc('axes',edgecolor=text_colour)   
+
     fig, ax = plt.subplots()
+
     if modes['dpi'] is None:
         pass
     else:
         fig.set_dpi(modes['dpi'])    
-        
+
     if modes['image_size'] is None:
         pass  # do nothing
     else:
@@ -236,6 +238,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             var_y_vals = plottable(merge_df.loc[merge_df[var_t] == var_t_val].reset_index(drop=True),
                                    (var_y+sep+source))
 
+            var_y_vals_all = merge_df[var_y+sep+source]
+
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
@@ -245,12 +249,11 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             lines.append(line)
 
             # code to set x and y limits.
-            local_min_y = np.percentile(var_y_vals,percentile_gap)*multiplier
-
-
+            local_min_y = np.percentile(var_y_vals_all , percentile_gap)*multiplier
             min_y = min(min_y,local_min_y)
+
             # min_y = 0#min(merge_df[(var_y+"_"+source)].min(),0)
-            local_max_y = np.percentile(var_y_vals,100-percentile_gap)*multiplier
+            local_max_y = np.percentile(var_y_vals_all , 100-percentile_gap)*multiplier
             max_y = max(max_y,local_max_y)
 
     # sets the y axis scale to logarithmic if requested.
@@ -302,8 +305,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
                                  channel=str_channel, out_type=modes['image_type'])
 
         try:
-            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick')# ,
-                                   #facecolor=fig.get_facecolor(), edgecolor='none')
+            anim[len(anim)-1].save(plt_file, dpi=80, writer='imagemagick',
+                                   savefig_kwargs = {'facecolor':fig.get_facecolor(), 'edgecolor':'none'})
         except ValueError:
             if modes['verbose'] >=1:
                 print("ERROR: Unable to save file, try showing instead.")
