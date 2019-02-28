@@ -554,6 +554,8 @@ def alt_az_ops(merge_df, modes):
     This function calculates the Alt-Az coordinates and Station Alt-Az coords 
     if possible.
     """
+
+
     # calculates Alt-Az coordinates if possible
     if (modes['object_coords']!=None) and (modes['location_coords']!=None):
         try:
@@ -568,15 +570,18 @@ def alt_az_ops(merge_df, modes):
                     modes["plots"].remove(option)
     
         
-    # calculates station Alt-Az if possible and requested
-    if modes['location_name']!=None and "stn" in modes["plots"]:
-        try:
-            merge_df=calc_alt_az_lofar(merge_df,modes)
-        except ValueError:#except NameError:
-            if modes['verbose'] >=1:
-                print ("ERROR: Unable to calculate Station coordintates\n"\
-                   "\tKnown issue: Casacore is not compatible with Windows\n"\
-                   "\tProceeding without station coordinates.")    
+        # calculates station Alt-Az if possible and requested
+        if modes['location_name']!=None and "stn" in modes["plots"]:
+            try:
+                merge_df=calc_alt_az_lofar(merge_df,modes)
+            except ValueError:#except NameError:
+                if modes['verbose'] >=1:
+                    print ("ERROR: Unable to calculate Station coordintates\n"\
+                       "\tKnown issue: Casacore is not compatible with Windows\n"\
+                       "\tProceeding without station coordinates.")
+
+    else:
+        print("Probe: not calculating alt/az",modes['object_coords'],modes['location_coords'])
     return(merge_df)
 
 
@@ -588,14 +593,14 @@ def analysis(merge_df, modes, m_keys, sources):
     # runs different functions if there are one or multiple frequencies
     if merge_df.Freq.nunique()==1:
         # if only one frequency, does one-dimensional analysis
-        if "each" in modes['values']: # if the plots are to be separate
-            for key in m_keys: # analyses them one at a time
+        if "each" in modes['values']:  # if the plots are to be separate
+            for key in m_keys:  # analyses them one at a time
                 ind_dfs=analysis_1d(merge_df,modes, [key],sources)
         else: # allows plots to be overlaid
             ind_dfs=analysis_1d(merge_df,modes, m_keys,sources)
     else: # otherwise does multi-dimensional analysis
         if "each" in modes['values']: # if the plots are to be separate
-            for key in m_keys: # analyses them one at a time
+            for key in m_keys:  # analyses them one at a time
                 ind_dfs=analysis_nd(merge_df,modes, [key],sources)
         else: # allows plots to be overlaid
             ind_dfs=analysis_nd(merge_df,modes, m_keys,sources)  
@@ -638,13 +643,15 @@ def operational_loop(model_df, scope_df, modes):
     # if there is some data in the merged dataframe
     if len(merge_df)>0:
         # performs the various operations to create the alt-az components
-        merge_df= alt_az_ops(merge_df, modes)
+        merge_df = alt_az_ops(merge_df, modes)
 
         # chooses between various analysis options and then carries them out
-        ind_dfs=analysis(merge_df, modes, m_keys, sources)
+        ind_dfs = analysis(merge_df, modes, m_keys, sources)
 
         # outputs the dataframe to disc if required.
         output_df(merge_df, modes)
+
+        return (ind_dfs)
 
     # otherwise gives an error
     else:
@@ -654,6 +661,8 @@ def operational_loop(model_df, scope_df, modes):
             if modes['verbose'] >=1:
                 print("EXITING!")
             sys.exit(1)
+
+
 
 
 def main():

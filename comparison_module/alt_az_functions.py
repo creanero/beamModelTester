@@ -48,7 +48,6 @@ def set_coords(name_str,verbose = 1):
     '''
     coords=None
 
-    
     if name_str == "CasA":
         coords=[350.85,  58.815]
     elif name_str == "CygA":
@@ -68,7 +67,6 @@ def set_coords(name_str,verbose = 1):
             else:
                 print("Warning: '{}' not found.".format(name_str))
 
-    
     return(coords)
 
 
@@ -138,7 +136,7 @@ def calc_alt_az_lofar(merge_df,modes):
     if modes['verbose'] >=2:
         print("Calculating LOFAR Coordinates")
     stn_id=modes['location_name']
-    stn_alt_az=horizon_to_station(stn_id, merge_df.az, merge_df.alt)
+    stn_alt_az=horizon_to_station(stn_id, merge_df['az'], merge_df['alt'])
     
     merge_df['stn_alt']=np.array(stn_alt_az[1])
     merge_df['stn_az_ew']=np.array(stn_alt_az[0])

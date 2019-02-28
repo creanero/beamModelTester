@@ -1987,9 +1987,8 @@ def get_location(modes):
 
     # sets up the location coordinates
     if modes['location_name'] is not None:
-        modes['location_coords'] == set_coords(modes['location_name'],
-                                               modes['verbose'])
-
+        modes['location_coords'] = set_coords(modes['location_name'],
+                                              modes['verbose'])
     # checks the coordinates are valid
 
     # if there are 2 or 3 coordinates
