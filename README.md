@@ -42,7 +42,7 @@ To update, run pip update \<package\>
  * Required: pandas, numpy, sys, argparse, os, h5py, matplotlib, scipy
  * Recommended: astropy (Horizontal coordinate plotting will not work without this package)
 
-### Depenent packages<a name="dependencies"></a>
+### Dependent packages<a name="dependencies"></a>
 The following 3rd-party packages (not available as pip packages) are required for full functionality of this system. 
 Some functionality may work without these packages, but installation is recommended.  
 Follow the links below to install these packges
