@@ -74,7 +74,7 @@ Return to the normalisation menu and select the normalisation basis menu.  There
 Once again, return to the main menu and select "plot with current options."  Plots similar to the ones below should emerge.
 
 <img src="/images/tutorial_model_xx_4.png" width=400><img src="/images/tutorial_scope_yy_4.png" width=400>\
-*Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in the next step.*
+*Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in a later stage.*
 
 ## Select the plots
 Select the plots you wish to generate.  
