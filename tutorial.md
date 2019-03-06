@@ -49,9 +49,32 @@ Return to the main menu and select "plot with current options."  Plots similar t
 
 <img src="/images/tutorial_model_xx_2.png" width=400><img src="/images/tutorial_scope_yy_2.png" width=400>\
 *The model image (left) remains much the same, but there is now definite structure to the observed data (right).  
-Notice the distribution in Frequency and the scale of the observation.  The Hamaker-Arts model is a normalised scale and, by design, does not incorporate the instrumental frequency dependence.  As a result, some normalisation must be applied to the observation to make comparison meaningful.*
+Notice the distribution in Frequency and the scale of the observation.  The Hamaker-Arts model is a normalised scale, while the observation is in instrumental units. As a result, some normalisation must be applied to the observation to make comparison meaningful.*
 
 ## Normalisation
+The observation readings are many orders of magnitude higher, and in arbitrary instrumental units.  To compensate for this, both sets of data must be normalised to the same scale by normalising the scope data.
+
+First, go to the Normalisation menu
+
+![Normalisation menu](/images/interactive_snips/gicm_2_norm_menu.PNG)
+
+First, go to the Normalisation menu, then select the Normalisation Data menu and click to normalise the scope data.  (The model data is already normalised!)
+
+![Normalisation Data menu](/images/interactive_snips/gicm_2_2_norm_data_menu.PNG)
+
+Return to the main menu and select "plot with current options."  Plots similar to the ones below should emerge.
+
+<img src="/images/tutorial_model_xx_3.png" width=400><img src="/images/tutorial_scope_yy_3.png" width=400>\
+*Both plots look very similar to the previous plots, but the scale of the observed data now matches that of the model.  Because the Hamaker model, by design, does not incorporate the variation of instrumental sensitivity by frequency, it is necessary to normalise the data on a per-frequency basis.*
+
+Return to the normalisation menu and select the normalisation basis menu.  There, select "normalise by frequency."
+
+![Normalisation Basis menu](/images/interactive_snips/gicm_2_1_norm_basis_menu.PNG)
+
+Once again, return to the main menu and select "plot with current options."  Plots similar to the ones below should emerge.
+
+<img src="/images/tutorial_model_xx_4.png" width=400><img src="/images/tutorial_scope_yy_4.png" width=400>\
+*Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in the next step.*
 
 ## Select the plots
 Select the plots you wish to generate.  
