@@ -11,7 +11,7 @@ Now that we have comparable data, it's time to learn how to select the variables
 From there, click on "select variables to plot."  This will bring up a menu that allows you to select which channels to plot.  By default, the linear (xx, yy) and cross (xy) plots are generated.  From this menu you can select linear channels or Stokes parameters individually, by group, or all at once.  There are also options for plotting linegraphs overlaid or separate from one another.  We will consider these later.
 
 
-![Plotting Options menu](/images/interactive_snips/gicm_5_2_plot_values_menu.PNG)
+![Plotting Options menu](/images/interactive_snips/gicm_5_2_graph_values_menu.PNG)
 
 Click on the option to toggle plotting of the Stokes Parameters now, then return to the main menu and "Plot with current options"
 
@@ -24,7 +24,13 @@ Side-by-side visual comparisons of data are vulnerable to human error such as sa
 
 Return to the plotting options menu and from there select "set graphs to plot." 
 
-![Plotting Options menu](/images/interactive_snips/gicm_5_1_plot_graphs_menu.PNG)
+![Plotting Options menu](/images/interactive_snips/gicm_5_1_graphs_plot_menu.PNG)
+
+This menu includes a number of options we will use for more advanced plots in a later tutorial.  For now, though, we want to select "Set wheher to plot model, scope or difference values"
+
+![Plotting Options menu](/images/interactive_snips/gicm_5_1_3_graph_plot_values_menu.PNG)
+
+There, toggle on the option for Difference Plotting.  This means that as well as the model and scope data, the difference between these two values will be plotted as shown below.  Return to the main menu and select plot with current options.  To speed up the tutorial, you may wish to use what you learned above to disable plotting of some of the channels, so your system isn't trying to plot all 21 combinations of channel and source.
 
 <img src="/images/tutorial_model_xx_6.png" width=280><img src="/images/tutorial_scope_xx_6.png" width=280><img src="/images/tutorial_diff_xx_6.png" width=280>\
-*Plotting with Stokes and Linear parameters produces a total of 14 plots, one each for the model data and the observation of each of the 4 Stokes and 3 Linear channels.  Two samples of the output are shown above.*
+*The model,observed and difference values for the xx-channel are shown here.  *
