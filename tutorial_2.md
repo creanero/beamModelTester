@@ -24,7 +24,8 @@ Side-by-side visual comparisons of data are vulnerable to human error such as sa
 
 Return to the plotting options menu and from there select "set graphs to plot." 
 
-![Graph Selection menu](/images/interactive_snips/gicm_5_1_graph_plot_menu.PNG)
+![Graph Selection menu](/images/interactive_snips/gicm_5_1_graph_plot_menu.PNG)<a name="graph_select"></a>\
+*The Graph Selection Menu.*
 
 This menu includes a number of options we will use for more advanced plots in a later tutorial.  For now, though, we want to select "Set wheher to plot model, scope or difference values"
 
@@ -57,9 +58,12 @@ Mapping time in the source data to time in the animation may be intuitively sati
 
 3-d contour plots are also available, but do not provide additional functionality above and beyond that which is used in the 3-d colour plots.  They can be selected from the menu above if you want to experiment with them
 
-## Frequency filtering<a name="frequencies"></a>
+## Overlaying
+So far, all plots have been separate from one another.  This enables side-by-side comparison, but it can limit the ability to perform direct comparisons.  Two types of overlaid comparisons are available: multiple source, where the three sources (model, scope and difference) for the same channel are plotted on a single axis, and multiple channel, where a given source for multiple channels (linear/Stokes) are plotted overlaid on a single graph.  It is not ususally recommended to plot graphs with multiple sources AND multiple graphs at the same time.
 
-### Single Frequency
-### Multiple Frequency
+### Multiple Source
+To plot multiple sources of the same channel overlaid, go to the [Graph Selection](#graph_select) menu and click on the toggle at the bottom to select to plot single channel plots overlaid.  Leaving other options alone, return to the main menu and plot with current options.  You should get the model, scope and difference plots from the last section now merged into a single plot as shown below.
 
-# Overlaying
+![Animated xx overlay plot](/images/tutorial_xx_9.gif)
+
+### Multiple Channel
