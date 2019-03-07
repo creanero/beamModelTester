@@ -53,8 +53,13 @@ Select plot animated against time to show visually how the data from the source 
 
 Mapping time in the source data to time in the animation may be intuitively satisfying, but it may be useful to look at other options.  Return to the "Set 3d plotting Options" menu and select "plot animated against frequency" to show visually how the pattern of variation in the data changes with frequency.  These plots show a progression through the frequencies, and can be used to highlight frequencies with RFI or other issues.
 
-<img src="/images/tutorial_model_xx_8.gif" width=280><img src="/images/tutorial_scope_xx_8.gif" width=280><img src="/images/tutorial_diff_xx_8.gif" width=280>\
+<img src="/images/tutorial_model_xx_8.gif" width=280><img src="/images/tutorial_scope_xx_8.gif" width=280><img src="/images/tutorial_diff_xx_8.gif" width=280>
+
+3-d contour plots are also available, but do not provide additional functionality above and beyond that which is used in the 3-d colour plots.  They can be selected from the menu above if you want to experiment with them
 
 ## Frequency filtering<a name="frequencies"></a>
 
 ### Single Frequency
+### Multiple Frequency
+
+# Overlaying
