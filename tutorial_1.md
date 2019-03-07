@@ -1,4 +1,4 @@
-# Tutorial
+# Tutorial 1: Basic plotting
 This tutorial will explain the basic steps to running beamModelTester by demonstrating a Sample Analysis of existing data.
 
 ## Acquire Data
@@ -74,10 +74,17 @@ Return to the normalisation menu and select the normalisation basis menu.  There
 Once again, return to the main menu and select "plot with current options."  Plots similar to the ones below should emerge.
 
 <img src="/images/tutorial_model_xx_4.png" width=400><img src="/images/tutorial_scope_yy_4.png" width=400>\
-*Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in a later stage.*
+*Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in a later tutorial.*
 
-## Select the plots
-Select the plots you wish to generate.  
+## Select the variables
+Now that we have comparable data, it's time to learn how to select the variables for the plots you wish to generate.  From the Main Menu select "plotting options."
 
+![Plotting Options menu](/images/interactive_snips/gicm_5_plot_menu.PNG)
 
+From there, click on "select variables to plot."  This will bring up a menu that allows you to select which channels to plot.  By default, the linear (xx, yy) and cross (xy) plots are generated.  From this menu you can select linear channels or Stokes parameters individually, by group, or all at once.  There are also options for plotting linegraphs overlaid or separate from one another.  These are not used in this tutorial
+
+Click on the option to toggle plotting of the Stokes Parameters now, then return to the main menu and "Plot with current options"
+
+<img src="/images/tutorial_model_I_5.png" width=400><img src="/images/tutorial_scope_Q_5.png" width=400>\
+*Plotting with Stokes and Linear parameters produces a total of 14 plots, one each for the model data and the observation of each of the 4 Stokes and 3 Linear channels.  Two samples of the output are shown above.*
 
