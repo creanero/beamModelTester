@@ -26,6 +26,7 @@ BeamModelTester was developed as part of the RadioNet RINGS (Radio Interferometr
     1.  [Operating System](#os)
 1.  [Installation](#install)
 1.  [How to use](#howto)
+    1.  [Tutorials](#tutorial)
     1.  [Plotting software](#plotting)
     1.  [Full Pipeline Data Processing](#pipeline)
 1.  [System Design Components](#design)
@@ -63,10 +64,15 @@ git clone https://github.com/creaneroDIAS/beamModelTester
 
 ## How to use<a name="howto"></a>
 
+### Tutorials<a name="tutorial"></a>
+A series of tutorials have been developed to enable a user to learn how to use the system
+
+[Tutorial 1: Basic Plots](/tutorial_1.md) \
+[Tutorial 2: Plotting Options](/tutorial_2.md) 
+
 ### Plotting software<a name="plotting"></a>
 This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
 
-**Beginners are recommended to follow [this tutorial](/tutorial.md) to learn the use of the system.**
 
 GUI Interactive mode can be started by running the **rungui.sh** script and following [these instructions](/comparison_module/interactive_mode.md)
 
