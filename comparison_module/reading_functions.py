@@ -190,7 +190,7 @@ def read_var_file(file_name,modes):
     else:
        
         #calculates the stokes parameters for the dataframe
-        calc_stokes(out_df,modes)
+        out_df=calc_stokes(out_df,modes)
     
     return(out_df)
 
@@ -206,13 +206,13 @@ def crop_and_norm(in_df,modes,origin):
     
     if any (c in modes['crop_data'] for c in origin_options):
         #always crops zero values, may crop high values depending on user input
-        out_df=crop_vals(out_df,modes)
+        out_df = crop_vals(out_df,modes)
     if any (c in modes['norm_data'] for c in origin_options):    
         for channel in ["xx","xy","yy"]:
-            #normalises the dataframe
-            out_df=normalise_data(out_df,modes,channel)  
-        #recalculates the Stokes Parameters for the normalised values
-        calc_stokes(out_df,modes)
+            # normalises the dataframe
+            out_df = normalise_data(out_df,modes,channel)
+        # recalculates the Stokes Parameters for the normalised values
+        out_df = calc_stokes(out_df,modes)
     return(out_df)
 
 def merge_crop_test(model_df, scope_df, modes):
@@ -228,25 +228,25 @@ def merge_crop_test(model_df, scope_df, modes):
     only dataframe that was loaded with no suffix
     """
     if "none" not in scope_df:        
-        #adjusts for the offset if needed (e.g. comparing two observations)
-        #creates a backup of the time
-	if "original_Time" not in scope_df.columns.values:
-	    scope_df["original_Time"]=scope_df.Time.copy()
-        #then changes the time value based on the offset
-        offset=np.timedelta64(modes['offset'],'s')
-        scope_df.Time=scope_df.original_Time-offset
+        # adjusts for the offset if needed (e.g. comparing two observations)
+        # creates a backup of the time
+        if "original_Time" not in scope_df.columns.values:
+            scope_df["original_Time"]=scope_df.Time.copy()
+            # then changes the time value based on the offset
+            offset=np.timedelta64(modes['offset'],'s')
+            scope_df.Time=scope_df.original_Time-offset
   
     if "none" not in model_df and "none" not in scope_df:
-        #merges the dataframes
+        # merges the dataframes
         merge_df=merge_dfs(model_df, scope_df, modes)
         
-        #identifies the sources required
+        # identifies the sources required
         sources = identify_plots(modes)
         
-    #if only scope is valid
+    # if only scope is valid
     elif "none" in model_df and "none" not in scope_df:
         merge_df=crop_and_norm(scope_df,modes,"s")
-        sources = [""]#sets the source to blank as there are no differentiators
+        sources = [""]  # sets the source to blank as there are no differentiators
     elif "none" not in model_df and "none" in scope_df:
         merge_df=crop_and_norm(model_df,modes,"m")
         sources = [""]
@@ -299,6 +299,7 @@ def merge_dfs(model_df,scope_df,modes):
             print("ERROR: NO MATCHING DATA")
     return(merge_df)        
 
+
 def crop_vals(in_df,modes):
     '''
     This function drops all rows where the value for the channel is greater 
@@ -349,18 +350,18 @@ def crop_operation (in_df,modes):
     #goes through all the columns of the data
     for col in out_df:
         #targets the dependent variables
-        if col not in ['Time','Freq','d_Time', 'original_Time']:
+        if col not in ['Time', 'Freq', 'd_Time', 'original_Time']:
             #drops all zero values from the data
             out_df.drop(out_df[out_df[col] == 0.0].index, inplace=True)
             #if the cropping mode isn't set to 0, crop the scope data
             if 0.0 != modes['crop']:
-                if modes['crop_type']=="median":
+                if modes['crop_type'] == "median":
                     col_limit = np.median(out_df[col])*modes['crop']
-                elif modes['crop_type']=="mean":
+                elif modes['crop_type'] == "mean":
                     col_limit = np.mean(out_df[col])*modes['crop']
-                elif modes['crop_type']=="percentile":
-                    if modes['crop'] <100:
-                        col_limit = np.percentile(out_df[col],modes['crop'])
+                elif modes['crop_type'] == "percentile":
+                    if modes['crop'] < 100:
+                        col_limit = np.percentile(out_df[col], modes['crop'])
                     else:
                         if modes['verbose'] >=1:
                             print("WARNING: Percentile must be less than 100")
@@ -370,15 +371,16 @@ def crop_operation (in_df,modes):
                         print("WARNING: crop_type incorrectly specified.")
                     col_limit = np.median(out_df[col])*modes['crop']
                 out_df.drop(out_df[out_df[col] > col_limit].index, inplace=True)
+                # out_df.drop(out_df[out_df[col] < 0].index, inplace=True)
             
     return(out_df)
 
     
 def calc_xy(in_df):
     out_df = in_df.copy()
-    out_df['xx']=np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
-    out_df['xy']=out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
-    out_df['yy']=np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
+    out_df['xx'] = np.real(out_df.J11*np.conj(out_df.J11)+out_df.J12*np.conj(out_df.J12))
+    out_df['xy'] = out_df.J11*np.conj(out_df.J21)+out_df.J12*np.conj(out_df.J22)
+    out_df['yy'] = np.real(out_df.J21*np.conj(out_df.J21)+out_df.J22*np.conj(out_df.J22))
     return(out_df)
 
 
@@ -387,23 +389,24 @@ def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     this function calculates the Stokes UVIQ parameters for each time and 
     frequency in a merged dataframe
     '''
+    out_df = in_df.copy()
     if modes['verbose'] >=2:
         print("Calculating Stokes Parameters")
 
     for source in sources:
         sep=get_source_separator(source)
-        #Stokes U is the real component of the XY
-        in_df['U'+sep+source]=np.real(in_df['xy'+sep+source])
-        #Stokes V is the imaginary component of the XY
-        in_df['V'+sep+source]=np.imag(in_df['xy'+sep+source])
+        # Stokes U is the real component of the XY
+        out_df['U'+sep+source] = np.real(in_df['xy'+sep+source])
+        # Stokes V is the imaginary component of the XY
+        out_df['V'+sep+source] = np.imag(in_df['xy'+sep+source])
         
-        #Stokes I is the sum of XX and YY
-        in_df['I'+sep+source]=in_df['xx'+sep+source]+in_df['yy'+sep+source]
-        #Stokes Q is the difference between XX and YY
-        in_df['Q'+sep+source]=in_df['xx'+sep+source]-in_df['yy'+sep+source]
+        # Stokes I is the sum of XX and YY
+        out_df['I'+sep+source] = in_df['xx'+sep+source]+in_df['yy'+sep+source]
+        # Stokes Q is the difference between XX and YY
+        out_df['Q'+sep+source] = in_df['xx'+sep+source]-in_df['yy'+sep+source]
 
-  
-    return (in_df)
+    return (out_df)
+
 
 def normalise_data(merge_df,modes,channel,out_str=""):
     '''

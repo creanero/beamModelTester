@@ -1987,9 +1987,8 @@ def get_location(modes):
 
     # sets up the location coordinates
     if modes['location_name'] is not None:
-        modes['location_coords'] == set_coords(modes['location_name'],
-                                               modes['verbose'])
-
+        modes['location_coords'] = set_coords(modes['location_name'],
+                                              modes['verbose'])
     # checks the coordinates are valid
 
     # if there are 2 or 3 coordinates
@@ -2457,10 +2456,10 @@ def set_file_io_options(modes, model_df, scope_df):
             continue_option=False # finish the loop
         
         elif "1" == menu_choice:
-            model_df=set_in_file(modes, "model")
+            model_df = set_in_file(modes, "model", model_df)
             
         elif "2" == menu_choice:
-            scope_df=set_in_file(modes, "scope")
+            scope_df = set_in_file(modes, "scope", scope_df)
                         
         elif "3" == menu_choice:
             set_out_file_type(modes)
@@ -2480,11 +2479,11 @@ def set_file_io_options(modes, model_df, scope_df):
     
     return (model_df, scope_df)
             
-def set_in_file(modes, name):
+def set_in_file(modes, name, in_df):
     """
     This function reads in a new file specified by the user
     """
-
+    out_df = in_df
     dir_file_name="in_file_"+name
     
     
@@ -2509,13 +2508,17 @@ def set_in_file(modes, name):
         if chosen_file_name == '0':
             continue_option=False
 
+        elif chosen_file_name != modes[dir_file_name]: # if the user has selected anew
+            try:
+                out_df = read_var_file(chosen_file_name, modes)
+                modes[dir_file_name] = chosen_file_name
+
+            except IOError:
+                warning = "Warning, unable to read file " + chosen_file_name + ", returning original data"
         else:
-            modes[dir_file_name]=chosen_file_name    
-        try:
-            out_df=read_var_file(modes[dir_file_name], modes)
-            
-        except IOError:
-            warning = "Warning, unable to read file "+ chosen_file_name+", returning original data"
+            pass # file remains the same
+            # modes[dir_file_name]=chosen_file_name
+
  
     return(out_df)
     
@@ -2843,7 +2846,7 @@ def set_other_options(modes):
     
     while continue_option:
         # sets up the menu options for cli or gui use
-        menu_title ="MISCELLANEOUS SETTINGS MENU"
+        menu_title = "MISCELLANEOUS SETTINGS MENU"
          
         # creates a list of menu items
         menu_list = []
@@ -2851,22 +2854,25 @@ def set_other_options(modes):
         # each menu item has an option title.
         # status can be blank, a function or constant 
       
-        opt_name = {"option":"Set time offset between scope and frequency"}
+        opt_name = {"option": "Set time offset between scope and frequency"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Set graph and file title prefix"}
+        opt_name = {"option": "Set graph and file title prefix"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Set difference mode"}
+        opt_name = {"option": "Set difference mode"}
         menu_list.append(opt_name)
         
-        opt_name = {"option":"Toggle log/linear plotting.",
-                  "status":(modes['scale'])}
+        opt_name = {"option": "Toggle log/linear plotting.",
+                    "status": gen_scale_name(modes['scale'])}
         menu_list.append(opt_name)
 
+        opt_name = {"option": "Toggle percentage plotting.",
+                    "status": gen_scale_percent(modes['scale'])}
+        menu_list.append(opt_name)
 
         # Runs with GUI or CLI depending on mode.
-        if modes['interactive']==3:
+        if modes['interactive'] == 3:
             menu_choice = gui_menu(menu_title=menu_title,
                                    menu_list=menu_list,
                                    warning = warning)
@@ -2874,7 +2880,7 @@ def set_other_options(modes):
         else:    
             menu_choice = cli_menu(menu_title=menu_title,
                                    menu_list=menu_list,
-                                   warning = warning)  
+                                   warning=warning)
             
         if "0" == menu_choice:
             continue_option=False # finish the loop
@@ -2888,10 +2894,29 @@ def set_other_options(modes):
         elif "3" == menu_choice:
             set_diff(modes)
         elif "4" == menu_choice:
-            if "linear" == modes['scale']:
-                modes['scale'] = "log"
+            if "linear" in modes['scale']:
+                try:
+                    modes['scale'].remove("linear")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+                modes['scale'].append("log")
             else:
-                modes['scale'] = "linear"
+                try:
+                    modes['scale'].remove("log")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+                modes['scale'].append("linear")
+        elif "5" == menu_choice:
+            if "percent" in modes['scale']:
+                try:
+                    modes['scale'].remove("percent")
+                except ValueError:
+                    pass  # if it's not there, no worries!
+
+            else:
+                modes['scale'].append("percent")
                
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
@@ -3329,7 +3354,7 @@ def set_in_coords(modes,coord_type=""):
 
     return (out_coords)
 
-def prep_out_dir(out_dir=None, modes={"verbose":1}):
+def prep_out_dir(out_dir=None, modes={"verbose":1,"interactive":1, "out_dir":""}):
     '''
     Sets up the output directory based on the inputs.  If there are issues with
     the output directory specified, warns the user and continues by printing 
@@ -3513,6 +3538,26 @@ def gen_three_d_name(abbreviation):
     return(three_d_name)
 
 
+def gen_scale_name(scale):
+    scale_name=""
+    if "log" in scale:
+        scale_name="log"
+    elif "linear" in scale:
+        scale_name="linear"
+    else:
+        scale_name = "linear"
+        print("Warning: Unknown scale name used!")
+    return(scale_name)
+
+
+def gen_scale_percent(scale):
+    scale_percent=""
+    if "percent" in scale:
+        scale_percent="Percentage"
+
+    else:
+        scale_percent = "Raw Data"
+    return(scale_percent)
             
 def gen_channels_dict(modes, dict_lists):
     

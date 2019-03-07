@@ -350,8 +350,10 @@ From this menu, the user can the offset in time between model and scope, the Tit
 
 Type or Click Option 1 to set the [offset between model and scope](#8_1_misc_offset_menu)\
 Type or Click Option 2 to set the [titles for plots and files](#8_2_misc_title_menu)\
-Type or Click Option 3 to set the [operation used for the difference between model and scope](#8_3_misc_diff_menu)
-Type or Click Option 4 to toggle between linear and logarithmic plots
+Type or Click Option 3 to set the [operation used for the difference between model and scope](#8_3_misc_diff_menu)\
+Type or Click Option 4 to toggle between linear and logarithmic plots\
+Type or Click Option 5 to toggle between percentage and raw data plotting
+
 
 Type or Click Option 0 to return to the [Main menu](#MainMenu)
 

@@ -208,7 +208,7 @@ On this menu, the user may enter a target object name (e.g. CasA) and the coordi
 On this menu, the user is prompted to enter first the Right Ascension coordinate (in decimal degrees), then the Declination coordinate (in decimal degrees).  If the user enters a blank value for any coordinate, then that coordinate and any subsequent coordinates are set to 0, and the screen returns to the previous menu.  If the user submits an invalid coordinate (e.g. non-numeric characters) they are prompted to reenter the coordinate.  The coordinates (RA: 0, Dec: 0) are reserved to indicate no Astrometric plots are needed. Should a target at the point of the Vernal Equinox be needed, an arbitrarily small value (e.g. 1e-308) should be used for one or both of the coordinates.
 
 ## Plots and Graphs Menu <a name="5_plot_menu"></a>
-From this menu, the user can select between choosing which graphs to plot or which channels to plot them for
+From this menu, the user can select between chlinearoosing which graphs to plot or which channels to plot them for
 
 ![Plots and Graphs menu](/images/interactive_snips/icm_5_plot_menu.PNG)
 
