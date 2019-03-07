@@ -67,3 +67,5 @@ To plot multiple sources of the same channel overlaid, go to the [Graph Selectio
 ![Animated xx overlay plot](/images/tutorial_xx_9.gif)
 
 ### Multiple Channel
+
+## Frame Rate
