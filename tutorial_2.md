@@ -24,7 +24,7 @@ Side-by-side visual comparisons of data are vulnerable to human error such as sa
 
 Return to the plotting options menu and from there select "set graphs to plot." 
 
-![Plotting Options menu](/images/interactive_snips/gicm_5_1_graphs_plot_menu.PNG)
+![Plotting Options menu](/images/interactive_snips/gicm_5_1_graph_plot_menu.PNG)
 
 This menu includes a number of options we will use for more advanced plots in a later tutorial.  For now, though, we want to select "Set wheher to plot model, scope or difference values"
 
