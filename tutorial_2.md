@@ -73,9 +73,18 @@ To instead plot multiple channels from the same source on the same plot, first r
 <img src="/images/tutorial_model_all_10.gif" width=280><img src="/images/tutorial_scope_all_10.gif" width=280><img src="/images/tutorial_diff_all_10.gif" width=280>\
 *As you can see, these plots can be very busy.  It would be more usual to only use a small number of channels at once.*
 
-If you want to experiment, you can try doing a multiple-channel, multiple-source plot.  It's not recommended, but you can see an example of what this would look like below.
-
-![Animated everything overlay plot](/images/tutorial_11.gif)\
-*As you can see, a plot with all channels and all sources overlaid would be ludicrous, with 21 animated lineplots.*
+If you want to experiment, you can try doing a multiple-channel, multiple-source plot.  It's not recommended, but you can see an example of what this would look like [at this link](/images/tutorial_11.gif)
 
 ## Frame Rate
+The default frame rate for animations is 60 fps.  This was selected to provide smooth imaging for broad trends, however it can make individual frames almost impossible to percieve.  Note that the frame rate is a target, and if there are rendering difficulties, the actual frame rate may be lower than that.
+
+Frame rates may be changed by the user.  From the main menu, go to "Animation/3D Options" and then from that menu select "Set Frame Rate."
+
+![Animation/3D Plotting menu](/images/interactive_snips/gicm_3_2_anim_frame_rate_menu.PNG)
+
+Set the frame rate to 1.  Then return to the main menu and plot with current options.  
+
+<img src="/images/tutorial_model_all_12.gif" width=280><img src="/images/tutorial_scope_all_12.gif" width=280><img src="/images/tutorial_diff_all_12.gif" width=280>\
+*The much slower frame rate enables the user to see fine details in the plots.*
+
+That's the end of this tutorial.  In [Tutorial 3](tutorial_3.md), we'll look at options regarding selecting specific frequencies to plot.
