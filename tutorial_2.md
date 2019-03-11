@@ -64,8 +64,18 @@ So far, all plots have been separate from one another.  This enables side-by-sid
 ### Multiple Source
 To plot multiple sources of the same channel overlaid, go to the [Graph Selection](#graph_select) menu and click on the toggle at the bottom to select to plot single channel plots overlaid.  Leaving other options alone, return to the main menu and plot with current options.  You should get the model, scope and difference plots from the last section now merged into a single plot as shown below.
 
-![Animated xx overlay plot](/images/tutorial_xx_9.gif)
+![Animated xx overlay plot](/images/tutorial_xx_9.gif)\
+*This plot shows all three channels for xx overlaid.  This enables direct comparisons*
 
 ### Multiple Channel
+To instead plot multiple channels from the same source on the same plot, first return to the [Graph Selection](#graph_select) menu and click on the toggle at the bottom to select to plot single channel plots separate.  Then, return to the [variable selection screen](#variables) and enable plotting of all of the channels by toggling the "plot all" button.  Still on the variable selection screen, use the button to toggle overlaid/separate plotting to "overlaid."
+
+<img src="/images/tutorial_model_all_10.gif" width=280><img src="/images/tutorial_scope_all_10.gif" width=280><img src="/images/tutorial_diff_all_10.gif" width=280>\
+*As you can see, these plots can be very busy.  It would be more usual to only use a small number of channels at once.*
+
+If you want to experiment, you can try doing a multiple-channel, multiple-source plot.  It's not recommended, but you can see an example of what this would look like below.
+
+![Animated everything overlay plot](/images/tutorial_11.gif)\
+*As you can see, a plot with all channels and all sources overlaid would be ludicrous, with 21 animated lineplots.*
 
 ## Frame Rate
