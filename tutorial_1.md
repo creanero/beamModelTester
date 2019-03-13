@@ -1,18 +1,18 @@
 # Tutorial 1: Basic plotting
 This tutorial will explain the basic steps to running beamModelTester by demonstrating a Sample Analysis of existing data.  **Ensure you have followed the installation instructions [in the README](/README.md#install) before starting this tutorial**
 
-## Acquire Data
+## Acquire Data<a name="acquire"></a>
 Save the [two files at this link](https://zenodo.org/record/1744987#.XAEbpdv7SUk) to your local file system.  
 You should find a CSV file containing the model of an observation from LOFAR station SE607 and
 a HDF5 file containing data extracted from an actual observation which took place on 16th March 2018.
 
-## Run the Script
+## Run the Script<a name="script"></a>
 Run the **rungui.sh** script to start the software in interactive GUI mode.  This will bring up the Main Menu.
 
 ![Main Menu](/images/interactive_snips/gicm_main_menu.PNG)\
 *This is the main menu.  From here, all subsequent parts of the system will be controlled.*
 
-## Select the input data
+## Select the input data<a name="input"></a>
 Go to "File Input/Output Options"
 
 ![File I/O Menu](/images/interactive_snips/gicm_6_FileIO_menu.PNG)\
@@ -24,14 +24,14 @@ and use "Set input scope file" to select the HDF5 file downloaded above as the o
 ![Select Model Menu](/images/interactive_snips/gicm_6_1_FileIO_model.PNG)![Select Scope File](/images/interactive_snips/gicm_6_2_1_FileIO_scope_select.PNG)
 *Excerpts from the process of selecting the input files.*
 
-## Plot with default options
+## Plot with default options<a name="default"></a>
 The default options are to plot the linear parameters (xx, xy and yy) for each of the model and observed data.  
 A total of six such images are shown, similar to the plots below
 
 <img src="/images/tutorial_model_xx_1.png" width=400><img src="/images/tutorial_scope_yy_1.png" width=400>\
 *The model image (left) shows the Hamaker-Arts model of the variation of CasA over a 24 hour observation period as observed through the xx channel reciever.  The actual observation through the yy channel (right) looks almost flat due to the presence of RFI orders of magnitude more intense than the target astronomical source.*
 
-## Cropping
+## Cropping<a name="cropping"></a>
 In order to remove RFI peaks, several approaches can be taken.  One simple approach is to crop the data to remove all data above a certain level.  In doing so, it becomes possible to see the features of the observed data.  
 
 ![Cropping menu](/images/interactive_snips/gicm_1_crop_menu.PNG)
@@ -54,7 +54,7 @@ Return to the main menu and select "plot with current options."  Plots similar t
 *The model image (left) remains much the same, but there is now definite structure to the observed data (right).  
 Notice the distribution in Frequency and the scale of the observation.  The Hamaker-Arts model is a normalised scale, while the observation is in instrumental units. As a result, some normalisation must be applied to the observation to make comparison meaningful.*
 
-## Normalisation
+## Normalisation<a name="normalisation"></a>
 The observation readings are many orders of magnitude higher, and in arbitrary instrumental units.  To compensate for this, both sets of data must be normalised to the same scale by normalising the scope data.
 
 First, go to the Normalisation menu
@@ -79,7 +79,7 @@ Once again, return to the main menu and select "plot with current options."  Plo
 <img src="/images/tutorial_model_xx_4.png" width=400><img src="/images/tutorial_scope_yy_4.png" width=400>\
 *Now the pairs of plots are suitable for comparison, as they are using the same scales.  Note the horizontal light-coloured bands in the observed data.  These are caused by subbands with either few data points remaining or residual RFI spikes.  We will look at frequency filtering in a later tutorial.*
 
-# Conclusion
+# Conclusion <a name="conclusion"></a>
 You should now know how to
 1.  Run beamModelTester in GUI mode
 2.  Select input files for model and scope data
