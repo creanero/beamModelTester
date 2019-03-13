@@ -68,7 +68,8 @@ git clone https://github.com/creaneroDIAS/beamModelTester
 A series of tutorials have been developed to enable a user to learn how to use the system
 
 [Tutorial 1: Basic Plots](/tutorial_1.md) \
-[Tutorial 2: Plotting Options](/tutorial_2.md) 
+[Tutorial 2: Plotting Options](/tutorial_2.md) \
+[Tutorial 3: Frequency Options](/tutorial_3.md) 
 
 ### Plotting software<a name="plotting"></a>
 This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
