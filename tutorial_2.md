@@ -58,16 +58,16 @@ Mapping time in the source data to time in the animation may be intuitively sati
 
 3-d contour plots are also available, but do not provide additional functionality above and beyond that which is used in the 3-d colour plots.  They can be selected from the menu above if you want to experiment with them
 
-## Overlaying
+## Overlaying <a name="Overlay"></a>
 So far, all plots have been separate from one another.  This enables side-by-side comparison, but it can limit the ability to perform direct comparisons.  Two types of overlaid comparisons are available: multiple source, where the three sources (model, scope and difference) for the same channel are plotted on a single axis, and multiple channel, where a given source for multiple channels (linear/Stokes) are plotted overlaid on a single graph.  It is not ususally recommended to plot graphs with multiple sources AND multiple graphs at the same time.
 
-### Multiple Source
+### Multiple Source<a name="multi-source"></a>
 To plot multiple sources of the same channel overlaid, go to the [Graph Selection](#graph_select) menu and click on the toggle at the bottom to select to plot single channel plots overlaid.  Leaving other options alone, return to the main menu and plot with current options.  You should get the model, scope and difference plots from the last section now merged into a single plot as shown below.
 
 ![Animated xx overlay plot](/images/tutorial_xx_9.gif)\
 *This plot shows all three channels for xx overlaid.  This enables direct comparisons*
 
-### Multiple Channel
+### Multiple Channel<a name="multi-channel"></a>
 To instead plot multiple channels from the same source on the same plot, first return to the [Graph Selection](#graph_select) menu and click on the toggle at the bottom to select to plot single channel plots separate.  Then, return to the [variable selection screen](#variables) and enable plotting of all of the channels by toggling the "plot all" button.  Still on the variable selection screen, use the button to toggle overlaid/separate plotting to "overlaid."
 
 <img src="/images/tutorial_model_all_10.gif" width=280><img src="/images/tutorial_scope_all_10.gif" width=280><img src="/images/tutorial_diff_all_10.gif" width=280>\
@@ -75,7 +75,7 @@ To instead plot multiple channels from the same source on the same plot, first r
 
 If you want to experiment, you can try doing a multiple-channel, multiple-source plot.  It's not recommended, but you can see an example of what this would look like [at this link](/images/tutorial_11.gif)
 
-## Frame Rate
+## Frame Rate<a name="frame_rate"></a>
 The default frame rate for animations is 60 fps.  This was selected to provide smooth imaging for broad trends, however it can make individual frames almost impossible to percieve.  Note that the frame rate is a target, and if there are rendering difficulties, the actual frame rate may be lower than that.
 
 Frame rates may be changed by the user.  From the main menu, go to "Animation/3D Options" and then from that menu select "Set Frame Rate."
