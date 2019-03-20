@@ -61,17 +61,17 @@ Return to the Alt-azimuth plotting options and then toggle splitting of looping 
 Return to the Alt-azimuth plotting options and then toggle Altitude and Azimuth plotting.  Return to the [channel selection menu](/tutorial_2.md#variables) and select to plot only Stokes Q.  Again, return to the main menu and plot with current options.
 
 
-<img src="/images/tutorial_5_4_1.png" width=400><img src="/images/tutorial_5_4_2.gif" width=400>\
+<img src="/images/tutorial_5_4_1.png" width=400><img src="/images/tutorial_5_4_2.png" width=400>\
 *Plots of linear polarisation (Stokes Q) against Azimuth.  Note the large flat areas in the middle of these plots where no corresponding observations are made.  This is because matplotlib naively plots azimuth as a non-wrapping variable between 0 and 360 degres.*
 
 Return to the Alt-azimuth plotting options and then toggle Azimuth to E/W plotting.  Again, plot with current options.
 
-<img src="/images/tutorial_5_5_1.png" width=400><img src="/images/tutorial_5_5_2.gif" width=400>\
+<img src="/images/tutorial_5_5_1.png" width=400><img src="/images/tutorial_5_5_2.png" width=400>\
 *Now the continuity between the Eastern and Western halves of the data on a given plot are clearly plotted.  Note, however, that the Northern half of the plot (left) still has far fewer datapoints than the Southern half.*
 
 ## Station Coordinates
 LOFAR Stations are not set up on a North/South axis, but rather each station is offset by a number of degrees.  This creates a "station coordinate" system which is offset from the horizontal coordinates by an equal amount.  To plot in this system, return to the Alt-azimuth plotting options and then toggle LOFAR Station Coordinates.  Plot the outputs as usual.
 
-<img src="/images/tutorial_5_6_1.png" width=400><img src="/images/tutorial_5_6_2.gif" width=400>
+<img src="/images/tutorial_5_6_1.png" width=400><img src="/images/tutorial_5_6_2.png" width=400>
 
 This is the end of this tutorial.  In Tutorial 6, we will look at making offsets and changes to the scale of the system.
