@@ -45,4 +45,6 @@ Return to the [cropping system](/tutorial_1.md#cropping) and go to the select dr
 With the frequencies filtered, it becomes much more practically possible to compare the observed data with the model and produce a difference between the two which is not dominated by RFI.  Return to the [Plotting Data Select Menu](/tutorial_2.md#plotting-differences) and plot the differences.
 
 ![Filtered Difference plot No Crop](/images/tutorial_3_4_1.png)\
+*This plot shows the difference between the real observation and the prediction.  Sidelobe contamination from other sources can be observed in this plot in the form of the parabola-shaped structures towards the top of the plot.*
 
+[Tutorial 4](/tutorial_4.md) will show the options for file output for beamModelTester.
