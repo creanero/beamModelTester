@@ -38,3 +38,21 @@ Next, click "By Name" to enter the name of a celestial source
 The data used in this observation is from Cassiopeia A, so enter CasA in the dialogue box, then click to confirm.
 
 If you wish to experiment, you can enter the coordinates manually using the "By Coordinates" option.  This is not recommended in use with LOFAR.
+
+## Plotting against Altitude
+Return to the main menu and select "Plotting Options" then "Set Graphs to Plot" as in [Tutorial 2](/tutorial_2.md).  From there, select "Set alt-azimuth plotting options"
+
+![Alt/Az Menu](/images/interactive_snips/gicm_5_1_2_graph_plot_alt_az_menu.PNG)
+
+Toggle Altitude plotting, then hit plot with current options.  Depending on whether you have contour plotting on or animated plots, you should see a plot like the ones below.
+
+<img src="/images/tutorial_5_1.png" width=400><img src="/images/tutorial_5_2.gif" width=400>\
+*The colourplot shows a distinctive vertical banding, the cause of which is revealed in the animated plot.  As the source (CasA) rotates about the sky, it will pass through altitude values twice, once in the East, and once in the West.  These must be separated to allow for clearer interpretation of the trends*
+
+## Splitting circular plots
+
+Return to the Alt-azimuth plotting options and then toggle splitting of looping plots.  Again, return to the main menu and plot with current options
+
+<img src="/images/tutorial_5_3_3.png" width=400><img src="/images/tutorial_5_3_1.gif" width=400>\
+<img src="/images/tutorial_5_3_4.png" width=400><img src="/images/tutorial_5_3_2.gif" width=400>\
+*The splitting of the plots separates out the trends between the eastern and western segments of the source's path about the celestial pole.*
