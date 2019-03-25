@@ -1,4 +1,5 @@
 # Figures of Merit
+beamModelTester is designed to compare models (such as the Hamaker model) with observations to allow for an assessment of the quality of the model.  Therefore, a figure of merit that can be calculated for the relationship between these is needed before a qualitative assessment of multiple models can meaningfully be made.  The two figures of merit used are Root Mean Squared Error and Pearson's Correlation.
 
 ## RMSE
 
