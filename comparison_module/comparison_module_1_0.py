@@ -250,11 +250,11 @@ Sets the parameters that will be plotted on the value and difference graphs.
     
     # adds an optional argument for the plots to show
     parser.add_argument("--plots", "-p", nargs="*",
-                        default=["spectra", "values"],
+                        default=["spectra", "model", "scope"],
                         choices=("rmse", "corr", "spectra", 
                                  "file",
                                  "alt", "az", "ew", "stn", "split",
-                                 "values", "model", "scope", "diff",
+                                 "model", "scope", "diff",
                                  "overlay"
                                  ),
                         help='''
@@ -269,7 +269,6 @@ az shows plots of value against azimuth
 ew means azimuth is plotted East/West (-180/+180) instead of absolute (0/360)
 stn means alt/az coordinates are calculated in the station reference frame
 split means dynamic plots of Alt-Az coordinates are split to avoid aliasing
-values means to plot both model and scope values
 model means to plot model values
 scope means to plot scope values
 diff shows plots of the differences in values of the channels 

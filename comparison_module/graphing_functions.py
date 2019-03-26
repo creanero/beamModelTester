@@ -700,14 +700,11 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
 def identify_plots(modes):
     sources = []
 
-    if "values" in modes["plots"]:
+
+    if "model" in modes["plots"]:
         sources.append("model")
+    if "scope" in modes["plots"]:
         sources.append("scope")
-    else:
-        if "model" in modes["plots"]:
-            sources.append("model")
-        if "scope" in modes["plots"]:
-            sources.append("scope")
     if "diff" in modes["plots"]:
         sources.append("diff")
 
