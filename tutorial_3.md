@@ -26,11 +26,11 @@ Go back to the Manual Frequency menu and select "Clear Frequency Selection" to p
 ## Select Frequencies by File
 Follow this [link to Zenodo](https://zenodo.org/record/2592487#.XIkyiIXLcUE) and download the file [SE607_HBA_trimmed_freqs.csv](https://zenodo.org/record/2592487/files/SE607_HBA_trimmed_freqs.csv?download=1).  This file will be used to select only clean frequencies.  The file consists of a number on each line corresponding to the a frequency to be plotted.  Now go to the Frequency Settings Menu again and this time select "Set Frequency by File" to bring up the "Frequency File Menu."
 
-![Frequency File Menu](/images/gicm_7_2_Freq_file_menu.PNG)
+![Frequency File Menu](/images/interactive_snips/gicm_7_2_Freq_file_menu.PNG)
 
 From there, go to "Select File" to bring up a dialogue box from which you can pick the file with the list of frequencies that you just downloaded.
 
-![Frequency File Select Menu](/images/gicm_7_2_1_Freq_file_select_menu.PNG)
+![Frequency File Select Menu](/images/interactive_snips/gicm_7_2_1_Freq_file_select_menu.PNG)
 
 Then return to the main menu again and plot the graphs.  
 
