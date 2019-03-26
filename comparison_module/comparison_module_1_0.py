@@ -251,7 +251,7 @@ Sets the parameters that will be plotted on the value and difference graphs.
     # adds an optional argument for the plots to show
     parser.add_argument("--plots", "-p", nargs="*",
                         default=["spectra", "model", "scope"],
-                        choices=("rmse", "corr", "spectra", 
+                        choices=("rmse", "corr", "spectra", "time",
                                  "file",
                                  "alt", "az", "ew", "stn", "split",
                                  "model", "scope", "diff",
@@ -263,6 +263,7 @@ rmse shows plots of RMSE (overall, per time and per freq as appropriate)
 corr shows plots of corrlation (overall, per time and per freq as appropriate)
 spectra shows plots of the spectrum of the channels (by frequency over time as 
 appropriate) 
+time sllows plots of the variation in a Figure of Merit over time
 file determines whether to output the dataframe to a file for later analyses
 alt shows plots of value against altitude
 az shows plots of value against azimuth

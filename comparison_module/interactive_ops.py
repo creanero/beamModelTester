@@ -1736,6 +1736,8 @@ def set_fom(modes):
         # checks whether correlation plots are currently requested
         corr_status="corr" in modes['plots']
   
+        # checks whether time plots are currently requested
+        time_status="time" in modes['time']
         
         # sets up the menu options for cli or gui use
         menu_title ="FIGURE OF MERIT SELECTION MENU"
@@ -1752,6 +1754,10 @@ def set_fom(modes):
         
         opt_name = {"option":"Toggle Pearson's Correlation Plotting.",
                   "status":(gen_plotting_boolean(corr_status))}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Toggle Time Plotting.",
+                  "status":(gen_plotting_boolean(time_status))}
         menu_list.append(opt_name)
         
 
@@ -1782,6 +1788,13 @@ def set_fom(modes):
                 modes['plots'].remove("corr")
             else:
                 modes['plots'].append("corr")
+                
+            
+        elif "3" == menu_choice:
+            if time_status:
+                modes['plots'].remove("time")
+            else:
+                modes['plots'].append("time")                
                         
             
         else:
