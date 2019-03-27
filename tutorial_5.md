@@ -74,4 +74,4 @@ LOFAR Stations are not set up on a North/South axis, but rather each station is 
 
 <img src="/images/tutorial_5_6_1.png" width=400><img src="/images/tutorial_5_6_2.png" width=400>
 
-This is the end of this tutorial.  In Tutorial 6, we will look at making offsets and changes to the scale of the system.
+This is the end of this tutorial.  In [Tutorial 6](/tutorial_6.md), we will look at figures of merit for the closeness of match between model and observation.

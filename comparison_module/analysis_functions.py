@@ -177,8 +177,8 @@ def analysis_nd(merge_df,modes, m_keys,sources):
             try:
                 ind_dfs[plot_item].to_csv(path_out_df)
             except IOError:
-                    if modes['verbose'] >=1:
-                        print("WARNING: Unable to output to file:\n\t"+path_out_df)
+                if modes['verbose'] >=1:
+                    print("WARNING: Unable to output to file:\n\t"+path_out_df)
     
 
     
@@ -197,13 +197,28 @@ def plot_fom_vs_ind(merge_df, m_keys, modes, fom):
         
     if "spectra" in modes["plots"]:
         ind_var.append("Freq")
+    
+    if "time" in modes["plots"]:
         ind_var.append("Time")
     
+    # checks to ensure altitude and azimuth variables are available
     if all(coord in merge_df for coord in ["alt","az","az_ew"]) :
+        # adds altitude if requested
         if "alt" in modes['plots']:
             ind_var.append(alt_var)
+            
+        # adds azimuth if requested
         if "az" in modes['plots']:
             ind_var.append(az_var)
+    
+    # if altitude and azimuth aren't available and are requested, returns a warning
+    elif any(var_name in modes['plots'] for var_name in ["alt","az"]):
+        if modes['verbose'] >=1:
+            print("WARNING: Alt/Az plotting selected but unavailable.")
+            
+    else: # if the altitude and azimuth are unavailable but not requested
+        pass # nothing to do
+    
     
     for ind in ind_var:        
         splits, names = split_df(merge_df, modes, ind)

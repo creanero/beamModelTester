@@ -700,14 +700,11 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
 def identify_plots(modes):
     sources = []
 
-    if "values" in modes["plots"]:
+
+    if "model" in modes["plots"]:
         sources.append("model")
+    if "scope" in modes["plots"]:
         sources.append("scope")
-    else:
-        if "model" in modes["plots"]:
-            sources.append("model")
-        if "scope" in modes["plots"]:
-            sources.append("scope")
     if "diff" in modes["plots"]:
         sources.append("diff")
 
@@ -845,8 +842,8 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     # iterates over all unique values
     for unique_val in unique_vals:
         # creates a dataframe with  only the elements that match the current
-        # unique value
-        unique_merge_df = in_df[in_df[var_str]==unique_val]
+        # unique value 
+        unique_merge_df = in_df[in_df[var_str]==unique_val].copy().reset_index(drop=True)
         # uses this unique value for and the 1-dimensional calc_fom_1d function
         # to calculate the Figure of merit for each channel
         n_fom = calc_fom_1d(unique_merge_df, m_keys, fom)
