@@ -1,6 +1,6 @@
 # Tutorial 2: Plotting Options
 
-In this tutorial, you will learn about the plotting options of beamModelTester.  If you have not completed [Tutorial 1](/tutorial_1.md) you should do so now.
+In this tutorial, you will learn about the plotting options of beamModelTester. Follow the previous tutorials such that you have the [data](/tutorial_1.md#input) loaded into memory, and apply [normalisation](/tutorial_1.md#normalisation) and [cropping](/tutorial_1.md#cropping).  Once you have this done, you are ready to start this tutorial.
 
 
 ## Select the variables<a name="variables"></a>
