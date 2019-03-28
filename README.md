@@ -69,7 +69,12 @@ A series of tutorials have been developed to enable a user to learn how to use t
 
 [Tutorial 1: Basic Plots](/tutorial_1.md) \
 [Tutorial 2: Plotting Options](/tutorial_2.md) \
-[Tutorial 3: Frequency Options](/tutorial_3.md) 
+[Tutorial 3: Frequency Options](/tutorial_3.md) \
+[Tutorial 4: File I/O](/tutorial_4.md) \
+[Tutorial 5: Location and Target](/tutorial_5.md) \
+[Tutorial 6: Figures of Merit](/tutorial_6.md) \
+[Tutorial 7: Offsets and Scaling](/tutorial_7.md) \
+[Tutorial 8: Visual Options](/tutorial_8.md) 
 
 ### Plotting software<a name="plotting"></a>
 This software operates in three modes: GUI interactive, Command Line interactive and Non-interactive mode.
