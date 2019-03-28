@@ -1799,9 +1799,15 @@ def set_fom(modes):
             if time_status:
                 modes['plots'].remove("time")
             else:
-                modes['plots'].append("time")                
-                        
-            
+                modes['plots'].append("time")
+
+        elif "4" == menu_choice:
+            if spectra_status:
+                modes['plots'].remove("spectra")
+            else:
+                modes['plots'].append("spectra")
+
+
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
