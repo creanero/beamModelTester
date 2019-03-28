@@ -58,7 +58,7 @@ Mapping time in the source data to time in the animation may be intuitively sati
 
 3-d contour plots are also available, but do not provide additional functionality above and beyond that which is used in the 3-d colour plots.  They can be selected from the menu above if you want to experiment with them
 
-## Overlaying <a name="Overlay"></a>
+## Overlaying <a name="overlay"></a>
 So far, all plots have been separate from one another.  This enables side-by-side comparison, but it can limit the ability to perform direct comparisons.  Two types of overlaid comparisons are available: multiple source, where the three sources (model, scope and difference) for the same channel are plotted on a single axis, and multiple channel, where a given source for multiple channels (linear/Stokes) are plotted overlaid on a single graph.  It is not ususally recommended to plot graphs with multiple sources AND multiple graphs at the same time.
 
 ### Multiple Source<a name="multi-source"></a>
