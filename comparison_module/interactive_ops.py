@@ -1738,7 +1738,10 @@ def set_fom(modes):
   
         # checks whether time plots are currently requested
         time_status="time" in modes['plots']
-        
+
+        # checks whether frequency plots are currently requested
+        spectra_status = "spectra" in modes['plots']
+
         # sets up the menu options for cli or gui use
         menu_title ="FIGURE OF MERIT SELECTION MENU"
          
@@ -1759,9 +1762,11 @@ def set_fom(modes):
         opt_name = {"option":"Toggle Time Plotting.",
                   "status":(gen_plotting_boolean(time_status))}
         menu_list.append(opt_name)
-        
 
-          
+        opt_name = {"option": "Toggle Frequency Plotting.",
+                    "status": (gen_plotting_boolean(spectra_status))}
+        menu_list.append(opt_name)
+
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
