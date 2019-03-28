@@ -2,9 +2,9 @@
 
 In this tutorial, you will add information about the target of the observation and the location from which it was observed to enable calculation of the horizontal sky coordinates (Alt/Az) of the target at each time in the observation, and thus allow for the variation of the target against Alt or Az to be plotted.
 
-[Follow](/tutorial_1.md) [the](/tutorial_2.md) [previous](/tutorial_3.md) [tutorials](/tutorial_4.md) such that you have the data loaded into memory, and create xx channel plots for the model, the scope and the difference with filtered frequencies, normalisation but no cropping.  Once you have this done, you are ready to start this tutorial.
+Follow the previous tutorials such that you have the [data](/tutorial_1.md#input) loaded into memory, and create [xx channel](/tutorial_2.md#variables) plots for the model, the scope and the [difference](/tutorial_2.md#differences) with [filtered frequencies](/tutorial_3.md#file), [normalisation](/tutorial_1.md#normalisation) but no [cropping](/tutorial_1.md#cropping).  Once you have this done, you are ready to start this tutorial.
 
-## Set Observing Location
+## Set Observing Location<a name="location"></a>
 
 From the main menu, select "Location/Target Options." 
 
@@ -24,7 +24,7 @@ If you wish to experiment, you can enter the coordinates manually using the "By 
 
 ![Location Coordinates Menu](/images/interactive_snips/gicm_4_1_2_coords_loc_coords_menu.PNG)
 
-## Set Target Coordinates
+## Set Target Coordinates<a name="target"></a>
 
 Return to the "Location/Target Options" menu.  From there, select "Set Target Coordinate Options."
 
@@ -39,7 +39,7 @@ The data used in this observation is from Cassiopeia A, so enter CasA in the dia
 
 If you wish to experiment, you can enter the coordinates manually using the "By Coordinates" option.  This is not recommended in use with LOFAR.
 
-## Plotting against Altitude
+## Plotting against Altitude<a name="alt"></a>
 Return to the main menu and select "Plotting Options" then "Set Graphs to Plot" as in [Tutorial 2](/tutorial_2.md).  From there, select "Set alt-azimuth plotting options"
 
 ![Alt/Az Menu](/images/interactive_snips/gicm_5_1_2_graph_plot_alt_az_menu.PNG)
@@ -49,7 +49,7 @@ Toggle Altitude plotting, then hit plot with current options.  Depending on whet
 <img src="/images/tutorial_5_1.png" width=400><img src="/images/tutorial_5_2.gif" width=400>\
 *The colourplot shows a distinctive vertical banding, the cause of which is revealed in the animated plot.  As the source (CasA) rotates about the sky, it will pass through altitude values twice, once in the East, and once in the West.  These must be separated to allow for clearer interpretation of the trends.  For shorter observations, this type of plot may be suitable*
 
-## Splitting circular plots
+## Splitting circular plots<a name="circular"></a>
 
 Return to the Alt-azimuth plotting options and then toggle splitting of looping plots.  Again, return to the main menu and plot with current options
 
@@ -57,7 +57,7 @@ Return to the Alt-azimuth plotting options and then toggle splitting of looping 
 <img src="/images/tutorial_5_3_4.png" width=400><img src="/images/tutorial_5_3_2.gif" width=400>\
 *The splitting of the plots separates out the trends between the eastern and western segments of the source's path about the celestial pole.*
 
-## Plotting against Azimuth
+## Plotting against Azimuth<a name="azimuth"></a>
 Return to the Alt-azimuth plotting options and then toggle Altitude and Azimuth plotting.  Return to the [channel selection menu](/tutorial_2.md#variables) and select to plot only Stokes Q.  Again, return to the main menu and plot with current options.
 
 
@@ -69,7 +69,7 @@ Return to the Alt-azimuth plotting options and then toggle Azimuth to E/W plotti
 <img src="/images/tutorial_5_5_1.png" width=400><img src="/images/tutorial_5_5_2.png" width=400>\
 *Now the continuity between the Eastern and Western halves of the data on a given plot are clearly plotted.  Note, however, that the Northern half of the plot (left) still has far fewer datapoints than the Southern half.*
 
-## Station Coordinates
+## Station Coordinates<a name="station"></a>
 LOFAR Stations are not set up on a North/South axis, but rather each station is offset by a number of degrees.  This creates a "station coordinate" system which is offset from the horizontal coordinates by an equal amount.  To plot in this system, return to the Alt-azimuth plotting options and then toggle LOFAR Station Coordinates.  Plot the outputs as usual.
 
 <img src="/images/tutorial_5_6_1.png" width=400><img src="/images/tutorial_5_6_2.png" width=400>
