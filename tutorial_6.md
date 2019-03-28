@@ -20,11 +20,20 @@ To isolate parts of the spectrum with better or worse performance in terms of de
 
 Alternatively, it is possible to toggle the plots such that the RMSE is plotted against time.  To do this, from the figure of merit menu, toggle off frequency plotting and toggle on time plotting.
 
-![RMSE by Time](/images/tutorial_6_1_2.png)\
+![RMSE by Time](/images/tutorial_6_1_3.png)\
 *the peaks and troughs in RMSE correspond strongly with the peaks and troughs in the data overall.  This suggests perhaps that RMSE is not as suited to this type of analysis*
 
 ## Pearson's Correlation<a name="corr"></a>
-Correlation is a dimensionless quantity that measures how much changes in one quantity are reflected in another. 
+Correlation is a dimensionless quantity that measures how much changes in one quantity are reflected in another. Return to the figure of merit menu and toggle correlation on and RMSE off.  Also toggle frequency plotting back on.  This will produce two plots and the text output as shown below
+
+![Overall Correlation](/images/tutorial_6_2_1.png)\
+*This shows the text output to the terminal with the correlation for the dataset as a whole.  Since this data is normalised to 1, this represents the fact that there is a 62.8% correlation between the model and observation.  This is a fairly strong correlation, but not a perfect one.  Note also that this data has been filtered to remove the most obvious RFI spikes.*
+
+![Correlation by Frequency](/images/tutorial_6_2_2.png)\
+*The Correlation shows a very flat distribution with respect to frequency. Note the scale of the graph carefully.  Note also taht the correlation at each frequency is higher than the overall correlation.  This indicates that the prediction of variation over time is consistently good over these frequencies.*
+
+![Correlation by Time](/images/tutorial_6_2_3.png)\
+*The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model.*
 
 ## Alt-Azimuth plots
 
