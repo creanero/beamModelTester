@@ -1,4 +1,4 @@
-# Tutorial 3: Frequency filtering<a name="frequencies"></a>
+# Tutorial 3: Frequency Filtering<a name="frequencies"></a>
 When using beamModelTester, it is often necessary to focus in on one or a small number of frequencies, or to remove certain frequencies whcih are known to have RFI noise sources.  To achieve this, one can use the frequency filtering options outlined below.  
 
 Follow the previous tutorials such that you have the [data](/tutorial_1.md#input) loaded into memory, and create [xx and yy channel](/tutorial_2.md#variables) plots for the model, the scope and the [difference](/tutorial_2.md#differences), and apply [normalisation](/tutorial_1.md#normalisation) and [cropping](/tutorial_1.md#cropping).  Once you have this done, you are ready to start this tutorial.
