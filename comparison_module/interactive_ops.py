@@ -1737,7 +1737,7 @@ def set_fom(modes):
         corr_status="corr" in modes['plots']
   
         # checks whether time plots are currently requested
-        time_status="time" in modes['time']
+        time_status="time" in modes['plots']
         
         # sets up the menu options for cli or gui use
         menu_title ="FIGURE OF MERIT SELECTION MENU"
