@@ -1,4 +1,4 @@
-# Tutorial 1: Basic plotting
+# Tutorial 1: Basic Plotting
 This tutorial will explain the basic steps to running beamModelTester by demonstrating a Sample Analysis of existing data.  **Ensure you have followed the installation instructions [in the README](/README.md#install) before starting this tutorial**
 
 ## Acquire Data<a name="acquire"></a>
