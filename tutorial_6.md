@@ -30,11 +30,13 @@ Correlation is a dimensionless quantity that measures how much changes in one qu
 *This shows the text output to the terminal with the correlation for the dataset as a whole.  Since this data is normalised to 1, this represents the fact that there is a 62.8% correlation between the model and observation.  This is a fairly strong correlation, but not a perfect one.  Note also that this data has been filtered to remove the most obvious RFI spikes.*
 
 ![Correlation by Frequency](/images/tutorial_6_2_2.png)\
-*The Correlation shows a very flat distribution with respect to frequency. Note the scale of the graph carefully.  Note also taht the correlation at each frequency is higher than the overall correlation.  This indicates that the prediction of variation over time is consistently good over these frequencies.*
+*The Correlation shows a very flat distribution with respect to frequency. Note the scale of the graph carefully.  Note also that the correlation at each frequency is higher than the overall correlation.  This indicates that the prediction of variation over time is consistently good over these frequencies.*
 
 ![Correlation by Time](/images/tutorial_6_2_3.png)\
-*The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model.*
+*The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model.  Since this is built *
 
 ## Alt-Azimuth plots
+
+If required, it is also possible to plot these figures of merit against altitude and azimuth. To do so, navigate to the [alt-azimuth menu](/tutorial_5.md#alt)
 
 This is the end of this tutorial.  In [Tutorial 7](/tutorial_7.md), we will look at making offsets and changes to the scale of the system.
