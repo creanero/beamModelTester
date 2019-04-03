@@ -33,7 +33,7 @@ Correlation is a dimensionless quantity that measures how much changes in one qu
 *The Correlation shows a very flat distribution with respect to frequency. Note the scale of the graph carefully.  Note also that the correlation at each frequency is higher than the overall correlation.  This indicates that the prediction of variation over time is consistently good over these frequencies.*
 
 ![Correlation by Time](/images/tutorial_6_2_3.png)\
-*The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model.  Since this is built *
+*The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model. This is expected from the original design which does not account for frequency at all.*
 
 ## Alt-Azimuth plots
 
