@@ -9,6 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
+import matplotlib.gridspec as grd
 
 import numpy as np
 from scipy.stats.stats import pearsonr
@@ -605,8 +606,11 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     if modes['colour'] in ["dark","matching_dark"]:
         ax.set_facecolor('black')
         fig.patch.set_facecolor('black')
-    
-    plt.subplot(211)
+
+    # create a 2 X 2 grid
+    gs = grd.GridSpec(2, 2, height_ratios=[1, 1], width_ratios=[20, 1], wspace=0.1)
+
+    plt.subplot(gs[0])
     upper_title=("Plot of "+gen_pretty_name(source)+
                  "\nfor "+gen_pretty_name(var_z)+" against "+
                  gen_pretty_name(var_x) + " and "+gen_pretty_name(var_y))
@@ -631,10 +635,11 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     if(modes["three_d"] in ["colour","color"]):
         try:
             # plots the channel in a colour based on its name
-            plt.tripcolor(plottable(in_df,var_x),
-                          plottable(in_df,var_y),
-                          plottable(in_df,(var_z+sep+source)),
-                          cmap=plt.get_cmap(colour_models(var_z+'_s')))
+            colours=plt.get_cmap(colour_models(var_z+'_s'))
+            p=plt.tripcolor(plottable(in_df,var_x),
+                            plottable(in_df,var_y),
+                            plottable(in_df,(var_z+sep+source)),
+                            cmap=colours)
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -657,9 +662,13 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     # plots axes
     plt.xticks([])
     plt.ylabel(gen_pretty_name(var_y, units=True), wrap=True)
-    # plt.colorbar()
 
-    plt.subplot(212)
+    # color bar in it's own axis
+    colorAx = plt.subplot(gs[1])
+    cb = plt.colorbar(p, cax=colorAx)
+    cb.set_label(source+" for "+var_z)
+
+    plt.subplot(gs[2])
 
     lower_title = ("Plot of "+gen_pretty_name(var_y2, plot_name)+" against "+\
                    gen_pretty_name(var_x))
