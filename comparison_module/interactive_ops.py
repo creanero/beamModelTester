@@ -2245,7 +2245,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all linear polarisations
     linear_button=tk.Button(root, text="Linear Polarisations (click to Toggle all)", 
                           command=lambda:close_and_value(root,var,'linear'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     linear_button.pack()
     
     
@@ -2276,7 +2276,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all Stokes Parameters
     stokes_button=tk.Button(root, text="Stokes Parameters (click to Toggle all)", 
                           command=lambda:close_and_value(root,var,'stokes'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     stokes_button.pack()
     
     # creates a button to toggle Stokes U Parameter
@@ -2306,7 +2306,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all Parameters
     all_button=tk.Button(root, text="Click to toggle all channels simultaneously", 
                           command=lambda:close_and_value(root,var,'all'),
-                          font=boldFont, padx=2,pady=2)
+                          font=boldFont)
     all_button.pack()
     
     overlay_text="Channels are currently plotted {0} one another".format(gen_overlay_boolean(each_status))
@@ -2317,7 +2317,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     overlay_button_text="Click to toggle to plotting {0} one another".format(gen_overlay_boolean(not each_status))
     overlay_button=tk.Button(root, text=overlay_button_text, 
                           command=lambda:close_and_value(root,var,'each'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     overlay_button.pack()
     
     
