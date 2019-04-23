@@ -35,8 +35,6 @@ Correlation is a dimensionless quantity that measures how much changes in one qu
 ![Correlation by Time](/images/tutorial_6_2_3.png)\
 *The correlation with time appears to be negative!  This indicates that the distribution of data across frequencies is poorly predicted by the Hamaker model. This is expected from the original design which does not account for frequency at all.*
 
-## Alt-Azimuth plots
-
-If required, it is also possible to plot these figures of merit against altitude and azimuth. To do so, navigate to the [alt-azimuth menu](/tutorial_5.md#alt)
+If required, it is also possible to plot these figures of merit against altitude and azimuth, but this does not produce significantly different plots to the Time plots, and these are not included here at this time.  You can experiment with those plots if you like.
 
 This is the end of this tutorial.  In [Tutorial 7](/tutorial_7.md), we will look at making offsets and changes to the scale of the system.
