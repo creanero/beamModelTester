@@ -2895,6 +2895,15 @@ def set_other_options(modes):
                     "status": gen_scale_percent(modes['scale'])}
         menu_list.append(opt_name)
 
+        opt_name = {"option": "Set Image Size"}
+        menu_list.append(opt_name)
+
+        opt_name = {"option": "Set Image Resolution"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option": "Set Colourschemes"}
+        menu_list.append(opt_name)
+        
         # Runs with GUI or CLI depending on mode.
         if modes['interactive'] == 3:
             menu_choice = gui_menu(menu_title=menu_title,
@@ -2941,6 +2950,15 @@ def set_other_options(modes):
 
             else:
                 modes['scale'].append("percent")
+                        
+        elif "6" == menu_choice:
+            set_in_coords(modes,"size")
+                        
+        elif "7" == menu_choice:
+            set_resolution(modes)
+                
+        elif "8" == menu_choice:
+            set_colourscheme(modes)
                
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
@@ -3305,6 +3323,10 @@ def set_in_coords(modes,coord_type=""):
         out_coords = modes['object_coords']
     elif coord_type == "location":
         out_coords=modes['location_coords']
+    elif coord_type == 'size':
+        out_coords = modes['image_size']
+    else:
+        out_coords = None
 
     warning=""
     menu_title = ""
@@ -3313,12 +3335,16 @@ def set_in_coords(modes,coord_type=""):
     coords = []
     status_prompt = ""
 
-    out_coords = None  # in case the conditions are missed
+    # out_coords = None  # in case the conditions are missed
 
     continue_option = True
 
-    while continue_option:
 
+
+    while continue_option:
+        # sets the menu variables that will operate the numerical entry system
+        
+        # sets them for the target object
         if coord_type == "object":
             menu_title = "Target Object Coordinate Entry Menu"
             # then location coordinates if specified
@@ -3334,7 +3360,8 @@ def set_in_coords(modes,coord_type=""):
 
             ns = 1
             ew = 0
-
+        
+        # sets them for the oberving location
         elif coord_type == "location":
             menu_title = "Observing Station Coordinate Entry Menu"
             # then location coordinates if specified
@@ -3351,30 +3378,53 @@ def set_in_coords(modes,coord_type=""):
             coords = ["Latitude", "Longitude", "Height"]
             ns = 0
             ew = 1
+        
+        # sets them for image size
+        elif coord_type == "size":
+            menu_title = "Output Image Size Selection Menu"
+            # then location coordinates if specified
+            status_prompt = "Current Image Size:"
+            menu_prompt = "Please enter the Image Size in inches"
+            if out_coords is None:
+                menu_status = "None Specified"
+            else:
+                menu_status = "\nHeight: {0}in Width: {1}in\n".format(
+                    out_coords[0],  # Height
+                    out_coords[1])  # Width
+            coords = ["Height", "Width"]
 
         else: # this shouldn't arise, but for safety
             warning = "Unknown menu"
 
-
+        # runs the entry system for lists of numbers with the variables that have been set
+        
+        # if the GUI mode is active, uses the GUI coordinates entry menu
         if modes['interactive'] == 3:
             l_coords = gui_coords(menu_title=menu_title, menu_status=menu_status, menu_prompt=menu_prompt,
                                   desc_text="", exit_prompt="", warning=warning, status_prompt=status_prompt,
                                   coord_names=coords)
+        # otherwise uses the text entry system
         else:
             l_coords = cli_coords(coords)
-
+            
+        # if the user has given the exit option
         if l_coords == 'exit':
             continue_option = False  # end the loop
-
+        
+        # if the user has ordered the coordinates to be cleared
         elif l_coords == 'clear':
             out_coords = None  # clears the output
 
-        else:
+        # if the coordinates are in degrees, checks that they're valid
+        elif coord_type in ["object", "location"]:
             coords_warning = check_coords(l_coords[ns],l_coords[ew],modes)
             if coords_warning:
                 out_coords = None
             else:
                 out_coords = l_coords
+        # otherwise just returns the value        
+        else:
+            out_coords = l_coords
 
     return (out_coords)
 
