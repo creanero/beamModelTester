@@ -2955,7 +2955,7 @@ def set_other_options(modes):
             set_in_coords(modes,"size")
                         
         elif "7" == menu_choice:
-            set_resolution(modes)
+            set_dpi(modes)
                 
         elif "8" == menu_choice:
             set_colourscheme(modes)
@@ -2994,7 +2994,36 @@ def set_offset(modes):
             continue_option=False
         else:
             modes["offset"]=str_offset
+
+def set_dpi(modes):
+    """
+    This function allows the user to set the number of seconds of offset that 
+    exists between the start time of the scope and model observations
+    """
+    continue_option=True
+    # menu_options=range(0,num_options)
     
+    while continue_option:
+        # sets up the menu options for cli or gui use
+        menu_title ="RESOLUTION MENU"
+        desc_text = """Resolution is the pixel scaling on the output image. It is measured in Dots Per Inch (DPI).
+        Not all devices will respect the assigned pixel scaling, but it allows a user to create an image optimised
+        for a particular resolution and size."""
+        menu_prompt = "Please Enter the resolution in DPI"
+        menu_status = str(modes['dpi'])
+        if modes['interactive']==3:
+            str_dpi = gui_entry(menu_title, menu_status, menu_prompt,
+                                     desc_text, exit_prompt="", out_type="float",
+                                     warning="", literal_zero=True)
+        else:
+            str_dpi = cli_entry(menu_title, menu_status, menu_prompt,
+                                     desc_text, exit_prompt="", out_type="float",
+                                     warning="", literal_zero=True)
+        if str_dpi == 'X':
+            continue_option=False
+        else:
+            modes["dpi"]=str_dpi
+        
 
 
 def set_title(modes):
