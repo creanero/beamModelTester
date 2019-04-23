@@ -416,7 +416,7 @@ Set the output resolution in DPI
     # creates a group for the colourscheme
     group_colour = parser.add_mutually_exclusive_group()    
     # adds an optional argument for the colourscheme
-    group_colour.add_argument("--colour", "-P", default=None,
+    group_colour.add_argument("--colour", "-P", default="light",
                         choices=("light", "dark", "matching", "matching_dark"),
                         help='''
 Chooses the colourscheme for the plots.

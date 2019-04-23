@@ -3086,7 +3086,7 @@ def set_diff(modes):
         opt_name = {"option":"Inverse Division (scope/model)"}
         menu_list.append(opt_name)
         
-              
+        # creates the current status from the modes entry     
         menu_status=gen_diff_name(modes["diff"])
         
         # Runs with GUI or CLI depending on mode.
@@ -3114,6 +3114,76 @@ def set_diff(modes):
         elif "3" == menu_choice:
             modes["diff"]="idiv"
                
+
+        else:
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
+
+
+
+def set_colourscheme(modes):
+    """
+    This function allows the user to determine the difference operation to be 
+    used when comparing model with scope.
+    """
+    menu_choice = "X"
+    continue_option=True
+    # menu_options=range(0,num_options)
+    
+    warning = ""
+    
+    while continue_option:
+
+        # sets up the menu options for cli or gui use
+        menu_title ="COLOURSCHEME MENU"
+         
+        # creates a list of menu items
+        menu_list = []
+                
+        # each menu item has an option title.
+        # status can be blank, a function or constant 
+        opt_name = {"option":"Light"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Dark"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Matching Light"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Matching Dark"}
+        menu_list.append(opt_name)        
+              
+        
+        # creates the current status from the modes entry     
+        menu_status=modes["colour"].replace("_"," ").capitalize()
+        
+        # Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice = gui_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
+
+        else:    
+            menu_choice = cli_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
+            
+        if "0" == menu_choice:
+            continue_option=False # finish the loop
+        
+        elif "1" == menu_choice:
+            modes["colour"]="light"
+            
+        elif "2" == menu_choice:
+            modes["colour"]="dark"
+                        
+        elif "3" == menu_choice:
+            modes["colour"]="matching_light"
+                        
+        elif "4" == menu_choice:
+            modes["colour"]="matching_dark"               
 
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
