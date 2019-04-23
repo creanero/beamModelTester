@@ -1,6 +1,10 @@
 # Visual Options
 
-## Plot Size
+## Plot Dimensions
+
+### Plot Size
+
+### Plot Resolution (DPI)
 
 ## Colourscheme
 
