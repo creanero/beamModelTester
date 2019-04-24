@@ -8,7 +8,7 @@ To this end, in addition to [the data you have previously used](https://zenodo.o
 
 Start the program as usual.  Now, instead of selecting a CSV file as the model and a HDF5 file as the "scope" or observation, we'll select the HDF5 file from SE607 as the model, and the HDF5 file from IE613 as the scope file.  If you try to plot the data, you'll get an error as shown below.
 
-[!Error with unmatched data](/images/tutorial_7_1.png)
+[Error with unmatched data](!/images/tutorial_7_1.png)
 
 From the filenames, it can be seen that the two observations started at 11:49:21 and 15:58:25 (both are in UTC by convention). The source data is recorded at a cadence of one data point every 519 seconds (see [iLiSA](https://github.com/2baOrNot2ba/iLiSA) for more information).  Therefore to apply the correct offset, it is necessary to first find out the difference in time between the start of the two observations.  This can be calculated to be 14,944 seconds.  By taking the modulus of this mumber by 519, it can be calculated that the offset between the datasets is 412 seconds.  Since this is more than half way through an observation window, it would be more correct to apply an offset in the other direction, i.e. an offset of (519-412) 107 seconds.  Note that the offset is applied by subtracting the specified amount from the time of the scope data so when using this for yourself, you may need to be careful about the sign of the offset chosen.  In this case, the offset will be positive.
 
