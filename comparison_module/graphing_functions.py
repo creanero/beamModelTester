@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
 import matplotlib.gridspec as grd
+from matplotlib.colors import SymLogNorm
 
 import numpy as np
 from scipy.stats.stats import pearsonr
@@ -79,10 +80,25 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
     if modes["three_d"] in ["colour","color"]:
         try:
             # plots the channel in a colour based on its name
-            plt.tripcolor(plottable(merge_df,var_x),
-                          plottable(merge_df,var_y),
-                          plottable(merge_df,var_z),
-                          cmap = colour_models(key+'_s'))
+            colours=plt.get_cmap(colour_models(key+'_s'))
+            if "log" in modes["scale"]:
+                maxz = np.max(plottable(merge_df, var_z))
+                minz = np.min(plottable(merge_df, var_z))
+                log_lim = 10
+
+                linthresh = max([abs(maxz), abs(minz)])/log_lim
+
+                norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+
+                p=plt.tripcolor(plottable(merge_df,var_x),
+                                plottable(merge_df,var_y),
+                                plottable(merge_df,var_z),
+                                cmap=colours,norm=norm)
+            else:
+                p=plt.tripcolor(plottable(merge_df,var_x),
+                                plottable(merge_df,var_y),
+                                plottable(merge_df,var_z),
+                                cmap=colours)
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -636,10 +652,24 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
         try:
             # plots the channel in a colour based on its name
             colours=plt.get_cmap(colour_models(var_z+'_s'))
-            p=plt.tripcolor(plottable(in_df,var_x),
-                            plottable(in_df,var_y),
-                            plottable(in_df,(var_z+sep+source)),
-                            cmap=colours)
+            if modes["scale"] == "log":
+                maxz = np.max(plottable(in_df, (var_z + sep + source)))
+                minz = np.min(plottable(in_df, (var_z + sep + source)))
+                log_lim = 10
+
+                linthresh = max([abs(maxz), abs(minz)])/log_lim
+
+                norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+
+                p=plt.tripcolor(plottable(in_df,var_x),
+                                plottable(in_df,var_y),
+                                plottable(in_df,(var_z+sep+source)),
+                                cmap=colours,norm=norm)
+            else:
+                p=plt.tripcolor(plottable(in_df,var_x),
+                                plottable(in_df,var_y),
+                                plottable(in_df,(var_z+sep+source)),
+                                cmap=colours)
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
