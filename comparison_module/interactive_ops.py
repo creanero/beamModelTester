@@ -2997,8 +2997,7 @@ def set_offset(modes):
 
 def set_dpi(modes):
     """
-    This function allows the user to set the number of seconds of offset that 
-    exists between the start time of the scope and model observations
+    This function allows the user to set resolution of the output images
     """
     continue_option=True
     # menu_options=range(0,num_options)
