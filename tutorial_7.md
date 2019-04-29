@@ -12,6 +12,20 @@ Start the program as usual.  Now, instead of selecting a CSV file as the model a
 
 From the filenames, it can be seen that the two observations started at 11:49:21 and 15:58:25 (both are in UTC by convention). The source data is recorded at a cadence of one data point every 519 seconds (see [iLiSA](https://github.com/2baOrNot2ba/iLiSA) for more information).  Therefore to apply the correct offset, it is necessary to first find out the difference in time between the start of the two observations.  This can be calculated to be 14,944 seconds.  By taking the modulus of this mumber by 519, it can be calculated that the offset between the datasets is 412 seconds.  Since this is more than half way through an observation window, it would be more correct to apply an offset in the other direction, i.e. an offset of (519-412) 107 seconds.  Note that the offset is applied by subtracting the specified amount from the time of the scope data so when using this for yourself, you may need to be careful about the sign of the offset chosen.  In this case, the offset will be positive.
 
+To apply this offset, go to the "Other Opions" menu and select "Set Offset" to bring up the offset menu
+
+![misc menu](/images/interactive_snips/gicm_8_misc_menu.PNG)
+
+From the offset menu, enter 107 and click to confirm.
+
+![Offset menu](/images/interactive_snips/gicm_8_1_misc_offset_menu.PNG)
+
+Then return to the main menu.  Using what you learned in previous tutorials, generate a plot of the [difference](/tutorial_2.md#differences) in [Stokes I](/tutorial_2.md#variables) between the IE613 (scope) and SE607 (model) observations using the [filtered frequency list](/tutorial_3.md#file) with both sets of data [normalised by frequency](/tutorial_1.md#normalisation).  You should end up with a plot like the one that can be seen below.
+
+![stokes I plot](/images/tutorial_7_2.png)
+
+
+
 ## Logarithmic Scales
 
 ## Percentage Scales
