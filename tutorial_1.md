@@ -87,5 +87,5 @@ You should now know how to
 4.  Crop the data to remove or reduce the impact of RFI peaks
 5.  Normalise the data such that both plots use the same scale.
 
-In our [next tutorial](/tutorial_2.md), we will select which variables and graphs to plot, as well as learn how to filter frequencies.
+In our [next tutorial](/tutorial_2.md), we will select which variables and graphs to plot, as well as learn how to manage animations.
 
