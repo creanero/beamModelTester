@@ -2878,10 +2878,10 @@ def set_other_options(modes):
         # each menu item has an option title.
         # status can be blank, a function or constant 
       
-        opt_name = {"option": "Set time offset between scope and frequency"}
+        opt_name = {"option": "Set time offset"}
         menu_list.append(opt_name)
         
-        opt_name = {"option": "Set graph and file title prefix"}
+        opt_name = {"option": "Set title prefix"}
         menu_list.append(opt_name)
         
         opt_name = {"option": "Set difference mode"}
