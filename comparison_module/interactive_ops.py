@@ -2952,7 +2952,7 @@ def set_other_options(modes):
                 modes['scale'].append("percent")
                         
         elif "6" == menu_choice:
-            set_in_coords(modes,"size")
+            modes["image_size"] = set_in_coords(modes,"size")
                         
         elif "7" == menu_choice:
             set_dpi(modes)
@@ -3486,10 +3486,10 @@ def set_in_coords(modes,coord_type=""):
             if out_coords is None:
                 menu_status = "None Specified"
             else:
-                menu_status = "\nHeight: {0}in Width: {1}in\n".format(
-                    out_coords[0],  # Height
-                    out_coords[1])  # Width
-            coords = ["Height", "Width"]
+                menu_status = "\nWidth: {0}in Height: {1}in\n".format(
+                    out_coords[0],  # Widtht
+                    out_coords[1])  # Heigh
+            coords = ["Width", "Height"]
 
         else: # this shouldn't arise, but for safety
             warning = "Unknown menu"
