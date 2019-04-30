@@ -1737,8 +1737,11 @@ def set_fom(modes):
         corr_status="corr" in modes['plots']
   
         # checks whether time plots are currently requested
-        time_status="time" in modes['time']
-        
+        time_status="time" in modes['plots']
+
+        # checks whether frequency plots are currently requested
+        spectra_status = "spectra" in modes['plots']
+
         # sets up the menu options for cli or gui use
         menu_title ="FIGURE OF MERIT SELECTION MENU"
          
@@ -1759,9 +1762,11 @@ def set_fom(modes):
         opt_name = {"option":"Toggle Time Plotting.",
                   "status":(gen_plotting_boolean(time_status))}
         menu_list.append(opt_name)
-        
 
-          
+        opt_name = {"option": "Toggle Frequency Plotting.",
+                    "status": (gen_plotting_boolean(spectra_status))}
+        menu_list.append(opt_name)
+
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
             menu_choice = gui_menu(menu_title=menu_title,
@@ -1794,9 +1799,15 @@ def set_fom(modes):
             if time_status:
                 modes['plots'].remove("time")
             else:
-                modes['plots'].append("time")                
-                        
-            
+                modes['plots'].append("time")
+
+        elif "4" == menu_choice:
+            if spectra_status:
+                modes['plots'].remove("spectra")
+            else:
+                modes['plots'].append("spectra")
+
+
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
@@ -2234,7 +2245,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all linear polarisations
     linear_button=tk.Button(root, text="Linear Polarisations (click to Toggle all)", 
                           command=lambda:close_and_value(root,var,'linear'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     linear_button.pack()
     
     
@@ -2265,7 +2276,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all Stokes Parameters
     stokes_button=tk.Button(root, text="Stokes Parameters (click to Toggle all)", 
                           command=lambda:close_and_value(root,var,'stokes'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     stokes_button.pack()
     
     # creates a button to toggle Stokes U Parameter
@@ -2295,7 +2306,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     # creates a button to toggle all Parameters
     all_button=tk.Button(root, text="Click to toggle all channels simultaneously", 
                           command=lambda:close_and_value(root,var,'all'),
-                          font=boldFont, padx=2,pady=2)
+                          font=boldFont)
     all_button.pack()
     
     overlay_text="Channels are currently plotted {0} one another".format(gen_overlay_boolean(each_status))
@@ -2306,7 +2317,7 @@ def gui_set_values(modes, dict_set, each_status, warning = ""):
     overlay_button_text="Click to toggle to plotting {0} one another".format(gen_overlay_boolean(not each_status))
     overlay_button=tk.Button(root, text=overlay_button_text, 
                           command=lambda:close_and_value(root,var,'each'),
-                          font=boldFont, padx=1,pady=1)
+                          font=boldFont)
     overlay_button.pack()
     
     
@@ -2867,10 +2878,10 @@ def set_other_options(modes):
         # each menu item has an option title.
         # status can be blank, a function or constant 
       
-        opt_name = {"option": "Set time offset between scope and frequency"}
+        opt_name = {"option": "Set time offset"}
         menu_list.append(opt_name)
         
-        opt_name = {"option": "Set graph and file title prefix"}
+        opt_name = {"option": "Set title prefix"}
         menu_list.append(opt_name)
         
         opt_name = {"option": "Set difference mode"}
@@ -2884,6 +2895,15 @@ def set_other_options(modes):
                     "status": gen_scale_percent(modes['scale'])}
         menu_list.append(opt_name)
 
+        opt_name = {"option": "Set Image Size"}
+        menu_list.append(opt_name)
+
+        opt_name = {"option": "Set Image Resolution"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option": "Set Colourschemes"}
+        menu_list.append(opt_name)
+        
         # Runs with GUI or CLI depending on mode.
         if modes['interactive'] == 3:
             menu_choice = gui_menu(menu_title=menu_title,
@@ -2930,6 +2950,15 @@ def set_other_options(modes):
 
             else:
                 modes['scale'].append("percent")
+                        
+        elif "6" == menu_choice:
+            modes["image_size"] = set_in_coords(modes,"size")
+                        
+        elif "7" == menu_choice:
+            set_dpi(modes)
+                
+        elif "8" == menu_choice:
+            set_colourscheme(modes)
                
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
@@ -2965,7 +2994,35 @@ def set_offset(modes):
             continue_option=False
         else:
             modes["offset"]=str_offset
+
+def set_dpi(modes):
+    """
+    This function allows the user to set resolution of the output images
+    """
+    continue_option=True
+    # menu_options=range(0,num_options)
     
+    while continue_option:
+        # sets up the menu options for cli or gui use
+        menu_title ="RESOLUTION MENU"
+        desc_text = """Resolution is the pixel scaling on the output image. It is measured in Dots Per Inch (DPI).
+        Not all devices will respect the assigned pixel scaling, but it allows a user to create an image optimised
+        for a particular resolution and size."""
+        menu_prompt = "Please Enter the resolution in DPI"
+        menu_status = str(modes['dpi'])
+        if modes['interactive']==3:
+            str_dpi = gui_entry(menu_title, menu_status, menu_prompt,
+                                     desc_text, exit_prompt="", out_type="float",
+                                     warning="", literal_zero=True)
+        else:
+            str_dpi = cli_entry(menu_title, menu_status, menu_prompt,
+                                     desc_text, exit_prompt="", out_type="float",
+                                     warning="", literal_zero=True)
+        if str_dpi == 'X':
+            continue_option=False
+        else:
+            modes["dpi"]=str_dpi
+        
 
 
 def set_title(modes):
@@ -3028,7 +3085,7 @@ def set_diff(modes):
         opt_name = {"option":"Inverse Division (scope/model)"}
         menu_list.append(opt_name)
         
-              
+        # creates the current status from the modes entry     
         menu_status=gen_diff_name(modes["diff"])
         
         # Runs with GUI or CLI depending on mode.
@@ -3056,6 +3113,76 @@ def set_diff(modes):
         elif "3" == menu_choice:
             modes["diff"]="idiv"
                
+
+        else:
+            warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
+
+
+
+def set_colourscheme(modes):
+    """
+    This function allows the user to determine the difference operation to be 
+    used when comparing model with scope.
+    """
+    menu_choice = "X"
+    continue_option=True
+    # menu_options=range(0,num_options)
+    
+    warning = ""
+    
+    while continue_option:
+
+        # sets up the menu options for cli or gui use
+        menu_title ="COLOURSCHEME MENU"
+         
+        # creates a list of menu items
+        menu_list = []
+                
+        # each menu item has an option title.
+        # status can be blank, a function or constant 
+        opt_name = {"option":"Light"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Dark"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Matching Light"}
+        menu_list.append(opt_name)
+        
+        opt_name = {"option":"Matching Dark"}
+        menu_list.append(opt_name)        
+              
+        
+        # creates the current status from the modes entry     
+        menu_status=modes["colour"].replace("_"," ").capitalize()
+        
+        # Runs with GUI or CLI depending on mode.
+        if modes['interactive']==3:
+            menu_choice = gui_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)
+
+        else:    
+            menu_choice = cli_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning = warning)  
+            
+        if "0" == menu_choice:
+            continue_option=False # finish the loop
+        
+        elif "1" == menu_choice:
+            modes["colour"]="light"
+            
+        elif "2" == menu_choice:
+            modes["colour"]="dark"
+                        
+        elif "3" == menu_choice:
+            modes["colour"]="matching"
+                        
+        elif "4" == menu_choice:
+            modes["colour"]="matching_dark"               
 
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
@@ -3294,6 +3421,10 @@ def set_in_coords(modes,coord_type=""):
         out_coords = modes['object_coords']
     elif coord_type == "location":
         out_coords=modes['location_coords']
+    elif coord_type == 'size':
+        out_coords = modes['image_size']
+    else:
+        out_coords = None
 
     warning=""
     menu_title = ""
@@ -3302,12 +3433,16 @@ def set_in_coords(modes,coord_type=""):
     coords = []
     status_prompt = ""
 
-    out_coords = None  # in case the conditions are missed
+    # out_coords = None  # in case the conditions are missed
 
     continue_option = True
 
-    while continue_option:
 
+
+    while continue_option:
+        # sets the menu variables that will operate the numerical entry system
+        
+        # sets them for the target object
         if coord_type == "object":
             menu_title = "Target Object Coordinate Entry Menu"
             # then location coordinates if specified
@@ -3323,7 +3458,8 @@ def set_in_coords(modes,coord_type=""):
 
             ns = 1
             ew = 0
-
+        
+        # sets them for the oberving location
         elif coord_type == "location":
             menu_title = "Observing Station Coordinate Entry Menu"
             # then location coordinates if specified
@@ -3340,30 +3476,53 @@ def set_in_coords(modes,coord_type=""):
             coords = ["Latitude", "Longitude", "Height"]
             ns = 0
             ew = 1
+        
+        # sets them for image size
+        elif coord_type == "size":
+            menu_title = "Output Image Size Selection Menu"
+            # then location coordinates if specified
+            status_prompt = "Current Image Size:"
+            menu_prompt = "Please enter the Image Size in inches"
+            if out_coords is None:
+                menu_status = "None Specified"
+            else:
+                menu_status = "\nWidth: {0}in Height: {1}in\n".format(
+                    out_coords[0],  # Widtht
+                    out_coords[1])  # Heigh
+            coords = ["Width", "Height"]
 
         else: # this shouldn't arise, but for safety
             warning = "Unknown menu"
 
-
+        # runs the entry system for lists of numbers with the variables that have been set
+        
+        # if the GUI mode is active, uses the GUI coordinates entry menu
         if modes['interactive'] == 3:
             l_coords = gui_coords(menu_title=menu_title, menu_status=menu_status, menu_prompt=menu_prompt,
                                   desc_text="", exit_prompt="", warning=warning, status_prompt=status_prompt,
                                   coord_names=coords)
+        # otherwise uses the text entry system
         else:
             l_coords = cli_coords(coords)
-
+            
+        # if the user has given the exit option
         if l_coords == 'exit':
             continue_option = False  # end the loop
-
+        
+        # if the user has ordered the coordinates to be cleared
         elif l_coords == 'clear':
             out_coords = None  # clears the output
 
-        else:
+        # if the coordinates are in degrees, checks that they're valid
+        elif coord_type in ["object", "location"]:
             coords_warning = check_coords(l_coords[ns],l_coords[ew],modes)
             if coords_warning:
                 out_coords = None
             else:
                 out_coords = l_coords
+        # otherwise just returns the value        
+        else:
+            out_coords = l_coords
 
     return (out_coords)
 

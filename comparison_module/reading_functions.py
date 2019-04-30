@@ -235,7 +235,10 @@ def merge_crop_test(model_df, scope_df, modes):
             # then changes the time value based on the offset
             offset=np.timedelta64(modes['offset'],'s')
             scope_df.Time=scope_df.original_Time-offset
-  
+        else:
+            # then changes the time value based on the offset
+            offset=np.timedelta64(modes['offset'],'s')
+            scope_df.Time=scope_df.original_Time-offset
     if "none" not in model_df and "none" not in scope_df:
         # merges the dataframes
         merge_df=merge_dfs(model_df, scope_df, modes)

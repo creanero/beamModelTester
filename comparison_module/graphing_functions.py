@@ -9,6 +9,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
+import matplotlib.gridspec as grd
+from matplotlib.colors import SymLogNorm
+from matplotlib.colors import LogNorm
 
 import numpy as np
 from scipy.stats.stats import pearsonr
@@ -75,24 +78,48 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
     var_z = (key+sep+source)
 
+    # plots the channel in a colour based on its name
+    colours = plt.get_cmap(colour_models(key + '_s'))
+
     if modes["three_d"] in ["colour","color"]:
         try:
-            # plots the channel in a colour based on its name
-            plt.tripcolor(plottable(merge_df,var_x),
-                          plottable(merge_df,var_y),
-                          plottable(merge_df,var_z),
-                          cmap = colour_models(key+'_s'))
+            x_vals = plottable(merge_df, var_x)
+            y_vals = plottable(merge_df, var_y)
+
+            if "percent" in modes["scale"]:
+                z_vals = plottable(merge_df, var_z)*100
+            else:
+                z_vals = plottable(merge_df, var_z)
+
+            if "log" in modes["scale"]:
+                maxz = np.max(z_vals)
+                minz = np.min(z_vals)
+
+                # if the values go below zero, then plot with symmetric log, otherwise use log plotting
+                if minz <=0:
+                    log_lim = 10
+                    linthresh = max([abs(maxz), abs(minz)])/log_lim
+                    norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                else:
+                    norm = LogNorm()
+
+                p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours, norm=norm)
+            else:
+                p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours)
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
     elif modes["three_d"] in ["contour"]:
         try:
-
             cols = np.unique(merge_df[var_y]).shape[0]
-            X = np.array(merge_df[var_x]).reshape(-1, cols)
-            Y = np.array(merge_df[var_y]).reshape(-1, cols)
-            Z = np.array(merge_df[var_z]).reshape(-1, cols)
-            plt.contour(X, Y, Z)
+            x_vals = np.array(merge_df[var_x]).reshape(-1, cols)
+            y_vals = np.array(merge_df[var_y]).reshape(-1, cols)
+            if "percent" in modes["scale"]:
+                z_vals = np.array(merge_df[var_z]).reshape(-1, cols)
+            else:
+                z_vals = np.array(merge_df[var_z]).reshape(-1, cols)*100
+
+            plt.contour(x_vals, y_vals, z_vals, cmap=colours)
         except:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d contour plot.  Possible alternatives: colour/animated plots")
@@ -106,7 +133,11 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
         plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
 
     plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
-    plt.colorbar()
+
+    if "percent" in modes["scale"]:
+        plt.colorbar(format='%.3g%%')
+    else:
+        plt.colorbar()
     
     plt.tight_layout
     
@@ -605,8 +636,11 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     if modes['colour'] in ["dark","matching_dark"]:
         ax.set_facecolor('black')
         fig.patch.set_facecolor('black')
-    
-    plt.subplot(211)
+
+    # create a 2 X 2 grid
+    gs = grd.GridSpec(2, 2, height_ratios=[1, 1], width_ratios=[20, 1], wspace=0.1)
+
+    plt.subplot(gs[0])
     upper_title=("Plot of "+gen_pretty_name(source)+
                  "\nfor "+gen_pretty_name(var_z)+" against "+
                  gen_pretty_name(var_x) + " and "+gen_pretty_name(var_y))
@@ -627,14 +661,34 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
 #    except RuntimeError:
 #        if  modes['verbose'] >=1:
 #            print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: animated plots")
+    # plots the channel in a colour based on its name
+    colours = plt.get_cmap(colour_models(var_z + '_s'))
 
     if(modes["three_d"] in ["colour","color"]):
         try:
-            # plots the channel in a colour based on its name
-            plt.tripcolor(plottable(in_df,var_x),
-                          plottable(in_df,var_y),
-                          plottable(in_df,(var_z+sep+source)),
-                          cmap=plt.get_cmap(colour_models(var_z+'_s')))
+            x_vals = plottable(in_df, var_x)
+            y_vals = plottable(in_df, var_y)
+            if "percent" in modes["scale"]:
+                z_vals = plottable(in_df, var_z)*100
+            else:
+                z_vals = plottable(in_df, var_z)
+
+            if modes["scale"] == "log":
+                # finds the limits of the z variable
+                maxz = np.max(z_vals)
+                minz = np.min(z_vals)
+
+                # if the values go below zero, then plot with symmetric log, otherwise use log plotting
+                if minz <=0:
+                    log_lim = 10
+                    linthresh = max([abs(maxz), abs(minz)])/log_lim
+                    norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                else:
+                    norm = LogNorm()
+
+                p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours, norm=norm)
+            else:
+                p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours)
         except RuntimeError:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d colour plot.  Possible alternatives: contour/animated plots")
@@ -642,10 +696,13 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
         try:
 
             cols = np.unique(in_df[var_y]).shape[0]
-            X = np.array(in_df[var_x]).reshape(-1, cols)
-            Y = np.array(in_df[var_y]).reshape(-1, cols)
-            Z = np.array(in_df[(var_z+sep+source)]).reshape(-1, cols)
-            plt.contour(X, Y, Z)
+            x_vals = np.array(in_df[var_x]).reshape(-1, cols)
+            y_vals = np.array(in_df[var_y]).reshape(-1, cols)
+            if "percent" in modes["scale"]:
+                z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)*100
+            else:
+                z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)
+            plt.contour(x_vals, y_vals, z_vals, cmap= colours)
         except:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d contour plot.  Possible alternatives: colour/animated plots")
@@ -657,9 +714,18 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     # plots axes
     plt.xticks([])
     plt.ylabel(gen_pretty_name(var_y, units=True), wrap=True)
-    # plt.colorbar()
 
-    plt.subplot(212)
+    # color bar in it's own axis
+    colorAx = plt.subplot(gs[1])
+
+    if "percent" in modes["scale"]:
+        cb = plt.colorbar(p, cax=colorAx, format='%.3g%%')
+    else:
+        cb = plt.colorbar(p, cax=colorAx)
+
+    cb.set_label(source+" for "+var_z)
+
+    plt.subplot(gs[2])
 
     lower_title = ("Plot of "+gen_pretty_name(var_y2, plot_name)+" against "+\
                    gen_pretty_name(var_x))
