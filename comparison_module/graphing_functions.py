@@ -11,6 +11,7 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.ticker as mtick
 import matplotlib.gridspec as grd
 from matplotlib.colors import SymLogNorm
+from matplotlib.colors import LogNorm
 
 import numpy as np
 from scipy.stats.stats import pearsonr
@@ -91,13 +92,16 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
                 z_vals = plottable(merge_df, var_z)
 
             if "log" in modes["scale"]:
-                maxz = np.max(plottable(merge_df, var_z))
-                minz = np.min(plottable(merge_df, var_z))
-                log_lim = 10
+                maxz = np.max(z_vals)
+                minz = np.min(z_vals)
 
-                linthresh = max([abs(maxz), abs(minz)])/log_lim
-
-                norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                # if the values go below zero, then plot with symmetric log, otherwise use log plotting
+                if minz <=0:
+                    log_lim = 10
+                    linthresh = max([abs(maxz), abs(minz)])/log_lim
+                    norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                else:
+                    norm = LogNorm()
 
                 p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours, norm=norm)
             else:
@@ -670,13 +674,17 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
                 z_vals = plottable(in_df, var_z)
 
             if modes["scale"] == "log":
-                maxz = np.max(plottable(in_df, (var_z + sep + source)))
-                minz = np.min(plottable(in_df, (var_z + sep + source)))
-                log_lim = 10
+                # finds the limits of the z variable
+                maxz = np.max(z_vals)
+                minz = np.min(z_vals)
 
-                linthresh = max([abs(maxz), abs(minz)])/log_lim
-
-                norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                # if the values go below zero, then plot with symmetric log, otherwise use log plotting
+                if minz <=0:
+                    log_lim = 10
+                    linthresh = max([abs(maxz), abs(minz)])/log_lim
+                    norm = SymLogNorm(linthresh, linscale=1.0, vmin=minz, vmax=maxz, clip=False)
+                else:
+                    norm = LogNorm()
 
                 p=plt.tripcolor(x_vals, y_vals, z_vals, cmap=colours, norm=norm)
             else:

@@ -3179,7 +3179,7 @@ def set_colourscheme(modes):
             modes["colour"]="dark"
                         
         elif "3" == menu_choice:
-            modes["colour"]="matching_light"
+            modes["colour"]="matching"
                         
         elif "4" == menu_choice:
             modes["colour"]="matching_dark"               
