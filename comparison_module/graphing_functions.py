@@ -88,6 +88,9 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
             if "percent" in modes["scale"]:
                 z_vals = plottable(merge_df, var_z)*100
+                if var_z == "I":
+                    z_vals = z_vals/2.0
+
             else:
                 z_vals = plottable(merge_df, var_z)
 
@@ -115,9 +118,12 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             x_vals = np.array(merge_df[var_x]).reshape(-1, cols)
             y_vals = np.array(merge_df[var_y]).reshape(-1, cols)
             if "percent" in modes["scale"]:
-                z_vals = np.array(merge_df[var_z]).reshape(-1, cols)
-            else:
                 z_vals = np.array(merge_df[var_z]).reshape(-1, cols)*100
+                if var_z == "I":
+                    z_vals = z_vals/2.0
+
+            else:
+                z_vals = np.array(merge_df[var_z]).reshape(-1, cols)
 
             plt.contour(x_vals, y_vals, z_vals, cmap=colours)
         except:
@@ -135,9 +141,15 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
     plt.ylabel(gen_pretty_name(var_y,units=True), wrap=True)
 
     if "percent" in modes["scale"]:
-        plt.colorbar(format='%.3g%%')
+        cb = plt.colorbar(format='%.3g%%')
     else:
-        plt.colorbar()
+        cb = plt.colorbar()
+
+
+    # Generates the CB title
+    line_name = gen_pretty_name(source) + " of " + key
+
+    cb.set_label(line_name)
     
     plt.tight_layout
     
@@ -164,7 +176,7 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
         plt.close()
 
 
-def animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay):
+def animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay, plot_name=None):
     """
     This function takes a merged dataframe as an argument and plots a graph of
     each of the various values for the model and the scope against time.
@@ -175,13 +187,13 @@ def animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay):
 
 
     if "overlay" in modes['plots']:
-        animated_plot(merge_df, modes, var_x, m_keys, t_var, sources, time_delay)
+        animated_plot(merge_df, modes, var_x, m_keys, t_var, sources, time_delay, plot_name=plot_name)
     else:
         for source in sources:
-            animated_plot(merge_df, modes, var_x, m_keys, t_var, [source], time_delay)
+            animated_plot(merge_df, modes, var_x, m_keys, t_var, [source], time_delay, plot_name=plot_name)
     return(0)
 
-def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20):
+def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20, plot_name=None):
     """
     Produces an animated linegraph(s) with the X, Y and T variables specified
     """
@@ -274,8 +286,15 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
+                if var_y == "I":
+                    var_y_vals = var_y_vals/2.0
 
-            line, = ax.plot(var_x_vals, var_y_vals,
+
+            # Generates the line title
+            line_name = gen_pretty_name(source) + " of " + var_y
+
+            # plots the line
+            line, = ax.plot(var_x_vals, var_y_vals, label= line_name,
                             color=colour_models(var_y+sep+source))
             lines.append(line)
 
@@ -333,7 +352,8 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20)
         plot_name = var_x+"_over_"+var_t
         plt_file = prep_out_file(modes, source=str_sources,
                                  plot=plot_name, dims="nd",
-                                 channel=str_channel, out_type=modes['image_type'])
+                                 channel=str_channel, out_type=modes['image_type'],
+                                 plot_name=plot_name)
 
         try:
             anim[len(anim)-1].save(plt_file, dpi=80, writer='pillow',
@@ -405,6 +425,9 @@ def update_a(i, merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
+                if var_y == "I":
+                    var_y_vals = var_y_vals/2.0
+
 
             line_index = (y_index * no_sources) + source_index
             lines[line_index].set_data(var_x_vals, var_y_vals)
@@ -485,7 +508,7 @@ def plots_1f(merge_df, m_keys, modes,var_str,sources):
 def plot_1f(merge_df, m_keys, modes, sources,var_str):
     #creates an overlaid plot of how the sources
     #varies for each of the channels against var_str
-    title = "Plot of "
+    title = modes["title"] + "\nPlot of "
     for source in sources:
         title = add_key(title, sources, source)
     title = title+" for "
@@ -541,10 +564,16 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
+                if key == "I":
+                    var_y_vals = var_y_vals/2.0
+
+
+            # Generates the line title
+            line_name = gen_pretty_name(source) + " of " + key
 
             ax.plot(plottable(merge_df, var_str),
                     var_y_vals,
-                    label=key+sep+source,
+                    label=line_name,
                     color=colour_models(key+sep+source))
 
     ax.set_title(title, wrap=True)
@@ -668,12 +697,21 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
         try:
             x_vals = plottable(in_df, var_x)
             y_vals = plottable(in_df, var_y)
-            if "percent" in modes["scale"]:
-                z_vals = plottable(in_df, var_z)*100
-            else:
-                z_vals = plottable(in_df, var_z)
 
-            if modes["scale"] == "log":
+            # gets the z column name
+            z_col_name = var_z + sep + source
+
+            # and cleans it up
+            if "percent" in modes["scale"]:
+                z_vals = plottable(in_df, z_col_name)*100
+                if var_z == "I":
+                    z_vals = z_vals/2.0
+
+            else:
+                z_vals = plottable(in_df, z_col_name)
+
+
+            if "log" in modes["scale"]:
                 # finds the limits of the z variable
                 maxz = np.max(z_vals)
                 minz = np.min(z_vals)
@@ -700,16 +738,19 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
             y_vals = np.array(in_df[var_y]).reshape(-1, cols)
             if "percent" in modes["scale"]:
                 z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)*100
+                if var_z == "I":
+                    z_vals = z_vals/2.0
+
             else:
                 z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)
-            plt.contour(x_vals, y_vals, z_vals, cmap= colours)
+            plt.contour(x_vals, y_vals, z_vals, cmap=colours)
         except:
             if  modes['verbose'] >=1:
                 print("ERROR: Data not suitable for 3d contour plot.  Possible alternatives: colour/animated plots")
 
     # TODO: fix percentile plotting limits
-    plt.clim(np.percentile(plottable(in_df,(var_z+sep+source)),5),
-             np.percentile(plottable(in_df,(var_z+sep+source)),95))
+    plt.clim(np.percentile(z_vals,5),
+             np.percentile(z_vals,95))
 
     # plots axes
     plt.xticks([])
@@ -723,7 +764,10 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     else:
         cb = plt.colorbar(p, cax=colorAx)
 
-    cb.set_label(source+" for "+var_z)
+    # Generates the CB title
+    line_name = gen_pretty_name(source) + " of " + var_z
+
+    cb.set_label(line_name)
 
     plt.subplot(gs[2])
 
@@ -734,11 +778,15 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
     # plots the scattergraph
     plt.plot(plottable(in_df,var_x),
              plottable(in_df,var_y2),
+             label = gen_pretty_name(var_y2),
              color=colour_models(var_y2), marker=".", linestyle="None")
 
     plt.xlabel(gen_pretty_name(var_x, units=True), wrap=True)
     plt.ylabel(gen_pretty_name(var_y2, units=True), wrap=True)
     plt.legend(frameon=False)
+
+    # fixes the layout
+    plt.tight_layout()
 
     # prints or saves the plot
     if modes['out_dir'] == None:
@@ -891,7 +939,6 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     in current versions, useable values for fom are "rmse" and "corr"
     """
 
-    print("probe: ", modes['colour'])
     if modes['verbose'] >=2:
         print ("Calculating the "+gen_pretty_name(fom)+
                " between observed and model data.")
@@ -957,9 +1004,12 @@ def calc_fom_nd(in_df, var_str, m_keys, modes,fom="rmse"):
     graph_title = "\n".join([modes['title'],"Plot of the "+gen_pretty_name(fom)+\
             " in "])
     for key in m_keys:
+        # Generates the line title
+        line_name = gen_pretty_name(fom) + " of " + key
+
         plt.plot(plottable(unique_vals, var_str),
                  n_foms[m_keys.index(key)],
-                 label=key+'_'+fom,
+                 label=line_name,
                  color=colour_models(key))
 
         graph_title = add_key(graph_title, m_keys, key)
@@ -1084,8 +1134,14 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
 
                 for key in m_keys:
                     for j in range(1,len(x_plots[i])):
-                        four_var_plot(x_plots[i][j], modes, x_plots[i][0], "Freq", key,
-                                      y_plots[i], source, names[i][j])
+                        four_var_plot(in_df=x_plots[i][j],
+                                      modes=modes,
+                                      var_x=x_plots[i][0],
+                                      var_y="Freq",
+                                      var_z=key,
+                                      var_y2=y_plots[i],
+                                      source=source,
+                                      plot_name=names[i][j])
                         counter = counter +1
 
 
@@ -1107,7 +1163,7 @@ def plot_altaz_values_nf(merge_df, m_keys, modes, sources):
                 t_var = 'Freq'
 
             for j in range(1,len(x_plots[i])):
-                animated_plots(x_plots[i][j], modes, var_x, m_keys, t_var, sources, time_delay)
+                animated_plots(x_plots[i][j], modes, var_x, m_keys, t_var, sources, time_delay, plot_name=names[i][j])
 #            elif modes['three_d']=="anim":
 #
 ##                if "alt" in modes['plots']:

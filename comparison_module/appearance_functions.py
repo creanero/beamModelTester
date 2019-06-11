@@ -62,7 +62,7 @@ def gen_pretty_name(key,units=False):
     elif key =='model':
         pretty_name = 'Model value'
     elif key =='diff':
-        pretty_name = 'Difference between Observed and Model values'            
+        pretty_name = 'Difference value'
 
     elif key =='rmse':
         pretty_name = 'Root Mean Square Error'    
