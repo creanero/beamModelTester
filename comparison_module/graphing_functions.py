@@ -187,13 +187,13 @@ def animated_plots(merge_df, modes, var_x, m_keys, t_var, sources, time_delay, p
 
 
     if "overlay" in modes['plots']:
-        animated_plot(merge_df, modes, var_x, m_keys, t_var, sources, time_delay, plot_name=plot_name)
+        animated_plot(merge_df, modes, var_x, m_keys, t_var, sources, time_delay, side_name=plot_name)
     else:
         for source in sources:
-            animated_plot(merge_df, modes, var_x, m_keys, t_var, [source], time_delay, plot_name=plot_name)
+            animated_plot(merge_df, modes, var_x, m_keys, t_var, [source], time_delay, side_name=plot_name)
     return(0)
 
-def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20, plot_name=None):
+def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20, side_name=None):
     """
     Produces an animated linegraph(s) with the X, Y and T variables specified
     """
@@ -353,7 +353,7 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20,
         plt_file = prep_out_file(modes, source=str_sources,
                                  plot=plot_name, dims="nd",
                                  channel=str_channel, out_type=modes['image_type'],
-                                 plot_name=plot_name)
+                                 plot_name=side_name)
 
         try:
             anim[len(anim)-1].save(plt_file, dpi=80, writer='pillow',
