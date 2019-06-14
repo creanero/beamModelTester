@@ -1182,7 +1182,8 @@ def set_norm_options(modes):
         opt_name = {"option":"Set Normalisation Data (Model/Scope)"}
         menu_list.append(opt_name)
         
-
+        opt_name = {"option":"Set Normalisation Type (Max/Fit)"}
+        menu_list.append(opt_name)
       
         # Runs with GUI or CLI depending on mode.
         if modes['interactive']==3:
@@ -1205,7 +1206,8 @@ def set_norm_options(modes):
         elif "2" == menu_choice:
             set_norm_data(modes)
                         
- 
+        elif "3" == menu_choice:
+            set_norm_type(modes)
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
 
@@ -1336,6 +1338,61 @@ def set_norm_data(modes):
             
         else:
             warning = "Input: '"+str(menu_choice)+"' not valid or not implemented."
+
+
+def set_norm_type(modes):
+    """
+    This function modifies the normalisation data options in the modes
+    """
+    menu_choice = "X"
+    continue_option = True
+
+    warning = ""
+
+    while continue_option:
+
+        # sets up the menu options for cli or gui use
+        menu_title = "NORMALISATION OPERATION MENU"
+
+        # creates a list of menu items
+        menu_list = []
+
+        # each menu item has an option title.
+        # status can be blank, a function or constant
+        opt_name = {"option": "Normalise by dividing by maximum"}
+        menu_list.append(opt_name)
+
+        opt_name = {"option": "Normalise by least squares fitting"}
+        menu_list.append(opt_name)
+
+
+        menu_status = gen_type_name(modes["norm_type"])
+
+        # Runs with GUI or CLI depending on mode.
+        if modes['interactive'] == 3:
+            menu_choice = gui_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning=warning)
+
+        else:
+            menu_choice = cli_menu(menu_title=menu_title,
+                                   menu_list=menu_list,
+                                   menu_status=menu_status,
+                                   warning=warning)
+
+        if '0' == menu_choice:
+            continue_option = False  # finish the loop
+
+        elif menu_choice in ['1']:
+            modes["norm_type"] = 'max'
+
+        elif menu_choice in ['2']:
+            modes["norm_type"] = 'fit'
+
+        else:
+            warning = "Input: '" + str(menu_choice) + "' not valid or not implemented."
+
 
 def set_3d_options(modes):
     """
@@ -3694,6 +3751,18 @@ def gen_source_name(abbreviation):
     else:
         print("Warning: Unknown source name used!")
     return (source_name)
+
+
+def gen_type_name(abbreviation):
+    source_name = ""
+    if "max"==abbreviation:
+        source_name="Dividing by Maximum"
+    elif "fit"==abbreviation:
+        source_name="Fitting by Least Squares"
+    else:
+        print("Warning: Unknown source name used!")
+    return (source_name)
+
 
 def gen_three_d_name(abbreviation):
     three_d_name=""
