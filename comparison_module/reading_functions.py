@@ -203,7 +203,11 @@ def crop_and_norm(in_df,modes,origin):
     origin_options.append(origin)
     
     out_df=in_df.copy()
-    
+
+    if modes['norm_type'] == "fit":
+        if modes['verbose'] >=1:
+            print("ERROR: Fit type normalisation not available with input data.  Continuing with max-type normalisation")
+
     if any (c in modes['crop_data'] for c in origin_options):
         #always crops zero values, may crop high values depending on user input
         out_df = crop_vals(out_df,modes)
@@ -229,18 +233,20 @@ def merge_crop_test(model_df, scope_df, modes):
     """
     if "none" not in scope_df:        
         # adjusts for the offset if needed (e.g. comparing two observations)
-        # creates a backup of the time
+        # creates a backup of the time if no backup exists already
         if "original_Time" not in scope_df.columns.values:
             scope_df["original_Time"]=scope_df.Time.copy()
-            # then changes the time value based on the offset
-            offset=np.timedelta64(modes['offset'],'s')
-            scope_df.Time=scope_df.original_Time-offset
-        else:
-            # then changes the time value based on the offset
-            offset=np.timedelta64(modes['offset'],'s')
-            scope_df.Time=scope_df.original_Time-offset
+
+        # turns the time offset into a timedelta64 datatype suitable for use in time calculations
+        offset=np.timedelta64(modes['offset'],'s')
+
+        # then changes the time value based on the offset from the original time
+        scope_df.Time=scope_df.original_Time-offset
+
+
+    # if both dataframes are valid
     if "none" not in model_df and "none" not in scope_df:
-        # merges the dataframes
+        # merges the dataframes (includes crop and normalisation operations)
         merge_df=merge_dfs(model_df, scope_df, modes)
         
         # identifies the sources required
@@ -250,18 +256,27 @@ def merge_crop_test(model_df, scope_df, modes):
     elif "none" in model_df and "none" not in scope_df:
         merge_df=crop_and_norm(scope_df,modes,"s")
         sources = [""]  # sets the source to blank as there are no differentiators
+
+    # if only the model is valid
     elif "none" not in model_df and "none" in scope_df:
         merge_df=crop_and_norm(model_df,modes,"m")
-        sources = [""]
-    else: #Both blank
+        sources = [""]  # sets the source to blank as there are no differentiators
+
+    # if neither are valid
+    else: # Both blank
         if modes['verbose'] >=1:
             print("ERROR: No data available in either file")
-        if modes['interactive']<=1: #in low interactivity modes
+
+        # in low interactivity modes, quits
+        if modes['interactive']<=1:
             sys.exit(1)
+
+        # in high interactivity modes, will be able to create new data later
         else:
+            # creates a quasi-blank dataframe for the purposes of other functions
             merge_df=pd.DataFrame(data={"none":[]})
             sources=[""]
-            #in high interactivity modes, will be able to create new data later
+
     return(merge_df, sources)
     
     
@@ -279,22 +294,31 @@ def merge_dfs(model_df,scope_df,modes):
     if modes['verbose'] >=2:
         print("Merging data from scope and source")
         
-        
-    #crops and normalises the scope and model data if needed
-    scope_df_clean=crop_and_norm(scope_df,modes,"s")
-    model_df_clean=crop_and_norm(model_df,modes,"m")
+    # crops and normalises the scope and model data if needed
+    # if the normalisation option is maximum -based normalisation
+    if modes['norm_type'] == "max":
+        scope_df_clean = crop_and_norm(scope_df, modes, "s")
+        model_df_clean = crop_and_norm(model_df, modes, "m")
+    # if the fitting method is to be tried
+    elif modes['norm_type'] == "fit":
+        scope_df_clean = fit_normalisation(model_df, scope_df, modes)
+        model_df_clean = model_df
+    else:
+        if modes['verbose'] >=1:
+            print("ERROR: Normalisation incorrectly specified")
+
     
     
-    #merges the two datagrames using time and frequency
+    # merges the two datagrames using time and frequency
     merge_df=pd.merge(model_df_clean,scope_df_clean,on=('Time','Freq'),
                       suffixes=('_model','_scope'))
     if len(merge_df) > 0:
-        #calculates differences between model and scope values for each channel
+        # calculates differences between model and scope values for each channel
         for channel in ["xx","xy","yy","U","V","I","Q"]:
             calc_diff(merge_df, modes, channel)
         if 'd_Time' not in merge_df:
-            #creates a variable to hold the time since the start of the plot
-            #this is necessary for plots that are not compatible with Timestamp data
+            # creates a variable to hold the time since the start of the plot
+            # this is necessary for plots that are not compatible with Timestamp data
             start_time=min(merge_df['Time'])
             merge_df['d_Time']=(merge_df.Time-start_time)/np.timedelta64(1,'s')
     else:
@@ -411,39 +435,46 @@ def calc_stokes(in_df,modes={'verbose':2},sources=[""]):
     return (out_df)
 
 
-def normalise_data(merge_df,modes,channel,out_str=""):
+def normalise_data(in_df,modes,channel,out_str=""):
     '''
     This function normalises the data for the scope according to the 
     normalisation mode specified.  These options are detailed belwo
     '''
     if modes['verbose'] >=2:
         print("Normalising data")
-    if 'o' in modes['norm'] :
-        if modes['verbose'] >=2:
-            print("Normalisation basis: Overall")
-        #normalises by dividing by the maximum
-        merge_df[channel+out_str]=merge_df[channel]/np.max((plottable(merge_df[channel])))
-    elif 'f' in modes['norm']:
-        if modes['verbose'] >=2:
-            print("Normalisation basis: Frequency")
-        #normalises by dividing by the maximum for each frequency
-        var_str='Freq'
-        norm_operation(merge_df, var_str,channel,modes,out_str)
-    elif 't' in modes['norm']:
-        if modes['verbose'] >=2:
-            print("Normalisation basis: time")
-        #normalises by dividing by the maximum for each frequency
-        var_str='Time'
-        norm_operation(merge_df, var_str,channel,modes,out_str)
+
+    if any(norm in modes['norm'] for norm in ['o', 'f', 't']):
+        if 'o' in modes['norm'] :
+            if modes['verbose'] >=2:
+                print("Normalisation basis: Overall")
+            # normalises by dividing by the maximum for each frequency
+            var_str='all'
+
+        elif 'f' in modes['norm']:
+            if modes['verbose'] >=2:
+                print("Normalisation basis: Frequency")
+            # normalises by dividing by the maximum for each frequency
+            var_str='Freq'
+
+        elif 't' in modes['norm']:
+            if modes['verbose'] >=2:
+                print("Normalisation basis: time")
+            # normalises by dividing by the maximum for each frequency
+            var_str='Time'
+
+        # runs the operation
+        norm_operation(in_df, var_str, channel, modes, out_str)
+
     elif 'n' in modes ['norm']:
         if modes['verbose'] >=2:
             print("Normalisation basis: None")
-        pass     #nothing to be done       
+        pass     # nothing to be done
     else:
         if modes['verbose'] >=1:
             print("WARNING: Normalisation mode not specified correctly!")
- 
-    return (merge_df)
+
+    return (in_df)
+
 
 def norm_operation(in_df, var_str,channel,modes,out_str=""):
     '''
@@ -451,21 +482,132 @@ def norm_operation(in_df, var_str,channel,modes,out_str=""):
     which specifies which variable to normalise over.  
     '''
 
-    if modes['verbose'] >=2:
+    if modes['verbose'] >= 2:
         print("Carrying out normalisation")
-    #identifies allthe unique values of the variable in the column
-    unique_vals=in_df[var_str].unique()
-    
 
-    #iterates over all unique values
+    if var_str == "all":
+        # normalises by dividing by the maximum
+        in_df[channel+out_str]=in_df[channel]/np.max((plottable(in_df[channel])))
+
+    else:
+        # identifies all the unique values of the variable in the column
+        unique_vals=in_df[var_str].unique()
+
+
+        # iterates over all unique values
+        for unique_val in unique_vals:
+
+            unique_max = np.max(plottable(in_df.loc[(in_df[var_str] == unique_val),channel]))
+
+            if unique_max !=0:
+                in_df.loc[(in_df[var_str] == unique_val), (channel+out_str)] = in_df.loc[(in_df[var_str] == unique_val),
+                                                                                         channel]/unique_max
+            else:
+                in_df.loc[(in_df[var_str] == unique_val), (channel+out_str)] = 0
+
+def fit_normalisation (model_df, scope_df, modes={'verbose':2}):
+    '''
+    Function based on one from Tobia Carozzi.  Function creates suitable variables for use with linplusconstfac and
+    returns an updated scope dataframe
+
+    :param model_df:
+    :param scope_df:
+    :param modes:
+    :return:
+    '''
+
+    scope_df_clean = scope_df.copy()
+
+    if any(norm in modes['norm'] for norm in ['o', 'f', 't']):
+        if 'o' in modes['norm']:
+            if modes['verbose'] >= 2:
+                print("Normalisation basis: Overall")
+            # normalises by fitting for each frequency
+            var_str = 'all'
+        elif 'f' in modes['norm']:
+            if modes['verbose'] >= 2:
+                print("Normalisation basis: Frequency")
+            # normalises by fitting for each frequency
+            var_str = 'Freq'
+        elif 't' in modes['norm']:
+            if modes['verbose'] >= 2:
+                print("Normalisation basis: time")
+            # normalises by fitting for each frequency
+            var_str = 'Time'
+
+    if var_str == "all":
+        unique_vals = [1]
+
+    else:
+        # identifies all the unique values of the variable in the column
+        unique_vals = scope_df[var_str].unique()
+
     for unique_val in unique_vals:
+        for channel in ["xx", "xy", "yy"]:
+            if var_str == "all":
+                channel_model = model_df[channel]
+                channel_scope = scope_df[channel]
+            else:
+                channel_model = model_df.loc[(model_df[var_str] == unique_val), channel]
+                channel_scope = scope_df.loc[(scope_df[var_str] == unique_val), channel]
 
-        unique_max = np.max(plottable(in_df.loc[(in_df[var_str]==unique_val),channel]))
+            # Compute normalization factors
+            (channel_normfac, channel_const) = linplusconstfac(channel_model, channel_scope, modes)
 
-        if unique_max !=0:
-            in_df.loc[(in_df[var_str]==unique_val),(channel+out_str)]=in_df.loc[(in_df[var_str]==unique_val),channel]/unique_max
-        else:
-            in_df.loc[(in_df[var_str]==unique_val),(channel+out_str)]=0
+            # compute new value after normalisation
+            if channel in ['xx', 'yy']:
+                channel_scope = channel_normfac * channel_scope + channel_const
+            elif channel in ['xy']:
+                channel_scope = np.exp(1j * 0.0) * channel_normfac * channel_scope + channel_const
+            else:
+                pass  # it shouldn't get here, but if it does, do nothing to the data.
+
+            # if it's all to be done at once
+            if var_str == 'all':
+                scope_df_clean[channel] = channel_scope
+            else:  # otherwise only changes that bit
+                scope_df_clean.loc[(scope_df_clean[var_str] == unique_val), channel] = channel_scope
+
+
+    return(scope_df_clean)
+
+
+def linplusconstfac(reffunc, unfunc, modes={'verbose':2}):
+    '''
+    Function by Tobia Carozzi
+    Takes a reference array and an unnormalised array and returns a linear scaling factor and a constant to fit the
+    two functions that the arrays represent to one another.
+
+    :param reffunc:
+    :param unfunc:
+    :param modes:
+    :return:
+    '''
+
+    # old code from Tobia.  Think not used
+    # normfac = np.vdot(unfunc,reffunc)/np.vdot(unfunc,unfunc)
+
+    # gets the correct shape
+    beta = np.array([unfunc,np.ones(unfunc.shape)])
+
+    if modes['verbose'] >= 2:
+        print (reffunc.shape)
+        print (unfunc.shape)
+
+    # finds the coefficients
+    coefs = np.dot(np.transpose(np.conjugate(np.linalg.pinv(beta))),reffunc)
+
+    if modes['verbose'] >= 2:
+        print (coefs.shape)
+
+    (linc, const) = coefs
+
+    if modes['verbose'] >= 2:
+        print "Using coefs:{}*e^(i{})*f+{}=ref".format(np.abs(linc),np.angle(linc),const)
+
+    return (linc, const)
+
+
 
 def calc_diff(merge_df, modes, channel):
     '''

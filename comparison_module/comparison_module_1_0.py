@@ -152,7 +152,7 @@ file types will save animations, and others will save frames.  Default is png.
     # adds an optional argument for normalisation method
     parser.add_argument("--norm", "-n", default='o',
                         choices=('o', "f", "n",'t'),
-                             help='''
+                        help='''
 Method for normalising the data 
 o = overall (divide by maximum for all data)
 f = frequency (divide by maximum by frequency/subband)
@@ -162,13 +162,22 @@ n = no normalisation.
     # adds an optional argument for normalisation target
     parser.add_argument("--norm_data", "-N", default="b",
                         choices=("s", "m", "n", "b"),
-                             help='''
+                        help='''
 Target data for applying the normalisation to
 s = scope
 m = model
 n = no cropping
 b = normalise both
-                             ''')       
+                             ''')
+
+    # adds an optional parameter for normalisation type
+    parser.add_argument("--norm_type", "-T", default="max",
+                        choices=("max","fit"),
+                        help='''
+Type of normalisation operation. 
+max = divide by maximum
+fit = attempt to fit two lines (only available with model and scope data)                        
+                        ''')
 ###############################################################################
 # Cropping options
 ###############################################################################
@@ -441,6 +450,7 @@ Chooses the colorscheme for the plots, translated int US English.
     modes['interactive']=args.interactive    
     modes['norm']=args.norm
     modes['norm_data']=args.norm_data
+    modes['norm_type']=args.norm_type
     modes['crop_data']=args.crop_data
     modes['crop_type']=args.crop_type
     modes['crop_basis']=args.crop_basis
