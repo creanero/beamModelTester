@@ -536,7 +536,7 @@ def fit_normalisation (model_df, scope_df, modes={'verbose':2}):
             var_str = 'Time'
 
     if var_str == "all":
-        unique_vals = [1]
+        unique_vals = [1] # Allows the same loop to handle both overall and unique value cases
 
     else:
         # identifies all the unique values of the variable in the column
@@ -545,8 +545,9 @@ def fit_normalisation (model_df, scope_df, modes={'verbose':2}):
     for unique_val in unique_vals:
         for channel in ["xx", "xy", "yy"]:
             if var_str == "all":
-                channel_model = model_df[channel]
-                channel_scope = scope_df[channel]
+                # finds the elements of the model and scope dfs that match
+                channel_model = model_df.loc[(model_df["Freq"].isin(scope_df["Freq"])), channel]
+                channel_scope = scope_df.loc[(scope_df["Freq"].isin(model_df["Freq"])), channel]
             else:
                 channel_model = model_df.loc[(model_df[var_str] == unique_val), channel]
                 channel_scope = scope_df.loc[(scope_df[var_str] == unique_val), channel]
