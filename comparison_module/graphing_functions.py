@@ -93,7 +93,7 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             else:
                 z_vals = plottable(merge_df, var_z)
 
-            if var_z == "I":
+            if key == "I":
                 z_vals = z_vals/2.0
 
             if "log" in modes["scale"]:
@@ -125,7 +125,7 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             else:
                 z_vals = np.array(merge_df[var_z]).reshape(-1, cols)
 
-            if var_z == "I":
+            if key == "I":
                 z_vals = z_vals/2.0
 
             plt.contour(x_vals, y_vals, z_vals, cmap=colours)
