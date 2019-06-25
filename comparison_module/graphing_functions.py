@@ -88,11 +88,13 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
 
             if "percent" in modes["scale"]:
                 z_vals = plottable(merge_df, var_z)*100
-                if var_z == "I":
-                    z_vals = z_vals/2.0
+
 
             else:
                 z_vals = plottable(merge_df, var_z)
+
+            if var_z == "I":
+                z_vals = z_vals/2.0
 
             if "log" in modes["scale"]:
                 maxz = np.max(z_vals)
@@ -119,11 +121,12 @@ def plot_3d_graph(merge_df, key, modes, source, var_x, var_y):
             y_vals = np.array(merge_df[var_y]).reshape(-1, cols)
             if "percent" in modes["scale"]:
                 z_vals = np.array(merge_df[var_z]).reshape(-1, cols)*100
-                if var_z == "I":
-                    z_vals = z_vals/2.0
 
             else:
                 z_vals = np.array(merge_df[var_z]).reshape(-1, cols)
+
+            if var_z == "I":
+                z_vals = z_vals/2.0
 
             plt.contour(x_vals, y_vals, z_vals, cmap=colours)
         except:
@@ -286,9 +289,9 @@ def animated_plot(merge_df, modes, var_x, var_ys, var_t, sources, time_delay=20,
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
-                if var_y == "I":
-                    var_y_vals = var_y_vals/2.0
 
+            if var_y == "I":
+                var_y_vals = var_y_vals/2.0
 
             # Generates the line title
             line_name = gen_pretty_name(source) + " of " + var_y
@@ -425,8 +428,8 @@ def update_a(i, merge_df, modes, var_x, var_ys, var_t, sources,lines,ax):
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
-                if var_y == "I":
-                    var_y_vals = var_y_vals/2.0
+            if var_y == "I":
+                var_y_vals = var_y_vals/2.0
 
 
             line_index = (y_index * no_sources) + source_index
@@ -564,8 +567,8 @@ def plot_1f(merge_df, m_keys, modes, sources,var_str):
             # sets the y axis scale to percentage if requested.
             if 'percent' in modes['scale']:
                 var_y_vals = var_y_vals*100
-                if key == "I":
-                    var_y_vals = var_y_vals/2.0
+            if key == "I":
+                var_y_vals = var_y_vals/2.0
 
 
             # Generates the line title
@@ -704,12 +707,12 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
             # and cleans it up
             if "percent" in modes["scale"]:
                 z_vals = plottable(in_df, z_col_name)*100
-                if var_z == "I":
-                    z_vals = z_vals/2.0
 
             else:
                 z_vals = plottable(in_df, z_col_name)
 
+            if var_z == "I":
+                z_vals = z_vals/2.0
 
             if "log" in modes["scale"]:
                 # finds the limits of the z variable
@@ -738,11 +741,12 @@ def four_var_plot(in_df,modes,var_x,var_y,var_z,var_y2,source, plot_name=""):
             y_vals = np.array(in_df[var_y]).reshape(-1, cols)
             if "percent" in modes["scale"]:
                 z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)*100
-                if var_z == "I":
-                    z_vals = z_vals/2.0
-
             else:
                 z_vals = np.array(in_df[(var_z + sep + source)]).reshape(-1, cols)
+
+            if var_z == "I":
+                z_vals = z_vals / 2.0
+
             plt.contour(x_vals, y_vals, z_vals, cmap=colours)
         except:
             if  modes['verbose'] >=1:
