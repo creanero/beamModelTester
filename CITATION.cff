@@ -1,0 +1,16 @@
+cff-version: 1.1.0
+message: "Please cite the following works when using this software: https://ui.adsabs.harvard.edu/abs/2019ascl.soft05006C"
+authors:
+- family-names: Creaner
+  given-names: Oisin
+title: "beamModelTester: Model evaluation for fixed antenna phased array radio telescopes"
+version: PLACEHOLDER
+date-released: PLACEHOLDER
+identifiers:
+ - type: "ascl-id"
+   value: "1905.006"
+ - type: "doi"
+   value: PLACEHOLDER
+ - type: "bibcode"
+   value: "2019ascl.soft05006C"
+abstract: "beamModelTester enables evaluation of models of the variation in sensitivity and apparent polarization of fixed antenna phased array radio telescopes. The sensitivity of such instruments varies with respect to the orientation of the source to the antenna, resulting in variation in sensitivity over altitude and azimuth that is not consistent with respect to frequency due to other geometric effects. In addition, the different relative orientation of orthogonal pairs of linear antennae produces a difference in sensitivity between the antennae, leading to an artificial apparent polarization. Comparing the model with observations made using the given telescope makes it possible evaluate the model's performance; the results of this evaluation can provide a figure of merit for the model and guide improvements to it. This system also enables plotting of results from a single station observation on a variety of parameters."
